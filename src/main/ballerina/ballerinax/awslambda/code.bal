@@ -74,7 +74,7 @@ public function __process() {
     }
 }
 
-function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns (json|error)) func) {
+function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns json|error) func) {
     var content = resp.getJsonPayload();
     if (content is json) {
         Context ctx = generateContext(resp);
