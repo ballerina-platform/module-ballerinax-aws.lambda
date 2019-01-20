@@ -44,7 +44,7 @@ public function generateContext(http:Response resp) returns Context {
     return ctx;
 }
 
-public function __register(string handler, (function (Context, json) returns (json|error)) func) {
+public function __register(string handler, (function (Context, json) returns json|error) func) {
     functions[handler] = func;
 }
 
