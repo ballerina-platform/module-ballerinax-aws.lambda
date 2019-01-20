@@ -10,7 +10,7 @@ Annotation based AWS Lambda extension implementation for Ballerina.
 ### Annotation Usage Sample:
 
 ```ballerina
-import ballerinax/awslambda;
+import ballerina/system;
 import ballerina/system;
 
 @awslambda:Function
