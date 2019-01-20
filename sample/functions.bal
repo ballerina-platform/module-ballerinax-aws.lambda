@@ -1,5 +1,5 @@
 import ballerina/system;
-import ballerina/system;
+import ballerinax/awslambda;
 
 @awslambda:Function
 public function echo(awslambda:Context ctx, json input) returns json|error {
