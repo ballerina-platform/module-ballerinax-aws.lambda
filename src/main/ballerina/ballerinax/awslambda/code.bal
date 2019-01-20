@@ -27,7 +27,7 @@ public type Context object {
 
 };
 
-map<(function (Context, json) returns (json|error))> functions = { };
+map<(function (Context, json) returns json|error)> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
 public function generateContext(http:Response resp) returns Context {
