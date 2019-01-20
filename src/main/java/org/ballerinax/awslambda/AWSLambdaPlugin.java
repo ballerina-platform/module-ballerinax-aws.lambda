@@ -93,8 +93,6 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     private static final String LAMBDA_REG_FUNCTION_NAME = "__register";
 
     private static final String MAIN_FUNC_NAME = "main";
-
-    private static final String LAMBDA_ENTRYPOINT_FUNCTION = "__d47ff0e4_cb4f_40a7_acde_5daf8f50043c";
     
     private static final PrintStream OUT = System.out;
     
@@ -129,32 +127,30 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
                 // this symbol will always be there, since the import is needed to add the annotation
                 throw new BallerinaException("AWS Lambda package symbol cannot be found");
             }
-            BLangFunction epFunc = this.createFunction(myPkg.pos, LAMBDA_ENTRYPOINT_FUNCTION, myPkg);
-            packageNode.addFunction(epFunc);
+            BLangFunction epFunc = this.extractMainFunction(myPkg);
+            if (epFunc == null) {
+                // main function is not there, lets create our own one
+                epFunc = this.createFunction(myPkg.pos, MAIN_FUNC_NAME, myPkg);
+                packageNode.addFunction(epFunc);
+            } else {
+                // clear out the existing statements
+                epFunc.body.stmts.clear();
+            }
             for (BLangFunction lambdaFunc : lambdaFunctions) {
-                this.addRegisterCall(lambdaPkgSymbol, epFunc.body, lambdaFunc);
+                this.addRegisterCall(myPkg.pos, lambdaPkgSymbol, epFunc.body, lambdaFunc);
                 AWSLambdaPlugin.generatedFuncs.add(lambdaFunc.name.value);
             }
-            this.addProcessCall(lambdaPkgSymbol, epFunc.body);
-            // check if a main function is already there, or else, add an empty main function
-            // this is to make sure a balx file will be generated from the source
-            this.checkAndAddMainFunction(myPkg);
+            this.addProcessCall(myPkg.pos, lambdaPkgSymbol, epFunc.body);
         }
     }
     
-    private void checkAndAddMainFunction(BLangPackage myPkg) {
-        Scope.ScopeEntry se = myPkg.symbol.scope.lookup(new Name(MAIN_FUNC_NAME));
-        boolean mainFuncFound = false;
-        while (se.symbol != null) {
-            if (se.symbol.getType().tag == TypeTags.INVOKABLE_TAG) {
-                mainFuncFound = true;
-                break;
+    private BLangFunction extractMainFunction(BLangPackage myPkg) {
+        for (BLangFunction func : myPkg.getFunctions()) {
+            if (MAIN_FUNC_NAME.equals(func.getName().value)) {
+                return func;
             }
-            se = se.next;
         }
-        if (!mainFuncFound) {
-            myPkg.addFunction(this.createFunction(myPkg.pos, MAIN_FUNC_NAME, myPkg));
-        }
+        return null;
     }
     
     private BPackageSymbol extractLambdaPackageSymbol(BLangPackage myPkg) {
@@ -167,13 +163,14 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return null;
     }
     
-    private void addRegisterCall(BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt, BLangFunction func) {
+    private void addRegisterCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt,
+            BLangFunction func) {
         List<BLangExpression> exprs = new ArrayList<>();
-        exprs.add(this.createStringLiteral(blockStmt.pos, func.name.value));
-        exprs.add(this.createVariableRef(blockStmt.pos, func.symbol));
+        exprs.add(this.createStringLiteral(pos, func.name.value));
+        exprs.add(this.createVariableRef(pos, func.symbol));
         BLangInvocation inv = this.createInvocationNode(lamdaPkgSymbol, LAMBDA_REG_FUNCTION_NAME, exprs);
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
-        stmt.pos = blockStmt.pos;
+        stmt.pos = pos;
         blockStmt.addStatement(stmt);
     }
     
@@ -194,11 +191,11 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return varRef;
     }
     
-    private void addProcessCall(BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt) {
+    private void addProcessCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt) {
         BLangInvocation inv = this.createInvocationNode(lamdaPkgSymbol, 
                 LAMBDA_PROCESS_FUNCTION_NAME, new ArrayList<>(0));
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
-        stmt.pos = blockStmt.pos;
+        stmt.pos = pos;
         blockStmt.addStatement(stmt);
     }
     
@@ -317,7 +314,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
                 + ".<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024");
         OUT.println("\taws lambda update-function-configuration --function-name <FUNCTION_NAME> "
-                + "--layers arn:aws:lambda:us-west-2:908363916138:layer:ballerina-0_990_3-runtime:11");
+                + "--layers <BALLERINA_LAYER_ARN>");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME);
