@@ -58,7 +58,7 @@ public function __process() {
     }
     string handler = hsc[1];
     var func = functions[handler];
-    if (func is (function (Context, json) returns (json|error))) {
+    if (func is (function (Context, json) returns json|error)) {
         while (true) {
             var resp = clientEP->get(BASE_URL + "next");
             if (resp is http:Response) {
