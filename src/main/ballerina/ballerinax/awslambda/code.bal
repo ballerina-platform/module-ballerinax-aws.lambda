@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/system;
+import ballerina/io;
 import ballerina/system;
 import ballerina/time;
 
