@@ -1,6 +1,6 @@
 import ballerina/io;
 import ballerina/system;
-import ballerina/http;
+import ballerina/system;
 import ballerina/time;
 
 public type Context object {
