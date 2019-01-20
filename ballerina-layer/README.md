@@ -1,4 +1,4 @@
-*** Generating the Ballerina layer
+# Generating the Ballerina layer
 
 - Copy the Ballerina distribution to the "ballerina-layer" directory
 - Rename the Ballerina distribution directory to "ballerina"
