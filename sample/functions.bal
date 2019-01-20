@@ -1,4 +1,4 @@
-import ballerinax/awslambda;
+import ballerina/system;
 import ballerina/system;
 
 @awslambda:Function
