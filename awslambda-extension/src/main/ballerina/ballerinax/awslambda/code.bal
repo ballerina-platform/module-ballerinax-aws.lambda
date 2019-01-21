@@ -45,7 +45,7 @@ public type Context object {
     # Returns the remaining execution time for this request in milliseconds
     # + return - the remaining execution time
     public function getRemainingExecutionTime() returns int {
-        int result = time:currentTime().time - self.deadlineMs;
+        int result = self.deadlineMs - time:currentTime().time;
         if (result < 0) {
             result = 0;
         }
