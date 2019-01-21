@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "START Ballerina"
+export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk.x86_64
+cp $LAMBDA_TASK_ROOT/lib/*.jar /opt/ballerina/bre/lib 2>/dev/null
+/opt/ballerina/bin/ballerina run $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | cut -d. -f1).balx"
+echo "END Ballerina"

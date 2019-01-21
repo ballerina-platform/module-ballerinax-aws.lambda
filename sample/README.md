@@ -1,13 +1,4 @@
-# Ballerina AWS Lambda Extension
-
-Annotation based AWS Lambda extension implementation for Ballerina. 
-
-## Supported Annotations:
-
-### @awslambda:Function
-- Supported with Ballerina package level functions
-
-### Annotation Usage Sample:
+## Sample: functions.bal  
 
 ```ballerina
 import ballerina/system;
