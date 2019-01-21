@@ -25,7 +25,7 @@
         <artifactId>awslambda-extension-parent</artifactId>
     </parent>
 
-    <groupId>org.ballerainax.awslambda</groupId>
+    <groupId>org.ballerinax.awslambda</groupId>
     <version>0.990.3-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>awslambda-extension</artifactId>
@@ -176,10 +176,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
-                    <!-- Since jdbc balo is needed by tests, here it is copied to target/lib where other balos
+                    <!-- Since awslambda balo is needed by tests, here it is copied to target/lib where other balos
                     are copied to -->
                     <execution>
-                        <id>copy-jdbc-balo</id>
+                        <id>copy-awslambda-balo</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>copy-resources</goal>
@@ -237,7 +237,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinax.jdbc.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderPackage>org.ballerinax.awslambda.generated.providers</nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>

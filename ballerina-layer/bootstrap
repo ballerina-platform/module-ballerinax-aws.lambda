@@ -17,10 +17,12 @@
 echo "START Ballerina"
 export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk.x86_64
 
+BALLERINA_CLASSPATH_EXT=""
 for i in "$LAMBDA_TASK_ROOT"/lib/*.jar
 do
     BALLERINA_CLASSPATH_EXT="$BALLERINA_CLASSPATH_EXT":$i
 done
+export BALLERINA_CLASSPATH_EXT=`echo $BALLERINA_CLASSPATH_EXT | cut -c 2-`
 
 /opt/ballerina/bin/ballerina run $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | cut -d. -f1).balx"
 echo "END Ballerina"
