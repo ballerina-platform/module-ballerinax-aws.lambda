@@ -19,88 +19,77 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>io.ballerina</groupId>
-        <artifactId>ballerina</artifactId>
-        <version>1</version>
+        <groupId>org.ballerinax.awslambda</groupId>
+        <version>0.990.3-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+        <artifactId>awslambda-extension-parent</artifactId>
     </parent>
 
-    <groupId>org.ballerinax.awslambda</groupId>
+    <groupId>org.ballerainax.awslambda</groupId>
     <version>0.990.3-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>awslambda-extension-parent</artifactId>
-    <packaging>pom</packaging>
-    <name>Ballerina AWSLambda Extension Parent</name>
+    <artifactId>awslambda-extension</artifactId>
+    <packaging>jar</packaging>
+    <name>Ballerina AWSLambda Extension</name>
     <url>http://ballerinalang.org</url>
 
-    <dependencyManagement>
-	    <dependencies>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-lang</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <version>${ballerina.lang.version}</version>
-		    <artifactId>lib-creator</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-time</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-io</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-http</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-system</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-builtin</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		    <type>zip</type>
-		    <classifier>ballerina-binary-repo</classifier>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-system</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		    <type>zip</type>
-		    <classifier>ballerina-binary-repo</classifier>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-io</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		    <type>zip</type>
-		    <classifier>ballerina-binary-repo</classifier>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-time</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		    <type>zip</type>
-		    <classifier>ballerina-binary-repo</classifier>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-http</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		    <type>zip</type>
-		    <classifier>ballerina-binary-repo</classifier>
-		</dependency>
-	    </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <version>${ballerina.lang.version}</version>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-system</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-time</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+    </dependencies>
 
     <repositories>
         <repository>
@@ -128,7 +117,20 @@
     </repositories>
 
     <build>
-      <pluginManagement>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>ballerina/**</exclude>
+                </excludes>
+            </resource>
+
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>${generated.ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -141,7 +143,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>gen-balo</id>
@@ -211,11 +212,26 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attached</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorSourceDirectory>assembly</descriptorSourceDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
                 <artifactId>maven-processor-plugin</artifactId>
-                <version>${mvn.processor.plugin.version}</version>
                 <configuration>
                     <processors>
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
@@ -236,18 +252,6 @@
                 </executions>
             </plugin>
         </plugins>
-      </pluginManagement>
     </build>
 
-    <properties>
-        <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
-        <junit.version>4.12</junit.version>
-        <ballerina.lang.version>0.990.3-SNAPSHOT</ballerina.lang.version>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-    </properties>
-
-    <modules>
-        <module>awslambda-extension</module>
-        <module>awslambda-examples</module>
-    </modules>
 </project>

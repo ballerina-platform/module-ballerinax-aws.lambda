@@ -1,8 +1,8 @@
 ## Sample: functions.bal  
 
 ```ballerina
-import ballerina/system;
 import ballerinax/awslambda;
+import ballerina/system;
 
 @awslambda:Function
 public function echo(awslambda:Context ctx, json input) returns json|error {
@@ -12,6 +12,16 @@ public function echo(awslambda:Context ctx, json input) returns json|error {
 @awslambda:Function
 public function uuid(awslambda:Context ctx, json input) returns json|error {
    return system:uuid();
+}
+
+@awslambda:Function
+public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
+   json result = { RequestID: ctx.getRequestId(),
+                   DeadlineMS: ctx.getDeadlineMs(),
+                   InvokedFunctionArn: ctx.getInvokedFunctionArn(),
+                   TraceID: ctx.getTraceId(),
+                   RemainingExecTime: ctx.getRemainingExecutionTime() };
+   return result;
 }
 ```
 
@@ -23,11 +33,11 @@ Compiling source
     functions.bal
 Generating executable
     functions.balx
-	@awslambda:Function: echo, uuid
+	@awslambda:Function: echo, uuid, ctxinfo
 
 	Run the following commands to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024
-	aws lambda update-function-configuration --function-name <FUNCTION_NAME> --layers arn:aws:lambda:us-west-2:908363916138:layer:ballerina-0_990_3-runtime:11
+	aws lambda update-function-configuration --function-name <FUNCTION_NAME> --layers <BALLERINA_LAYER_ARN>
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
