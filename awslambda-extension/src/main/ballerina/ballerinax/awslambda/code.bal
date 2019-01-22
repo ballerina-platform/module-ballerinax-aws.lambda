@@ -3,12 +3,13 @@ import ballerina/io;
 import ballerina/system;
 import ballerina/time;
 
+# Object to represent an AWS Lambda function execution context.
 public type Context object {
 
-    public string requestId;
-    public int deadlineMs;
-    public string invokedFunctionArn;
-    public string traceId;
+    string requestId;
+    int deadlineMs;
+    string invokedFunctionArn;
+    string traceId;
 
     function __init(string requestId, int deadlineMs, string invokedFunctionArn, string traceId) {
         self.requestId = requestId;
@@ -17,8 +18,34 @@ public type Context object {
         self.traceId = traceId;
     }
 
-    function remainingExecutionTime() returns int {
-        int result = time:currentTime().time - self.deadlineMs;
+    # Returns the unique id for this request.
+    # + return - the request id
+    public function getRequestId() returns string {
+        return self.requestId;
+    }
+
+    # Returns the request execution deadline in milliseconds from the epoch.
+    # + return - the request execution deadline
+    public function getDeadlineMs() returns int {
+        return self.deadlineMs;
+    }
+
+    # Returns the ARN of the function being invoked.
+    # + return - the invoked function ARN
+    public function getInvokedFunctionArn() returns string {
+        return self.invokedFunctionArn;
+    }
+
+    # Returns the trace id for this request
+    # + return - the trace id
+    public function getTraceId() returns string {
+        return self.traceId;
+    }
+
+    # Returns the remaining execution time for this request in milliseconds
+    # + return - the remaining execution time
+    public function getRemainingExecutionTime() returns int {
+        int result = self.deadlineMs - time:currentTime().time;
         if (result < 0) {
             result = 0;
         }
@@ -30,7 +57,7 @@ public type Context object {
 map<(function (Context, json) returns json|error)> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
-public function generateContext(http:Response resp) returns Context {
+function generateContext(http:Response resp) returns Context {
     string requestId = resp.getHeader("Lambda-Runtime-Aws-Request-Id");
     string deadlineMsStr = resp.getHeader("Lambda-Runtime-Deadline-Ms");
     int deadlineMs = 0;
