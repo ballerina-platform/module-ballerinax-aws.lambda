@@ -87,6 +87,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     private static final String AWS_LAMBDA_PACKAGE_NAME = "awslambda";
 
     private static final String AWS_LAMBDA_PACKAGE_ORG = "ballerinax";
+    
+    private static final String AWS_LAMBDA_LAYER_INFO_URL = "https://ballerina.io/deployment/aws-lambda";
 
     private static final String LAMBDA_PROCESS_FUNCTION_NAME = "__process";
 
@@ -309,6 +311,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
         String balxName = binaryPath.getFileName().toString().split("\\.")[0];
+        OUT.println("\n\tThe Ballerina AWS Lambda layer information can be found at " 
+                + AWS_LAMBDA_LAYER_INFO_URL + ".");
         OUT.println("\n\tRun the following commands to deploy each Ballerina AWS Lambda function:");
         OUT.println("\taws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
