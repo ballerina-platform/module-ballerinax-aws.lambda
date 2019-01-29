@@ -304,6 +304,10 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
 
     @Override
     public void codeGenerated(PackageID packageID, Path binaryPath) {
+        if (AWSLambdaPlugin.generatedFuncs.isEmpty()) {
+            // no lambda functions, nothing else to do
+            return;
+        }
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
         try {
             this.generateZipFile(binaryPath);
