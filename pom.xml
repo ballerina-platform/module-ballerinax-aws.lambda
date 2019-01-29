@@ -315,6 +315,13 @@
       </pluginManagement>
     </build>
 
+    <scm>
+        <url>https://github.com/ballerinax/awslambda.git</url>
+        <developerConnection>scm:git:https://github.com/ballerinax/awslambda.git</developerConnection>
+        <connection>scm:git:https://github.com/ballerinax/awslambda.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <junit.version>4.12</junit.version>
