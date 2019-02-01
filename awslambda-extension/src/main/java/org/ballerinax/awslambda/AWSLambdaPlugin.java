@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
@@ -331,8 +330,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     private void generateZipFile(Path binaryPath) throws IOException {
         Map<String, String> env = new HashMap<>(); 
         env.put("create", "true");
-        URI uri = URI.create("jar:file:" + binaryPath.toAbsolutePath().getParent().toUri().getPath() + File.separator + 
-                LAMBDA_OUTPUT_ZIP_FILENAME);
+        URI uri = URI.create("jar:file:" + binaryPath.toAbsolutePath().getParent().resolve(
+                LAMBDA_OUTPUT_ZIP_FILENAME).toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());          
             Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING); 
