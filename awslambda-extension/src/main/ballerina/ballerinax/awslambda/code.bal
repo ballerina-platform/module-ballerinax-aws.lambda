@@ -89,9 +89,7 @@ public function __process() {
         while (true) {
             var resp = clientEP->get(BASE_URL + "next");
             if (resp is http:Response) {
-                // process each event in its own worker, this will be limited
-                // by the total number of worker threads configured for Ballerina
-                _ = start processEvent(clientEP, resp, func);
+                processEvent(clientEP, resp, func);
             } else {
                 io:println("Error - network failure polling for next event: ", resp);
             }
