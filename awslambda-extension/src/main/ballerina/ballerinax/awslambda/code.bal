@@ -113,8 +113,12 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
             // send the response
             _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/response", req);
         } else {
-            req.setJsonPayload({errorReasone: funcResp.reason(), 
-                                errorMessage: <string> funcResp.detail().message});
+            json payload = { errorReason: funcResp.reason() };
+            var detail = json.convert(funcResp.detail());
+            if (detail is json) {
+                payload.errorDetail = detail;
+            }
+            req.setJsonPayload(payload);
             // send the error
             _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/error", req);
         }
