@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
@@ -99,10 +100,16 @@ public function __process() {
     }
 }
 
+function updateInvocationContext(Context ctx) {
+    // set the trace id in the invocation context
+    runtime:getInvocationContext().attributes["traceId"] = ctx.getTraceId();
+}
+
 function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns json|error) func) {
     var content = resp.getJsonPayload();
     if (content is json) {
         Context ctx = generateContext(resp);
+        updateInvocationContext(ctx);
         http:Request req = new;
         // call the target function, handle any errors if raised by the function
         var funcResp = trap func.call(ctx, content);
