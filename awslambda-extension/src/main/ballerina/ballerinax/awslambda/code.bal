@@ -1,5 +1,6 @@
 import ballerina/http;
 import ballerina/io;
+import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
@@ -89,9 +90,7 @@ public function __process() {
         while (true) {
             var resp = clientEP->get(BASE_URL + "next");
             if (resp is http:Response) {
-                // process each event in its own worker, this will be limited
-                // by the total number of worker threads configured for Ballerina
-                _ = start processEvent(clientEP, resp, func);
+                processEvent(clientEP, resp, func);
             } else {
                 io:println("Error - network failure polling for next event: ", resp);
             }
@@ -101,10 +100,16 @@ public function __process() {
     }
 }
 
+function updateInvocationContext(Context ctx) {
+    // set the trace id in the invocation context
+    runtime:getInvocationContext().attributes["traceId"] = ctx.getTraceId();
+}
+
 function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns json|error) func) {
     var content = resp.getJsonPayload();
     if (content is json) {
         Context ctx = generateContext(resp);
+        updateInvocationContext(ctx);
         http:Request req = new;
         // call the target function, handle any errors if raised by the function
         var funcResp = trap func.call(ctx, content);
@@ -113,8 +118,12 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
             // send the response
             _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/response", req);
         } else {
-            req.setJsonPayload({errorReasone: funcResp.reason(), 
-                                errorMessage: <string> funcResp.detail().message});
+            json payload = { errorReason: funcResp.reason() };
+            var detail = json.convert(funcResp.detail());
+            if (detail is json) {
+                payload.errorDetail = detail;
+            }
+            req.setJsonPayload(payload);
             // send the error
             _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/error", req);
         }
