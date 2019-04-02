@@ -116,7 +116,10 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
         if (funcResp is json) {
             req.setJsonPayload(untaint funcResp);
             // send the response
-            _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/response", req);
+            var result = clientEP->post(BASE_URL + untaint ctx.requestId + "/response", req);
+            if (result is error) {
+                io:println("Error - sending response: ", result);
+            }
         } else {
             json payload = { errorReason: funcResp.reason() };
             var detail = json.convert(funcResp.detail());
@@ -125,7 +128,10 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
             }
             req.setJsonPayload(payload);
             // send the error
-            _ = clientEP->post(BASE_URL + untaint ctx.requestId + "/error", req);
+            var result = clientEP->post(BASE_URL + untaint ctx.requestId + "/error", req);
+            if (result is error) {
+                io:println("Error - sending error: ", result);
+            }
         }
     } else {
         io:println("Error - invalid payload: ", resp);
