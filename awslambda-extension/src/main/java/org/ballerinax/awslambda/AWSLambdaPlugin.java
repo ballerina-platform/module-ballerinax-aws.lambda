@@ -261,7 +261,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     }
     
     private boolean validateLambdaFunction(BLangFunction node) {
-        if (node.requiredParams.size() != 2 || node.defaultableParams.size() > 0 || node.restParam != null) {
+        //TODO: Verify get parameters update
+        if (node.requiredParams.size() != 2 || node.getParameters().size() > 0 || node.restParam != null) {
             return false;
         }
         BLangType type1 = (BLangType) node.requiredParams.get(0).getTypeNode();
