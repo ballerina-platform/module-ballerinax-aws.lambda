@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -261,7 +262,16 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     }
     
     private boolean validateLambdaFunction(BLangFunction node) {
-        if (node.requiredParams.size() != 2 || node.defaultableParams.size() > 0 || node.restParam != null) {
+
+        List<BLangSimpleVariable> defaultableParams = new ArrayList<>();
+
+        for (BLangSimpleVariable var : node.requiredParams) {
+            if (var.symbol.defaultableParam) {
+                defaultableParams.add(var);
+            }
+        }
+
+        if (node.requiredParams.size() != 2 || defaultableParams.size() > 0 || node.restParam != null) {
             return false;
         }
         BLangType type1 = (BLangType) node.requiredParams.get(0).getTypeNode();
