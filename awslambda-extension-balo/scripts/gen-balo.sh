@@ -30,9 +30,16 @@ mkdir -p ${BALLERINAX_SYSTEM_LIB}
 
 rm -rf ${AWSLAMBDA_BALLERINA_PROJECT}/target
 
-pushd ${AWSLAMBDA_BALLERINA_PROJECT} /dev/null 2>&1
+if ! hash pushd 2>/dev/null
+then
+    cd ${AWSLAMBDA_BALLERINA_PROJECT}
     ${EXECUTABLE} compile --jvmTarget
-popd > /dev/null 2>&1
+    cd -
+else
+    pushd ${AWSLAMBDA_BALLERINA_PROJECT} /dev/null 2>&1
+        ${EXECUTABLE} compile --jvmTarget
+    popd > /dev/null 2>&1
+fi
 
 cp -r ${AWSLAMBDA_BALLERINA_PROJECT}/target/* ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target
 
