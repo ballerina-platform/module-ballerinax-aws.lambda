@@ -20,10 +20,6 @@
 DISTRIBUTION_PATH=${1}
 AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT=${2}
 
-# TEMP
-#rm -rf ${DISTRIBUTION_PATH}/*
-#cp -r /Users/hemikak/ballerina/dev/ballerina/distribution/zip/jballerina-tools/build/distributions/jballerina-tools-0.992.0-m2-SNAPSHOT/* ${DISTRIBUTION_PATH}
-
 EXECUTABLE="${DISTRIBUTION_PATH}/bin/ballerina"
 AWSLAMBDA_BALLERINA_PROJECT="${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/src/main/ballerina/ballerinax"
 BALLERINAX_BIR_CACHE="${DISTRIBUTION_PATH}/bir-cache/ballerinax/"
