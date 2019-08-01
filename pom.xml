@@ -126,13 +126,6 @@
         <dependency>
             <groupId>org.ballerinax.awslambda</groupId>
             <artifactId>awslambda-extension</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinax.awslambda</groupId>
-            <artifactId>awslambda-extension</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -244,23 +237,6 @@
                                     <directory>${project.build.directory}/generated-balo/repo/</directory>
                                 </resource>
                             </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-dependencies</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
-                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
