@@ -158,16 +158,6 @@
 
     <repositories>
         <repository>
-            <id>wso2.stage</id>
-            <name>WSO2 Stage Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1377/</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-                <checksumPolicy>ignore</checksumPolicy>
-            </releases>
-        </repository>
-        <repository>
             <id>wso2.releases</id>
             <name>WSO2 Releases Repository</name>
             <url>http://maven.wso2.org/nexus/content/repositories/releases/</url>
@@ -187,6 +177,16 @@
             </snapshots>
             <releases>
                 <enabled>false</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>wso2.stage</id>
+            <name>WSO2 Stage Repository</name>
+            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1382/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </repository>
     </repositories>
@@ -289,7 +289,7 @@
     <properties>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <junit.version>4.12</junit.version>
-        <ballerina.lang.version>1.0.0-alpha</ballerina.lang.version>
+        <ballerina.version>0.992.0-m2-SNAPSHOT</ballerina.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
         <jackson.version>2.9.1</jackson.version>
