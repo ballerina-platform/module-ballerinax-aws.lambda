@@ -42,7 +42,6 @@
         <file>
             <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/awslambda.jar</source>
             <outputDirectory>.</outputDirectory>
-            <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
     </files>
