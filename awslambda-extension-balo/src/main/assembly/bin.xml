@@ -22,7 +22,7 @@
 
     <id>extracted-test-pack</id>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>jballerina-tools-${ballerina.lang.version}</baseDirectory>
+    <baseDirectory>awslambda-artifacts</baseDirectory>
 
     <formats>
         <format>zip</format>

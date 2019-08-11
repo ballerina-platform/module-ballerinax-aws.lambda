@@ -144,7 +144,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/bin.xml</descriptor>
                             </descriptors>
-                            <finalName>jballerina-tools-${ballerina.lang.version}</finalName>
+                            <finalName>awslambda-artifacts</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <outputDirectory>${project.build.directory}/extracted-distribution/</outputDirectory>
                         </configuration>
