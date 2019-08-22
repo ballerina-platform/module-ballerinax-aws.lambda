@@ -22,7 +22,7 @@
 
     <id>extracted-test-pack</id>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>jballerina-tools-${ballerina.lang.version}</baseDirectory>
+    <baseDirectory>awslambda-artifacts</baseDirectory>
 
     <formats>
         <format>zip</format>
@@ -40,9 +40,8 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/awslambda.jar</source>
+            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/ballerinax-awslambda-0.0.0.jar</source>
             <outputDirectory>.</outputDirectory>
-            <filtered>true</filtered>
             <fileMode>755</fileMode>
         </file>
     </files>
