@@ -127,8 +127,8 @@ function split(string text, string delimiter) returns string[] {
 }
 
 function updateInvocationContext(Context ctx) {
-    // set the trace id in the invocation context
-    runtime:getInvocationContext().attributes["traceId"] = ctx.getTraceId();
+    var context = runtime:getInvocationContext();
+    context.attributes["traceId"] = ctx.getTraceId();
 }
 
 function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns json|error) func) {
