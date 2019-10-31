@@ -324,14 +324,12 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
         String balxName = binaryPath.getFileName().toString().split("\\.")[0];
-        OUT.println("\n\tThe Ballerina AWS Lambda layer information can be found at " 
-                + AWS_LAMBDA_LAYER_INFO_URL + ".");
         OUT.println("\n\tRun the following commands to deploy each Ballerina AWS Lambda function:");
         OUT.println("\taws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
                 + ".<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024");
         OUT.println("\taws lambda update-function-configuration --function-name <FUNCTION_NAME> "
-                + "--layers <BALLERINA_LAYER_ARN>");
+                + "--layers arn:aws:lambda:<REGION_ID>:141896495686:layer:ballerina:2");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME);
