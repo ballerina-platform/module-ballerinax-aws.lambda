@@ -19,6 +19,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
+import ballerina/stringutils;
 
 # Object to represent an AWS Lambda function execution context.
 public type Context object {
@@ -96,7 +97,7 @@ public function __process() {
     http:Client clientEP = new("http://" + system:getEnv("AWS_LAMBDA_RUNTIME_API"));
     string handlerStr = system:getEnv("_HANDLER");
 
-    string[] hsc = split(system:getEnv("_HANDLER"), "\\.");
+    string[] hsc = stringutils:split(system:getEnv("_HANDLER"), "\\.");
     if (hsc.length() < 2) {
         io:println("Error - invalid handler string: ", handlerStr, ", should be of format {BALX_NAME}.{FUNC_NAME}");
         return;
@@ -115,15 +116,6 @@ public function __process() {
     } else {
         io:println("Error - invalid handler: ", handler);
     }
-}
-
-function split(string text, string delimiter) returns string[] {
-    string[] output = [];
-    int? index = text.indexOf(delimiter);
-    if (index is int) {
-        output = [text.substring(0, index), text.substring(index + 1, text.length())];
-    }
-    return output;
 }
 
 function updateInvocationContext(Context ctx) {
