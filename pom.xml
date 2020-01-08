@@ -55,11 +55,6 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-utils</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-cache</artifactId>
             <version>${ballerina.lang.version}</version>
         </dependency>
