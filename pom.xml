@@ -186,7 +186,7 @@
         <repository>
             <id>wso2.stage</id>
             <name>WSO2 Stage Repository</name>
-            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1509/</url>
+            <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1530/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>daily</updatePolicy>
@@ -293,7 +293,7 @@
     <properties>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <junit.version>4.12</junit.version>
-        <ballerina.lang.version>1.2.0-SNAPSHOT</ballerina.lang.version>
+        <ballerina.lang.version>1.2.0-m1</ballerina.lang.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
         <jackson.version>2.9.1</jackson.version>
