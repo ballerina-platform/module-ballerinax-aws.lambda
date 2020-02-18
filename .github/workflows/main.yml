@@ -14,3 +14,19 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn package -B -V
+      - name: Setup AWS SAM CLI
+        uses: r0zar/sam-deploy-action@v1.0
+      - name: Copy Sample1 Resources
+        run: cp -r awslambda-extension-test/src/test/resources/samples-resources/sample1/* samples/sample1/
+      - name: Test Sample1 Echo Lambda Function
+        run: sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
+      - name: Test Sample1 UUID Lambda Function
+        run: |
+          uuid=$(sam local invoke "UUIDFunction" --debug | tee /dev/tty)
+          uuid=$(sed -e 's/^"//' -e 's/"$//' <<<"$uuid")
+          uuid=$(echo $uuid | xargs)
+          if [[ $uuid =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
+            echo "UUID function works"
+          else
+            echo "UUID function does not work"
+          fi

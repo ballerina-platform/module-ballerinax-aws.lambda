@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Ballerinax AWS Lambda Sample1
+Globals:
+  Function:
+    Timeout: 10
+Resources:
+  UUIDFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: provided
+      CodeUri: aws-ballerina-lambda-functions.zip
+      Handler: functions.uuid
+      Layers:
+        - arn:aws:lambda:us-east-1:141896495686:layer:ballerina:2
+  EchoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: provided
+      CodeUri: aws-ballerina-lambda-functions.zip
+      Handler: functions.echo
+      Layers:
+        - arn:aws:lambda:us-east-1:141896495686:layer:ballerina:2
