@@ -18,7 +18,9 @@ jobs:
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: Setup AWS SAM CLI
+      - name: Install wheel
+        run: pip install wheel
+      - name: Install aws-sam-cli
         run: pip install aws-sam-cli
       - name: Copy Sample1 Resources
         run: cp -r awslambda-extension-test/src/test/resources/samples-resources/sample1/* samples/sample1/
