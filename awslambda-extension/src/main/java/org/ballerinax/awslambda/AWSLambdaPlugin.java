@@ -42,7 +42,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -51,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -136,13 +137,14 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
                 packageNode.addFunction(epFunc);
             } else {
                 // clear out the existing statements
-                epFunc.body.stmts.clear();
+                ((BLangBlockFunctionBody) epFunc.body).stmts.clear();
             }
+            BLangBlockFunctionBody body = (BLangBlockFunctionBody) epFunc.body;
             for (BLangFunction lambdaFunc : lambdaFunctions) {
-                this.addRegisterCall(myPkg.pos, lambdaPkgSymbol, epFunc.body, lambdaFunc);
+                this.addRegisterCall(myPkg.pos, lambdaPkgSymbol, body, lambdaFunc);
                 AWSLambdaPlugin.generatedFuncs.add(lambdaFunc.name.value);
             }
-            this.addProcessCall(myPkg.pos, lambdaPkgSymbol, epFunc.body);
+            this.addProcessCall(myPkg.pos, lambdaPkgSymbol, body);
         }
     }
     
@@ -165,8 +167,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return null;
     }
     
-    private void addRegisterCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt,
-            BLangFunction func) {
+    private void addRegisterCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt,
+                                 BLangFunction func) {
         List<BLangExpression> exprs = new ArrayList<>();
         exprs.add(this.createStringLiteral(pos, func.name.value));
         exprs.add(this.createVariableRef(pos, func.symbol));
@@ -193,7 +195,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return varRef;
     }
     
-    private void addProcessCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockStmt blockStmt) {
+    private void addProcessCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt) {
         BLangInvocation inv = this.createInvocationNode(lamdaPkgSymbol, 
                 LAMBDA_PROCESS_FUNCTION_NAME, new ArrayList<>(0));
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
@@ -231,8 +233,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return bLangFunction;
     }
     
-    private BLangBlockStmt createBlockStmt(DiagnosticPos pos) {
-        final BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
+    private BLangFunctionBody createBlockStmt(DiagnosticPos pos) {
+        final BLangFunctionBody blockNode = (BLangFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         blockNode.pos = pos;
         return blockNode;
     }
