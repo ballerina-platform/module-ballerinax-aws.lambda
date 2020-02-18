@@ -14,8 +14,12 @@ jobs:
           java-version: 1.8
       - name: Build with Maven
         run: mvn package -B -V
+      - name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
       - name: Setup AWS SAM CLI
-        uses: r0zar/sam-deploy-action@v1.0
+        run: pip install aws-sam-cli
       - name: Copy Sample1 Resources
         run: cp -r awslambda-extension-test/src/test/resources/samples-resources/sample1/* samples/sample1/
       - name: Test Sample1 Echo Lambda Function
