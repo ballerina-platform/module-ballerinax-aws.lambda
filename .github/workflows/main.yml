@@ -22,8 +22,9 @@ jobs:
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: Setup Homebrew
-        id: setup-homebrew
+      - name: Execute tests
+        id: exec-tests
+        working-directory: ./awslambda/samples/sample1
         run: |
           sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
           test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
@@ -36,15 +37,6 @@ jobs:
           brew install aws-sam-cli
           sam --version
           sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
-      - name: Setup AWS SAM CLI
-        run: |
-          brew tap aws/tap
-          brew install aws-sam-cli
-          sam --version
-      - name: Test Sample1 Echo Lambda Function
-        run: sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
-      - name: Test Sample1 UUID Lambda Function
-        run: |
           uuid=$(sam local invoke "UUIDFunction" --debug | tee /dev/tty)
           uuid=$(sed -e 's/^"//' -e 's/"$//' <<<"$uuid")
           uuid=$(echo $uuid | xargs)
