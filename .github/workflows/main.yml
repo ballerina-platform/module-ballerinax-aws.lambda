@@ -7,24 +7,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
+        id: checkout-code
         uses: actions/checkout@v2
       - name: Set up JDK 1.8
+        id: install-java
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
       - name: Build with Maven
+        id: build-with-maven
         run: mvn package -B -V
       - name: Set up Docker Buildx
+        id: setup-docker
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
       - name: Install setuptools
+        id: install-setuptools
         run: pip3 install --user --upgrade setuptools
       - name: Install ez_setup
+        id: install-ez_setup
         run: pip3 install --user ez_setup
       - name: Install wheel
+        id: install-wheel
         run: pip3 install wheel
       - name: Install aws-sam-cli
+        id: install-aws-sam-cli
         run: pip3 install --user --upgrade aws-sam-cli
       - name: Find user-base
         run: python -m site --user-base
