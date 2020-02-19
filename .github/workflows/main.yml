@@ -24,7 +24,7 @@ jobs:
           version: latest
       - name: Execute tests
         id: exec-tests
-        working-directory: ./awslambda/samples/sample1
+        working-directory: ./samples/sample1
         run: |
           sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
           test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
@@ -37,4 +37,4 @@ jobs:
           brew install aws-sam-cli
           sam --version
           sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
-          
+
