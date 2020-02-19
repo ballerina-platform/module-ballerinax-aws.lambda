@@ -37,11 +37,4 @@ jobs:
           brew install aws-sam-cli
           sam --version
           sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
-          uuid=$(sam local invoke "UUIDFunction" --debug | tee /dev/tty)
-          uuid=$(sed -e 's/^"//' -e 's/"$//' <<<"$uuid")
-          uuid=$(echo $uuid | xargs)
-          if [[ $uuid =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
-            echo "UUID function works"
-          else
-            echo "UUID function does not work"
-          fi
+          
