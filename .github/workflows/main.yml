@@ -22,27 +22,11 @@ jobs:
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: Install setuptools
-        id: install-setuptools
-        run: pip3 install --user --upgrade setuptools
-      - name: Install ez_setup
-        id: install-ez_setup
-        run: pip3 install --user ez_setup
-      - name: Install wheel
-        id: install-wheel
-        run: pip3 install wheel
-      - name: Install aws-sam-cli
-        id: install-aws-sam-cli
-        run: pip3 install --user --upgrade aws-sam-cli
-      - name: Find user-base
-        run: python -m site --user-base
-      - name: Copy Sample1 Resources
-        run: cp -r awslambda-extension-test/src/test/resources/samples-resources/sample1/* samples/sample1/
       - name: Test Sample1 Echo Lambda Function
-        run: sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
+        run: docker run -ti pahud/aws-sam-cli:latest sam local invoke "EchoFunction" --debug | grep -q '{"message":"Hey, are you there ?"}' && echo 'Echo function works'
       - name: Test Sample1 UUID Lambda Function
         run: |
-          uuid=$(sam local invoke "UUIDFunction" --debug | tee /dev/tty)
+          uuid=$(docker run -ti pahud/aws-sam-cli:latest sam local invoke "UUIDFunction" --debug | tee /dev/tty)
           uuid=$(sed -e 's/^"//' -e 's/"$//' <<<"$uuid")
           uuid=$(echo $uuid | xargs)
           if [[ $uuid =~ ^\{?[A-F0-9a-f]{8}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{4}-[A-F0-9a-f]{12}\}?$ ]]; then
