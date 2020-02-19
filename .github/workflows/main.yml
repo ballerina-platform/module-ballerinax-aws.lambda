@@ -20,10 +20,12 @@ jobs:
           version: latest
       - name: Install setuptools
         run: pip install --user --upgrade setuptools
+      - name: Install ez_setup
+        run: pip install --user ez_setup
       - name: Install wheel
         run: pip install wheel
       - name: Install aws-sam-cli
-        run: pip install aws-sam-cli
+        run: pip install --user --upgrade aws-sam-cli
       - name: Find user-base
         run: python -m site --user-base
       - name: Copy Sample1 Resources
