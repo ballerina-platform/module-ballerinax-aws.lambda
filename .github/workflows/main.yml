@@ -19,9 +19,9 @@ jobs:
         with:
           version: latest
       - name: Install wheel
-        run: pip install wheel
+        run: pip3 install wheel
       - name: Install aws-sam-cli
-        run: pip install aws-sam-cli
+        run: pip3 install aws-sam-cli
       - name: Copy Sample1 Resources
         run: cp -r awslambda-extension-test/src/test/resources/samples-resources/sample1/* samples/sample1/
       - name: Test Sample1 Echo Lambda Function
