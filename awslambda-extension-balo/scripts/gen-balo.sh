@@ -41,8 +41,8 @@ else
     popd > /dev/null 2>&1
 fi
 
-cp -r ${AWSLAMBDA_BALLERINA_PROJECT}/target/* ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target
+cp -r ${AWSLAMBDA_BALLERINA_PROJECT}/target/* ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/build
 
-cp -r ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target/caches/bir_cache/ballerinax/awslambda ${BALLERINAX_BIR_CACHE}
-mv ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax.awslambda.jar
-cp ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax.awslambda.jar ${BALLERINAX_SYSTEM_LIB}
+cp -r ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/build/caches/bir_cache/ballerinax/awslambda ${BALLERINAX_BIR_CACHE}
+mv ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/build/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/build/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax.awslambda.jar
+cp ${AWSLAMBDA_BALO_MAVEN_PROJECT_ROOT}/build/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax.awslambda.jar ${BALLERINAX_SYSTEM_LIB}
