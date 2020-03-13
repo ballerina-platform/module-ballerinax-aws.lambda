@@ -2,6 +2,9 @@
 
 Annotation based AWS Lambda extension implementation for Ballerina. 
 
+[![AWS Lambda Build](https://github.com/ballerinax/awslambda/workflows/Ballerinax%20AWS%20Lambda%20Build/badge.svg)](https://github.com/ballerinax/awslambda/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## Supported Annotations:
 
 ### @awslambda:Function

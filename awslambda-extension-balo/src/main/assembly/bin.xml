@@ -40,7 +40,7 @@
 
     <files>
         <file>
-            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/ballerinax-awslambda-0.0.0.jar</source>
+            <source>${project.build.directory}/extracted-distribution/jballerina-tools-${ballerina.lang.version}/bre/lib/ballerinax.awslambda.jar</source>
             <outputDirectory>.</outputDirectory>
             <fileMode>755</fileMode>
         </file>
