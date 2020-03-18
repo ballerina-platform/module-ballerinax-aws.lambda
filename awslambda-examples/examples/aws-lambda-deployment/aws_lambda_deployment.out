@@ -1,7 +1,7 @@
 # Prerequisites: AWS CLI tools installation and configuration
 
 # Build the Ballerina program to generate the AWS Lambda functions
-$ ./ballerina build aws_lambda_deployment.bal
+$ ballerina build aws_lambda_deployment.bal
 Compiling source
 	aws_lambda_deployment.bal
 Generating executables
@@ -18,18 +18,18 @@ Generating executables
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
 
 # Execute the AWS CLI commands to create and publish the functions, and your AWS <LAMBDA_ROLE_ARN> and the <BALLERINA_LAYER_ARN> for a specific Ballerina release should be used, following values are just examples
-$ aws lambda create-function --function-name echo --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.echo --runtime provided --role --role arn:aws:iam::908363916111:role/lambda-role
+$ aws lambda create-function --function-name echo --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.echo --runtime provided --role arn:aws:iam::908363916111:role/lambda-role
  --timeout 10 --memory-size 1024
-$ aws lambda create-function --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.uuid --runtime provided --role --role arn:aws:iam::908363916111:role/lambda-role
+$ aws lambda create-function --function-name uuid --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.uuid --runtime provided --role arn:aws:iam::908363916111:role/lambda-role
  --timeout 10 --memory-size 1024
-$ aws lambda create-function --function-name ctxinfo --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.ctxinfo --runtime provided --role --role arn:aws:iam::908363916111:role/lambda-role
+$ aws lambda create-function --function-name ctxinfo --zip-file fileb://aws-ballerina-lambda-functions.zip --handler aws_lambda_deployment.ctxinfo --runtime provided --role arn:aws:iam::908363916111:role/lambda-role
  --timeout 10 --memory-size 1024
 $ aws lambda update-function-configuration --function-name echo --layers arn:aws:lambda:us-west-2:908363916138:layer:ballerina-x_xxx_x-runtime:1
 $ aws lambda update-function-configuration --function-name uuid --layers arn:aws:lambda:us-west-2:908363916138:layer:ballerina-x_xxx_x-runtime:1
 $ aws lambda update-function-configuration --function-name ctxinfo --layers arn:aws:lambda:us-west-2:908363916138:layer:ballerina-x_xxx_x-runtime:1
 
 # Invoke the functions
-$ aws lambda invoke --function-name echo --payload '{"MESSAGE":"HELLO"}' response.txt
+$ aws lambda invoke --function-name echo --payload '{"MESSAGE":"HELLO"}' echo-response.txt
 {
     "ExecutedVersion": "$LATEST", 
     "StatusCode": 200
