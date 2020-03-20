@@ -24,7 +24,7 @@
     </parent>
 
     <groupId>org.ballerinax.awslambda</groupId>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>awslambda-extension-parent</artifactId>
     <packaging>pom</packaging>
@@ -287,7 +287,7 @@
         <url>https://github.com/ballerinax/awslambda.git</url>
         <developerConnection>scm:git:https://github.com/ballerinax/awslambda.git</developerConnection>
         <connection>scm:git:https://github.com/ballerinax/awslambda.git</connection>
-        <tag>v1.2.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
