@@ -37,7 +37,7 @@ then
     cd -
 else
     pushd ${AWSLAMBDA_BALLERINA_PROJECT} /dev/null 2>&1
-        ${EXECUTABLE} build -a
+        ${EXECUTABLE} build -a -c
     popd > /dev/null 2>&1
 fi
 

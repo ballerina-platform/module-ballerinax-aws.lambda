@@ -28,127 +28,57 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>awslambda-extension-parent</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina AWSLambda Extension Parent</name>
+    <name>Ballerina - AWS Lambda Extension Parent</name>
     <url>http://ballerinalang.org</url>
 
     <dependencyManagement>
-	    <dependencies>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-lang</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <version>${ballerina.lang.version}</version>
-            <artifactId>lib-creator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-time</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-core</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-cache</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-reflect</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-task</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-log-api</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime-api</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-auth</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-encoding</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mime</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-crypto</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-math</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-io</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-http</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-		<dependency>
-		    <groupId>org.ballerinalang</groupId>
-		    <artifactId>ballerina-system</artifactId>
-		    <version>${ballerina.lang.version}</version>
-		</dependency>
-        <dependency>
-            <groupId>org.ballerinax.awslambda</groupId>
-            <artifactId>awslambda-extension</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-packerina</artifactId>
-            <version>${ballerina.lang.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${com.fasterxml.jackson.dataformat.yaml.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>${com.fasterxml.jackson.core.annotations.version}</version>
-        </dependency>
-	    </dependencies>
+        <dependencies>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-lang</artifactId>
+                <version>${ballerina.lang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-core</artifactId>
+                <version>${ballerina.lang.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinax.awslambda</groupId>
+                <artifactId>awslambda-extension</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons.logging.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
     </dependencyManagement>
 
     <repositories>
@@ -299,6 +229,10 @@
         <jackson.version>2.9.1</jackson.version>
         <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
         <com.fasterxml.jackson.dataformat.yaml.version>2.9.1</com.fasterxml.jackson.dataformat.yaml.version>
+        <slf4j.version>1.7.26</slf4j.version>
+        <testng.version>6.14.3</testng.version>
+        <commons.io.version>2.6</commons.io.version>
+        <commons.logging.version>1.2</commons.logging.version>
     </properties>
 
     <modules>
