@@ -24,6 +24,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 
 /**
  * Test creating awslambda deployment artifacts.
@@ -34,6 +40,15 @@ public class DeploymentTest extends BaseTest {
     public void testAWSLambdaDeployment() throws IOException, InterruptedException {
         ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
+        Assert.assertTrue(processOutput.getStdOutput().contains("@awslambda"));
+        
+        // Check if jar is in .zip
+        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("aws-ballerina-lambda-functions.zip");
+        URI uri = URI.create("jar:file:" + zipFilePath.toUri().getPath());
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
+            Path jarFile = zipfs.getPath("/functions.jar");
+            Assert.assertTrue(Files.exists(jarFile));
+        }
     }
 }
 
