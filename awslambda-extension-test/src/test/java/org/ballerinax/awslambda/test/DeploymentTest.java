@@ -17,42 +17,23 @@
  */
 package org.ballerinax.awslambda.test;
 
+import org.ballerinax.awslambda.test.utils.BaseTest;
+import org.ballerinax.awslambda.test.utils.ProcessOutput;
+import org.ballerinax.awslambda.test.utils.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * Test creating awslambda deployment artifacts.
  */
-public class DeploymentTest {
-
-    private static final String DISTRIBUTION_PATH = System.getProperty("ballerina.pack");
-    
-    private static final String BALLERINA_COMMAND = DISTRIBUTION_PATH + File.separator + "ballerina";
-    
-    private static final String BUILD = "build";
-    
-    private static final String SOURCE_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("deployment")
-            .toAbsolutePath().toString();
+public class DeploymentTest extends BaseTest {
     
     @Test
     public void testAWSLambdaDeployment() throws IOException, InterruptedException {
-        // check if the compilation is successful, if artifact generation has an error
-        // this compilation will fail
-        Assert.assertEquals(compileBallerinaFile(SOURCE_DIR, "functions.bal"), 0);
+        ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
+        Assert.assertEquals(processOutput.getExitCode(), 0);
     }
-    
-    public static int compileBallerinaFile(String sourceDirectory, String fileName)
-            throws InterruptedException, IOException {
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND, BUILD, fileName);
-        pb.directory(new File(sourceDirectory));        
-        Process process = pb.start();
-        int exitCode = process.waitFor();
-        return exitCode;
-    }
-    
 }
 

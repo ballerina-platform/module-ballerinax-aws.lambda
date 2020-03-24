@@ -27,7 +27,7 @@
     <artifactId>awslambda-extension-balo</artifactId>
 
     <packaging>pom</packaging>
-    <name>Ballerinax - AWS Lambda Extension Balo</name>
+    <name>Ballerina - AWS Lambda Extension Balo</name>
     <url>https://ballerina.io</url>
 
     <profiles>
