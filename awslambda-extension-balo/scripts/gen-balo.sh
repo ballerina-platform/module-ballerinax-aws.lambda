@@ -33,7 +33,7 @@ rm -rf ${AWSLAMBDA_BALLERINA_PROJECT}/target
 if ! hash pushd 2>/dev/null
 then
     cd ${AWSLAMBDA_BALLERINA_PROJECT}
-    ${EXECUTABLE} build -a
+    ${EXECUTABLE} build -a -c
     cd -
 else
     pushd ${AWSLAMBDA_BALLERINA_PROJECT} /dev/null 2>&1
