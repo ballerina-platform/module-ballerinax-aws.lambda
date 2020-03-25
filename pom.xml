@@ -31,6 +31,28 @@
     <name>Ballerina - AWS Lambda Extension Parent</name>
     <url>http://ballerinalang.org</url>
 
+    <profiles>
+        <!-- this profile is active by default and won't run SAM CLI tests-->
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <testng.config>src/test/resources/testng.xml</testng.config>
+            </properties>
+        </profile>
+
+        <!-- this profile runs integration tests with SAM CLI -->
+        <profile>
+            <id>sam-cli</id>
+            <properties>
+                <testng.config>src/test/resources/testng-sam-cli.xml</testng.config>
+            </properties>
+        </profile>
+
+    </profiles>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -223,12 +245,8 @@
     <properties>
         <ballerina.lang.version>1.2.0</ballerina.lang.version>
         <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-        <com.fasterxml.jackson.core.annotations.version>2.9.1</com.fasterxml.jackson.core.annotations.version>
-        <com.fasterxml.jackson.dataformat.yaml.version>2.9.1</com.fasterxml.jackson.dataformat.yaml.version>
         <commons.io.version>2.6</commons.io.version>
         <commons.logging.version>1.2</commons.logging.version>
-        <jackson.version>2.9.1</jackson.version>
-        <junit.version>4.12</junit.version>
         <maven.jacoco.plugin.version>0.8.1</maven.jacoco.plugin.version>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
         <slf4j.version>1.7.26</slf4j.version>
