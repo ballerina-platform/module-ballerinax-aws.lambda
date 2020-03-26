@@ -1,10 +1,10 @@
-name: Ballerinax AWS Lambda Build
+name: Ballerina AWS Lambda Build
 
 on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -12,5 +12,18 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Install aws-sam-cli
+        run: |
+          brew update
+          brew tap aws/tap
+          brew install aws-sam-cli
+          brew upgrade
+          sam --version
+      - name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
       - name: Build with Maven
-        run: mvn package -B -V
+        run: |
+          brew update
+          mvn package -B -V -P sam-cli
