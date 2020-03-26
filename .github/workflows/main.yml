@@ -19,10 +19,10 @@ jobs:
           brew install aws-sam-cli
           brew upgrade
           sam --version
-      - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
+      - name: Install docker
+        run: |
+          brew install docker-machine docker
+          sudo docker –version
       - name: Build with Maven
         run: |
           brew update
