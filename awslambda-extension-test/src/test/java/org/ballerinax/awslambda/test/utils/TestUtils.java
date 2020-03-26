@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +32,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -46,6 +48,7 @@ public class TestUtils {
     private static final String BUILD = "build";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
+    private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
     
     private static String logOutput(InputStream inputStream) throws IOException {
@@ -96,5 +99,40 @@ public class TestUtils {
         po.setStdOutput(logOutput(process.getInputStream()));
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
+    }
+    
+
+    public static ProcessOutput runLambdaFunction(Path sourceDirectory, String functionName, Path eventJson)
+            throws InterruptedException, IOException {
+        ProcessBuilder pb = new ProcessBuilder("sh", "-c", "sam local invoke " + functionName + " --event " +
+                eventJson.toAbsolutePath().toString());
+        log.info(RUNNING + String.join(" ", pb.command()));
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+        
+        ProcessOutput po = new ProcessOutput();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
+        return po;
+    }
+    
+    /**
+     * Deletes a given directory.
+     *
+     * @param path path to directory
+     */
+    public static void deleteDirectory(Path path) throws IOException {
+        Path pathToBeDeleted = path.toAbsolutePath();
+        if (!Files.exists(pathToBeDeleted)) {
+            return;
+        }
+        Files.walk(pathToBeDeleted)
+            .sorted(Comparator.reverseOrder())
+            .map(Path::toFile)
+            .forEach(File::delete);
     }
 }
