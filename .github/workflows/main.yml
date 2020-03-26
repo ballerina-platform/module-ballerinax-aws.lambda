@@ -15,13 +15,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
-      - name: Set up Docker Buildx
+      - name: Set up Docker
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
           version: latest
-      - name: Install awscli
-        run: sudo apt install -y awscli
-      - uses: actions/setup-python@master
+      - name: Setup Python 3.7
+        uses: actions/setup-python@master
         with:
           python-version: '3.7'
       - name: Install aws-sam-cli
