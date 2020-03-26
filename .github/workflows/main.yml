@@ -27,37 +27,3 @@ jobs:
         run: |
           brew update
           mvn package -B -V -P sam-cli
-
-
-
-
-
-
-name: Ballerina AWS Lambda Build
-
-on: [push, pull_request]
-
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-      - name: Install aws-sam-cli
-        run: |
-          brew update
-          brew tap aws/tap
-          brew install aws-sam-cli
-          brew upgrade
-          sam --version
-      - name: Install docker
-        run: |
-          docker info
-      - name: Build with Maven
-        run: |
-          brew update
-          mvn package -B -V -P sam-cli
