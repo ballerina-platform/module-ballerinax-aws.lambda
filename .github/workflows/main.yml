@@ -17,7 +17,7 @@ jobs:
         with:
           version: latest
       - name: Install awscli
-        run: sudo apt install -y aws-cli
+        run: sudo apt install -y awscli
       - uses: actions/setup-python@master
         with:
           python-version: '3.7'
