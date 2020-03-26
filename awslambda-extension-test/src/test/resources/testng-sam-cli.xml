@@ -21,6 +21,7 @@
     <test name="ballerina-kubernetes-sample-tests" parallel="false">
         <classes>
             <class name="org.ballerinax.awslambda.test.DeploymentTest"/>
+            <class name="org.ballerinax.awslambda.test.LayerValidationTest"/>
         </classes>
     </test>
 </suite>

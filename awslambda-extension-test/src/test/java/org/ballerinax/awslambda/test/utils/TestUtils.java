@@ -45,6 +45,8 @@ public class TestUtils {
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
                       "ballerina.bat" : "ballerina"));
+    private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
+            .toAbsolutePath().normalize();
     private static final String BUILD = "build";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
@@ -105,7 +107,7 @@ public class TestUtils {
     public static ProcessOutput runLambdaFunction(Path sourceDirectory, String functionName, Path eventJson)
             throws InterruptedException, IOException {
         ProcessBuilder pb = new ProcessBuilder("sh", "-c", "sam local invoke " + functionName + " --event " +
-                eventJson.toAbsolutePath().toString());
+                eventJson.toAbsolutePath().toString() + " --layer-cache-basedir " + LAYER_DIR);
         log.info(RUNNING + String.join(" ", pb.command()));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());

@@ -78,6 +78,9 @@
                         <sample.dir>
                             ${project.build.directory}/../../samples
                         </sample.dir>
+                        <ballerina.layer>
+                            ${project.build.directory}/../../ballerina-layer/bootstrap
+                        </ballerina.layer>
                         <jacoco.agent.argLine>${jacoco.agent.argLine}</jacoco.agent.argLine>
                     </systemPropertyVariables>
                     <suiteXmlFiles>

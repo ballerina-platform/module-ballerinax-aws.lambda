@@ -26,6 +26,7 @@
         </groups>
         <classes>
             <class name="org.ballerinax.awslambda.test.DeploymentTest"/>
+            <class name="org.ballerinax.awslambda.test.LayerValidationTest"/>
         </classes>
     </test>
 </suite>

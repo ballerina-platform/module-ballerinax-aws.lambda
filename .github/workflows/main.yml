@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_DEFAULT_REGION: us-east-1
+      SAM_CLI_TELEMETRY: 0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
