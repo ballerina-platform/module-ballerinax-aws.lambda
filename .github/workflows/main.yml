@@ -22,8 +22,7 @@ jobs:
         with:
           python-version: '3.7'
       - name: Install aws-sam-cli
-        run: pip install aws-sam-cli
+        run: pip install -g aws-sam-cli
       - name: Build with Maven
         run: |
-          brew update
           mvn package -B -V -P sam-cli
