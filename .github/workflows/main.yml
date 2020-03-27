@@ -1,10 +1,13 @@
-name: Ballerinax AWS Lambda Build
+name: Ballerina AWS Lambda Build
 
 on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: us-east-1
+      SAM_CLI_TELEMETRY: 0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -12,5 +15,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Set up Docker
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Setup Python 3.7
+        uses: actions/setup-python@master
+        with:
+          python-version: '3.7'
+      - name: Install aws-sam-cli
+        run: pip install aws-sam-cli
       - name: Build with Maven
-        run: mvn package -B -V
+        run: |
+          mvn package -B -V -P sam-cli
