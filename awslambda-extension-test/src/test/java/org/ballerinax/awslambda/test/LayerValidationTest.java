@@ -39,7 +39,7 @@ public class LayerValidationTest extends BaseTest {
     
     @Test
     public void validateMD5OfLayer() throws IOException, NoSuchAlgorithmException {
-        Path ballerinaLayer = Paths.get(FilenameUtils.separatorsToSystem(System.getProperty("ballerina.layer")));
+        Path ballerinaLayer = Paths.get(FilenameUtils.separatorsToSystem(System.getProperty("ballerinaLayer")));
         String ballerinaLayerMD5 = getMD5(ballerinaLayer);
         String testLayerMD5 = getMD5(SOURCE_DIR.resolve("layer-pkg").resolve("ballerina-2-d475e820be")
                 .resolve("bootstrap"));

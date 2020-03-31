@@ -41,7 +41,7 @@ import java.util.Locale;
 public class TestUtils {
     private static final Log log = LogFactory.getLog(TestUtils.class);
     private static final Path DISTRIBUTION_PATH = Paths.get(FilenameUtils.separatorsToSystem(
-            System.getProperty("ballerina.pack")));
+            System.getProperty("ballerinaPack")));
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
                       "ballerina.bat" : "ballerina"));
