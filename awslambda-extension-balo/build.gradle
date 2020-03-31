@@ -16,24 +16,20 @@
  */
  
 dependencies {
-    implementation "org.ballerinax.awslambda:awslambda-extension:${ballerinaLangVersion}"
+    compile project(":awslambda-extension")
 }
 
 configurations{
     balTools
-    balAWSLambdaExt
 }
 
 dependencies{
     balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}"){
         transitive = false
     }
-    balAWSLambdaExt("org.ballerinax.awslambda:awslambda-extension:${ballerinaLangVersion}"){
-        transitive = false
-    }
 }
 
-description = 'Ballerinax - AWS Lambda Extension Balo'
+description = 'Ballerinax - AWS Lambda Extension Annotations'
 
 task unzip {
     doLast{
@@ -63,9 +59,9 @@ task runScript {
     }
 }
 
-task copyBalAWSLambdaExt{
+task copyBalAWSLambdaExt {
     doLast{
-        configurations.balAWSLambdaExt.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from artifact.getFile()
                 into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
@@ -74,6 +70,7 @@ task copyBalAWSLambdaExt{
     }
 }
 
+unzip.dependsOn ':awslambda-extension:build'
 copyBalAWSLambdaExt.dependsOn unzip
 runScript.dependsOn copyBalAWSLambdaExt
 build.dependsOn runScript

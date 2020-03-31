@@ -20,4 +20,4 @@ dependencies {
     implementation "org.ballerinalang:ballerina-core:${ballerinaLangVersion}"
 }
 
-description = 'Ballerina AWSLambda Extension'
+description = 'Ballerinax - AWS Lambda Extension Plugin'

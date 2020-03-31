@@ -15,9 +15,20 @@
  *
  */
 
+plugins {
+    id "com.gradle.enterprise" version "3.2"
+}
+
 rootProject.name = 'awslambda-extension-parent'
 include(':awslambda-extension')
 include(':awslambda-extension-balo')
-include(':awslambda-extension-examples')
 include(':awslambda-extension-test')
-project(':awslambda-extension-examples').projectDir = file('awslambda-examples')
+include(':awslambda-extension-examples')
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
+}
+

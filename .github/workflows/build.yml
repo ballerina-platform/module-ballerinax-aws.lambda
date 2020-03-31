@@ -26,4 +26,4 @@ jobs:
       - name: Install aws-sam-cli
         run: pip install aws-sam-cli
       - name: Build with gradle
-        run: ./gradlew clean build
+        run: ./gradlew clean build -PLayerTesting --stacktrace --scan --console=plain --no-daemon
