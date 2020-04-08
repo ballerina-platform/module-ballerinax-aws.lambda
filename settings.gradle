@@ -20,6 +20,7 @@ plugins {
 }
 
 rootProject.name = 'awslambda-extension-parent'
+include(':build-config:checkstyle')
 include(':awslambda-extension')
 include(':awslambda-extension-balo')
 include(':awslambda-extension-test')

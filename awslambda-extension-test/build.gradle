@@ -14,9 +14,12 @@
  * limitations under the License.
  *
  */
- 
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+
 dependencies {
     implementation project(':awslambda-extension')
+
     testImplementation "org.testng:testng:${testngVersion}"
     testImplementation "commons-io:commons-io:${commomsIOVersion}"
     testImplementation "commons-logging:commons-logging:${commonsLoggingVersion}"
@@ -26,7 +29,6 @@ dependencies {
 description = 'Ballerinax - AWS Lambda Extension Tests'
 
 test {
-    testLogging.showStandardStreams = true
     useTestNG() {
         if (project.hasProperty('LayerTesting')) {
             suites 'src/test/resources/testng-sam-cli.xml'

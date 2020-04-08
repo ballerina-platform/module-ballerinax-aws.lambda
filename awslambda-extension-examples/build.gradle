@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020   , WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  *
  */
+ 
+description = 'Ballerinax - AWSLambda Extension Examples'
 
-apply from: "$rootDir/gradle/javaProject.gradle"
-
-dependencies {
-    implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
-    implementation "org.ballerinalang:ballerina-core:${ballerinaLangVersion}"
+task zipExamples(type: Zip) {
+   from 'examples/'
+   include '*'
+   include '*/*'
+   archiveFileName = "awslambda-extension-examples-${ballerinaLangVersion}"
+   destinationDirectory = file(project.buildDir.absolutePath)
 }
-
-description = 'Ballerinax - AWS Lambda Extension Plugin'

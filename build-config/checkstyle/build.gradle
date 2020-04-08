@@ -14,13 +14,24 @@
  * limitations under the License.
  *
  */
- 
-description = 'Ballerinax - AWSLambda Extension Examples'
 
-task zipExamples(type: Zip) {
-   from 'examples/'
-   include '*'
-   include '*/*' 
-   archiveName "/awslambda-extension-examples-${ballerinaLangVersion}"
-   destinationDir file(project.buildDir.absolutePath)
+plugins {
+    id "de.undercouch.download"
+}
+
+task downloadMultipleFiles(type: Download) {
+    src([
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml',
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml'
+    ])
+    overwrite false
+    dest buildDir
+}
+
+artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
+    builtBy('downloadMultipleFiles')
+}
+
+artifacts.add('default', file("$project.buildDir/suppressions.xml")) {
+    builtBy('downloadMultipleFiles')
 }

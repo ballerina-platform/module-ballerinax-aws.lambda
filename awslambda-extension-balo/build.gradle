@@ -15,24 +15,28 @@
  *
  */
  
-dependencies {
-    compile project(":awslambda-extension")
-}
+description = 'Ballerinax - AWS Lambda Extension Annotations'
 
-configurations{
+configurations {
     balTools
-}
-
-dependencies{
-    balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}"){
+    awsLambdaExtensionPlugin {
         transitive = false
     }
 }
 
-description = 'Ballerinax - AWS Lambda Extension Annotations'
+dependencies {
+    balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
+        transitive = false
+    }
+    awsLambdaExtensionPlugin project(":awslambda-extension")
+}
+
+clean {
+    delete "src/main/ballerina/target"
+}
 
 task unzip {
-    doLast{
+    doLast {
         configurations.balTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
             copy {
                 from project.zipTree(artifact.getFile())
@@ -50,9 +54,9 @@ task runScript {
         exec {
             workingDir project.projectDir
             if (System.properties['os.name'].toLowerCase().contains('windows')) {
-                commandLine 'cmd', '/c', "scripts/gen-balo.bat" + distributionPath + " " + projectRoot
-            }else{
-                commandLine 'sh', '-c', "scripts/gen-balo.sh " + distributionPath + " " + projectRoot
+                commandLine 'cmd', '/c', "scripts/annotations-build.bat" + distributionPath + " " + projectRoot
+            } else {
+                commandLine 'sh', '-c', "scripts/annotations-build.sh " + distributionPath + " " + projectRoot
             }
             
         }
@@ -60,17 +64,14 @@ task runScript {
 }
 
 task copyBalAWSLambdaExt {
-    doLast{
-        configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
-            copy {
-                from artifact.getFile()
-                into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
-            }
+    doLast {
+        copy {
+            from configurations.awsLambdaExtensionPlugin
+            into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
         }
     }
 }
 
-unzip.dependsOn ':awslambda-extension:build'
 copyBalAWSLambdaExt.dependsOn unzip
 runScript.dependsOn copyBalAWSLambdaExt
 build.dependsOn runScript
