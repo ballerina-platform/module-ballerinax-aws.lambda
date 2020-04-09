@@ -16,8 +16,9 @@
  */
 
 plugins {
-  id "com.github.johnrengelman.shadow" version "5.2.0"
-  id "com.github.spotbugs" version "1.6.10"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "com.github.spotbugs" version "4.0.5"
+    id "de.undercouch.download" version "4.0.4"
 }
 
 ext.ballerinaLangVersion = "1.3.0-SNAPSHOT"
@@ -26,75 +27,62 @@ ext.commomsIOVersion = "2.6"
 ext.commonsLoggingVersion = "1.2"
 ext.slf4jVersion = "1.7.26"
 
+ext.puppycrawlCheckstyleVersion = "8.18"
+
+ext.projectBuildSourceEncoding = "UTF-8"
+ext.projectReportingOutputEncoding = "UTF-8"
+
 allprojects {
     group = 'org.ballerinax.awslambda'
     version = '1.3.0-SNAPSHOT'
 
     apply plugin: 'jacoco'
-}
-
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven-publish'
-
-    test {
-		jacoco {
-		    enabled = true
-		    destinationFile = file("$buildDir/coverage-reports/jacoco.exec")
-		    includeNoLocationClasses = true
-		}
-	}
-
 
     repositories {
         mavenLocal()
         maven {
+            url = 'https://maven.wso2.org/nexus/content/repositories/releases/'
+        }
+
+        maven {
+            url = 'https://maven.wso2.org/nexus/content/repositories/snapshots/'
+        }
+
+        maven {
+            url = 'https://maven.wso2.org/nexus/content/groups/wso2-public/'
+        }
+
+        maven {
+            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1509'
+        }
+
+        maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
+    }
+}
 
-        maven {
-            url = 'http://maven.wso2.org/nexus/content/repositories/releases/'
-        }
+subprojects {
+    apply plugin: 'java'
+}
 
-        maven {
-            url = 'http://maven.wso2.org/nexus/content/repositories/snapshots/'
-        }
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/coverage-reports/*.exec")
 
-        maven {
-            url = 'https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1509/'
-        }
-
-        maven {
-            url = 'http://maven.wso2.org/nexus/content/groups/wso2-public/'
-        }
+    subprojects.each {
+        sourceSets it.sourceSets.main
     }
 
-    sourceCompatibility = '1.8'
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                groupId project.group
-                artifactId project.name
-                version = project.version
-            }
-        }
-        repositories {
-            maven {
-                if(project.version.endsWith('-SNAPSHOT')) {
-                    url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
-                } else {
-                    url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
-                }
-                credentials {
-                    username System.getenv("NEXUS_USERNAME")
-                    password System.getenv("NEXUS_PASSWORD")
-                }
-            }
-        }
+    reports {
+        xml.enabled = true
+        html.enabled = true
+        csv.enabled = true
+        xml.destination = new File("${buildDir}/reports/jacoco/report.xml")
+        html.destination = new File("${buildDir}/reports/jacoco/report.html")
+        csv.destination = new File("${buildDir}/reports/jacoco/report.csv")
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
+    onlyIf = {
+        true
     }
 }

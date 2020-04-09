@@ -15,21 +15,20 @@
  *
  */
 
-plugins {
-    id "com.gradle.enterprise" version "3.2"
-}
+apply plugin: "maven-publish"
 
-rootProject.name = 'awslambda-extension-parent'
-include(':build-config:checkstyle')
-include(':awslambda-extension')
-include(':awslambda-extension-balo')
-include(':awslambda-extension-test')
-include(':awslambda-extension-examples')
-
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
+publishing {
+    repositories {
+        maven {
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
+            } else {
+                url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
+            }
+            credentials {
+                username System.getenv("NEXUS_USERNAME")
+                password System.getenv("NEXUS_PASSWORD")
+            }
+        }
     }
 }
-

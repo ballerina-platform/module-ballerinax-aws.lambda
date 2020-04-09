@@ -40,14 +40,13 @@ public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
 The output of the Ballerina build is as follows:
 
 ```bash
-$ ./ballerina build functions.bal 
+$ ballerina build functions.bal 
 Compiling source
     functions.bal
-Generating executable
-    functions.balx
-	@awslambda:Function: echo, uuid, ctxinfo
 
-        The Ballerina AWS Lambda layer information can be found at https://ballerina.io/deployment/aws-lambda.
+Generating executable
+    functions.jar
+	@awslambda:Function: echo, uuid, ctxinfo
 
 	Run the following commands to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024

@@ -16,20 +16,31 @@
  */
 
 plugins {
-    id "com.gradle.enterprise" version "3.2"
+    id "de.undercouch.download"
 }
 
-rootProject.name = 'awslambda-extension-parent'
-include(':build-config:checkstyle')
-include(':awslambda-extension')
-include(':awslambda-extension-balo')
-include(':awslambda-extension-test')
-include(':awslambda-extension-examples')
-
-gradleEnterprise {
-    buildScan {
-        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
-        termsOfServiceAgree = 'yes'
-    }
+task downloadMultipleFiles(type: Download) {
+    src([
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml',
+        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml'
+    ])
+    overwrite false
+    onlyIfNewer true
+    dest buildDir
 }
 
+jar {
+    enabled = false
+}
+
+clean {
+    enabled = false
+}
+
+artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
+    builtBy('downloadMultipleFiles')
+}
+
+artifacts.add('default', file("$project.buildDir/suppressions.xml")) {
+    builtBy('downloadMultipleFiles')
+}

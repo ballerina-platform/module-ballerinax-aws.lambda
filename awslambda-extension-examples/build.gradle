@@ -14,13 +14,29 @@
  * limitations under the License.
  *
  */
- 
+
+apply from: "$rootDir/gradle/mvnPublisher.gradle"
+
 description = 'Ballerinax - AWSLambda Extension Examples'
 
 task zipExamples(type: Zip) {
    from 'examples/'
    include '*'
-   include '*/*' 
-   archiveName "/awslambda-extension-examples-${ballerinaLangVersion}"
-   destinationDir file(project.buildDir.absolutePath)
+   include '*/*'
+   archiveFileName = "awslambda-extension-examples-${ballerinaLangVersion}.zip"
+   destinationDirectory = file(project.buildDir.absolutePath)
 }
+
+jar {
+   enabled = false
+}
+
+publishing {
+   publications {
+      mavenJava(MavenPublication) {
+         artifact source: zipExamples, extension: 'zip'
+      }
+   }
+}
+
+build.dependsOn zipExamples
