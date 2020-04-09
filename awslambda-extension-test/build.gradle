@@ -17,6 +17,12 @@
 
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    awsLambdaExtensionPlugin
+    awsLambdaBallerinaBirDir
+    awsLambdaBallerinaJar
+}
+
 dependencies {
     implementation project(':awslambda-extension')
 
@@ -24,11 +30,45 @@ dependencies {
     testImplementation "commons-io:commons-io:${commomsIOVersion}"
     testImplementation "commons-logging:commons-logging:${commonsLoggingVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+
+    awsLambdaExtensionPlugin project(":awslambda-extension")
+    awsLambdaBallerinaBirDir project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaBirDir")
+    awsLambdaBallerinaJar project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaJar")
 }
 
 description = 'Ballerinax - AWS Lambda Extension Tests'
 
+def distributionLocation = project(":awslambda-extension-balo").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+
+task copyBalAWSLambdaExt {
+    doLast {
+        copy {
+            from configurations.awsLambdaExtensionPlugin
+            into file("${distributionLocation}/bre/lib/")
+        }
+    }
+}
+
+task copyBallerinaArtifacts {
+    doLast {
+        copy {
+            from configurations.awsLambdaBallerinaBirDir
+            into file("${distributionLocation}/bir-cache/")
+        }
+        copy {
+            from configurations.awsLambdaBallerinaJar
+            into file("${distributionLocation}/bre/lib/")
+        }
+    }
+}
+
+task prepareDistribution {
+    dependsOn copyBalAWSLambdaExt
+    dependsOn copyBallerinaArtifacts
+}
+
 test {
+    dependsOn prepareDistribution
     useTestNG() {
         if (project.hasProperty('LayerTesting')) {
             suites 'src/test/resources/testng-sam-cli.xml'

@@ -19,7 +19,8 @@ apply plugin: "java"
 apply plugin: "com.github.spotbugs"
 apply plugin: "checkstyle"
 apply plugin: "jacoco"
-apply plugin: "maven-publish"
+
+apply from: "$rootDir/gradle/mvnPublisher.gradle"
 
 configurations {
     jacocoRuntime
@@ -100,19 +101,6 @@ publishing {
             artifactId project.name
             version = project.version
             from components.java
-        }
-    }
-    repositories {
-        maven {
-            if(project.version.endsWith('-SNAPSHOT')) {
-                url "https://maven.wso2.org/nexus/content/repositories/snapshots/"
-            } else {
-                url "https://maven.wso2.org/nexus/service/local/staging/deploy/maven2/"
-            }
-            credentials {
-                username System.getenv("NEXUS_USERNAME")
-                password System.getenv("NEXUS_PASSWORD")
-            }
         }
     }
 }

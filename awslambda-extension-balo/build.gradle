@@ -14,25 +14,34 @@
  * limitations under the License.
  *
  */
- 
+
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply from: "$rootDir/gradle/mvnPublisher.gradle"
+
 description = 'Ballerinax - AWS Lambda Extension Annotations'
 
 configurations {
     balTools
-    awsLambdaExtensionPlugin {
-        transitive = false
-    }
+    awsLambdaBallerinaBirDir
+    awsLambdaBallerinaJar
 }
 
 dependencies {
     balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
-    awsLambdaExtensionPlugin project(":awslambda-extension")
+}
+
+def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
+def ballerinaProjectRoot = project.projectDir.absolutePath + "/src/main/ballerina"
+
+jar {
+    enabled = false
 }
 
 clean {
-    delete "src/main/ballerina/target"
+    delete "$ballerinaProjectRoot/target"
 }
 
 task unzip {
@@ -46,32 +55,46 @@ task unzip {
     }
 }
 
-def distributionPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
-def projectRoot = project.projectDir.absolutePath
+def artifactAwsLambdaBallerinaBirDir = file("$ballerinaProjectRoot/target/caches/bir_cache/")
+def artifactAwsLambdaBallerinaJar = file("$ballerinaProjectRoot/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar")
 
-task runScript {   
+task ballerinaBuild {
+    dependsOn unzip
+    inputs.dir file(ballerinaProjectRoot)
     doLast {
         exec {
-            workingDir project.projectDir
-            if (System.properties['os.name'].toLowerCase().contains('windows')) {
-                commandLine 'cmd', '/c', "scripts/annotations-build.bat" + distributionPath + " " + projectRoot
+            workingDir ballerinaProjectRoot
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
-                commandLine 'sh', '-c', "scripts/annotations-build.sh " + distributionPath + " " + projectRoot
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
             }
-            
         }
-    }
-}
-
-task copyBalAWSLambdaExt {
-    doLast {
         copy {
-            from configurations.awsLambdaExtensionPlugin
-            into new File(project.buildDir, "extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bre/lib/")
+            from file("$ballerinaProjectRoot/Ballerina.toml")
+            into file("${artifactAwsLambdaBallerinaBirDir}/ballerinax/awslambda/0.0.0")
+        }
+    }
+    outputs.dir artifactAwsLambdaBallerinaBirDir
+    outputs.file artifactAwsLambdaBallerinaJar
+}
+
+artifacts {
+    awsLambdaBallerinaBirDir file: artifactAwsLambdaBallerinaBirDir, builtBy: ballerinaBuild
+    awsLambdaBallerinaJar file: artifactAwsLambdaBallerinaJar, builtBy: ballerinaBuild
+}
+
+task createArtifactZip(type: Zip) {
+    destinationDirectory = file("$buildDir/distributions")
+    from ballerinaBuild
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
         }
     }
 }
 
-copyBalAWSLambdaExt.dependsOn unzip
-runScript.dependsOn copyBalAWSLambdaExt
-build.dependsOn runScript
+build.dependsOn ballerinaBuild
