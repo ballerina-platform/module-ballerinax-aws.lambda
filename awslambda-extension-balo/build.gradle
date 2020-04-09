@@ -33,16 +33,13 @@ dependencies {
     }
 }
 
-def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
-def ballerinaProjectRoot = project.projectDir.absolutePath + "/src/main/ballerina"
-
 jar {
     enabled = false
 }
 
 clean {
-    delete "$ballerinaProjectRoot/target"
-    delete "$ballerinaProjectRoot/Ballerina.lock"
+    delete "$project.projectDir/target"
+    delete "$project.projectDir/Ballerina.lock"
 }
 
 task unzip {
@@ -56,15 +53,16 @@ task unzip {
     }
 }
 
-def artifactAwsLambdaBallerinaBirDir = file("$ballerinaProjectRoot/target/caches/bir_cache/")
-def artifactAwsLambdaBallerinaJar = file("$ballerinaProjectRoot/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar")
+def artifactAwsLambdaBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/")
+def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar")
 
 task ballerinaBuild {
     dependsOn unzip
-    inputs.dir file(ballerinaProjectRoot)
+    inputs.dir file(project.projectDir)
     doLast {
         exec {
-            workingDir ballerinaProjectRoot
+            workingDir project.projectDir
+            def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
@@ -72,7 +70,7 @@ task ballerinaBuild {
             }
         }
         copy {
-            from file("$ballerinaProjectRoot/Ballerina.toml")
+            from file("$project.projectDir/Ballerina.toml")
             into file("${artifactAwsLambdaBallerinaBirDir}/ballerinax/awslambda/0.0.0")
         }
     }
