@@ -42,6 +42,7 @@ jar {
 
 clean {
     delete "$ballerinaProjectRoot/target"
+    delete "$ballerinaProjectRoot/Ballerina.lock"
 }
 
 task unzip {
