@@ -3,7 +3,7 @@
 Annotation based AWS Lambda extension implementation for Ballerina. 
 
 [![Build Status](https://wso2.org/jenkins/job/ballerinax/job/awslambda-pipeline/badge/icon)](https://wso2.org/jenkins/job/ballerinax/job/awslambda-pipeline/)
-[![AWS Lambda Build](https://github.com/ballerinax/awslambda/workflows/Ballerinax%20AWS%20Lambda%20Build/badge.svg)](https://github.com/ballerinax/awslambda/actions?query=workflow%3A%22Ballerina+AWS+Lambda+Build%22)
+[![AWS Lambda Build](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/workflows/Ballerinax%20AWS%20Lambda%20Build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/actions?query=workflow%3A%22Ballerina+AWS+Lambda+Build%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Supported Annotations:
