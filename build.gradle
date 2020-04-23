@@ -33,9 +33,6 @@ ext.projectBuildSourceEncoding = "UTF-8"
 ext.projectReportingOutputEncoding = "UTF-8"
 
 allprojects {
-    group = 'org.ballerinax.awslambda'
-    version = '1.3.0-SNAPSHOT'
-
     apply plugin: 'jacoco'
 
     repositories {
