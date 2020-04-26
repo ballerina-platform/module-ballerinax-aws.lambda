@@ -51,7 +51,7 @@ Generating executable
 
 	Run the following commands to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024
-	aws lambda update-function-configuration --function-name <FUNCTION_NAME> --layers <BALLERINA_LAYER_ARN>
+	aws lambda update-function-configuration --function-name <FUNCTION_NAME> --layers arn:aws:lambda:<REGION_ID>:141896495686:layer:ballerina:2
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
