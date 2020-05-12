@@ -53,7 +53,7 @@ task copyBallerinaArtifacts {
     doLast {
         copy {
             from configurations.awsLambdaBallerinaBirDir
-            into file("${distributionLocation}/bir-cache/")
+            into file("${distributionLocation}/bir-cache/ballerinax")
         }
         copy {
             from configurations.awsLambdaBallerinaJar
