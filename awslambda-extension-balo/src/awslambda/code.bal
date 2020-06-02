@@ -79,7 +79,7 @@ function generateContext(http:Response resp) returns @tainted Context {
     string requestId = resp.getHeader("Lambda-Runtime-Aws-Request-Id");
     string deadlineMsStr = resp.getHeader("Lambda-Runtime-Deadline-Ms");
     int deadlineMs = 0;
-    var dms = int.constructFrom(deadlineMsStr);
+    var dms = deadlineMsStr.cloneWithType(int);
     if (dms is int) {
         deadlineMs = dms;
     }
@@ -141,7 +141,7 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
             }
         } else {
             json payload = { errorReason: funcResp.reason() };
-            var detail = json.constructFrom(funcResp.detail());
+            var detail = funcResp.detail().cloneWithType(json);
             if (detail is json) {
                payload = { errorReason: funcResp.reason(), errorDetail: detail};
             }
