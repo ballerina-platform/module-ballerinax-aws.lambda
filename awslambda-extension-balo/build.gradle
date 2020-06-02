@@ -53,8 +53,12 @@ task unzip {
     }
 }
 
+def ballerinaToml = file("$project.projectDir/Ballerina.toml")
+def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
+def tomlSemver = semverMatcher[0][1]
+
 def artifactAwsLambdaBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerinax")
-def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar")
+def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/${tomlSemver}/ballerinax-awslambda-${tomlSemver}.jar")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -71,7 +75,7 @@ task ballerinaBuild {
         }
         copy {
             from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactAwsLambdaBallerinaBirDir}/awslambda/0.0.0")
+            into file("${artifactAwsLambdaBallerinaBirDir}/awslambda/${tomlSemver}")
         }
     }
     outputs.dir artifactAwsLambdaBallerinaBirDir
