@@ -17,8 +17,6 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply from: "$rootDir/gradle/mvnPublisher.gradle"
-
 description = 'Ballerinax - AWS Lambda Extension Annotations'
 
 configurations {
@@ -53,28 +51,45 @@ task unzip {
     }
 }
 
+def ballerinaToml = file("$project.projectDir/Ballerina.toml")
+def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
+def tomlSemver = semverMatcher[0][1]
+
 def artifactAwsLambdaBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerinax")
-def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/0.0.0/ballerinax-awslambda-0.0.0.jar")
+def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/${tomlSemver}/ballerinax-awslambda-${tomlSemver}.jar")
 
 task ballerinaBuild {
     dependsOn unzip
     inputs.dir file(project.projectDir)
     doLast {
+        def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
         exec {
             workingDir project.projectDir
-            def distributionBinPath = project.projectDir.absolutePath + "/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
                 commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
             }
         }
+        exec {
+            workingDir project.projectDir
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc -a"
+            } else {
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc -a"
+            }
+        }
         copy {
             from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactAwsLambdaBallerinaBirDir}/awslambda/0.0.0")
+            into file("${artifactAwsLambdaBallerinaBirDir}/awslambda/${tomlSemver}")
+        }
+        copy {
+            from file("$project.projectDir/target/apidocs/awslambda")
+            into file("$project.buildDir/apidocs/docs/awslambda")
         }
     }
     outputs.dir artifactAwsLambdaBallerinaBirDir
+    outputs.dir file("$project.buildDir/apidocs")
     outputs.file artifactAwsLambdaBallerinaJar
 }
 

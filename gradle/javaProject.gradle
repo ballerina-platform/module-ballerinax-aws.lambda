@@ -20,8 +20,6 @@ apply plugin: "com.github.spotbugs"
 apply plugin: "checkstyle"
 apply plugin: "jacoco"
 
-apply from: "$rootDir/gradle/mvnPublisher.gradle"
-
 configurations {
     jacocoRuntime
 }
