@@ -6,7 +6,7 @@
         "samples": [
             {
                 "name": "AWS Lambda Deployment",
-                "url": "awslambda-deployment"
+                "url": "aws-lambda-deployment"
             }
         ]
     }
