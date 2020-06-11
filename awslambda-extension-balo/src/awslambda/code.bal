@@ -29,7 +29,7 @@ public type Context object {
     string invokedFunctionArn;
     string traceId;
 
-    function __init(string requestId, int deadlineMs, string invokedFunctionArn, string traceId) {
+    function init(string requestId, int deadlineMs, string invokedFunctionArn, string traceId) {
         self.requestId = requestId;
         self.deadlineMs = deadlineMs;
         self.invokedFunctionArn = invokedFunctionArn;
