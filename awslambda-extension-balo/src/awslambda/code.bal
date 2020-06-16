@@ -140,11 +140,7 @@ function processEvent(http:Client clientEP, http:Response resp, (function (Conte
                 io:println("Error - sending response: ", result);
             }
         } else {
-            json payload = { errorReason: funcResp.reason() };
-            var detail = funcResp.detail().cloneWithType(json);
-            if (detail is json) {
-               payload = { errorReason: funcResp.reason(), errorDetail: detail};
-            }
+            json payload = { errorReason: funcResp.message() };
             req.setJsonPayload(payload);
             // send the error
             var result = clientEP->post(BASE_URL + <@untainted> ctx.requestId + "/error", req);

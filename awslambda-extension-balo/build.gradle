@@ -36,6 +36,7 @@ jar {
 }
 
 clean {
+    delete "$project.projectDir/output"
     delete "$project.projectDir/target"
     delete "$project.projectDir/Ballerina.lock"
 }
@@ -66,17 +67,17 @@ task ballerinaBuild {
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc awslambda"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc awslambda"
             }
         }
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc -a"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc -a"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
             }
         }
         copy {
