@@ -1,0 +1,50 @@
+## Module Overview
+
+This module offers the capabilities of creating AWS Lambda functions using ballerina. 
+
+### Annotation Usage Sample:
+
+```ballerina
+import ballerinax/awslambda;
+import ballerina/system;
+
+@awslambda:Function
+public function echo(awslambda:Context ctx, json input) returns json|error {
+   return input;
+}
+
+@awslambda:Function
+public function uuid(awslambda:Context ctx, json input) returns json|error {
+   return system:uuid();
+}
+
+@awslambda:Function
+public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
+   json result = { RequestID: ctx.getRequestId(),
+                   DeadlineMS: ctx.getDeadlineMs(),
+                   InvokedFunctionArn: ctx.getInvokedFunctionArn(),
+                   TraceID: ctx.getTraceId(),
+                   RemainingExecTime: ctx.getRemainingExecutionTime() };
+   return result;
+}
+```
+
+The output of the Ballerina build is as follows:
+
+```bash
+$ ballerina build functions.bal 
+Compiling source
+    functions.bal
+
+Generating executable
+    functions.jar
+	@awslambda:Function: echo, uuid, ctxinfo
+
+	Run the following commands to deploy each Ballerina AWS Lambda function:
+	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --timeout 10 --memory-size 1024
+	aws lambda update-function-configuration --function-name <FUNCTION_NAME> --layers arn:aws:lambda:<REGION_ID>:141896495686:layer:ballerina:2
+
+	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
+	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
+```
+
