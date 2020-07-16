@@ -37,7 +37,7 @@ Generating executable
 
         The Ballerina AWS Lambda layer information can be found at https://ballerina.io/deployment/aws-lambda.
 
-	Run the following commands to deploy each Ballerina AWS Lambda function:
+	Run the following command to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --layers <BALLERINA_LAYER_ARN>
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:

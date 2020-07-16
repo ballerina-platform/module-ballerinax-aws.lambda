@@ -326,7 +326,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
         String balxName = binaryPath.getFileName().toString().split("\\.")[0];
-        OUT.println("\n\tRun the following commands to deploy each Ballerina AWS Lambda function:");
+        OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
         OUT.println("\taws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
                 + ".<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --layers "
