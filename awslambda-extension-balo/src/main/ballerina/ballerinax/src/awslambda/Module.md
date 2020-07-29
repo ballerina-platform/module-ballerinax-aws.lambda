@@ -2,7 +2,7 @@
 
 This module offers the capabilities of creating AWS Lambda functions using ballerina. 
 
-For information on the operations, which you can perform with this module, see [Objects](https://ballerina.io/swan-lake/learn/api-docs/ballerina/awslambda/index.html#objects). For examples on the usage of the operations, see the [AWS Lambda Deployment Example](https://ballerina.io/swan-lake/learn/by-example/aws-lambda-deployment.html).
+For information on the operations, which you can perform with this module, see [Objects](https://ballerina.io/learn/api-docs/ballerina/awslambda/index.html#objects). For examples on the usage of the operations, see the [AWS Lambda Deployment Example](https://ballerina.io/learn/by-example/aws-lambda-deployment.html).
 
 ### Annotation Usage Sample:
 
@@ -48,4 +48,3 @@ Generating executable
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
 ```
-
