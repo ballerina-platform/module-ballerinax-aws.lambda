@@ -72,7 +72,8 @@ public type Context object {
 
 };
 
-type FunctionEntry [function (Context, anydata) returns json|error, typedesc<anydata>];
+type FunctionType function (Context, anydata) returns json|error;
+type FunctionEntry [FunctionType, typedesc<anydata>];
 map<FunctionEntry> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
@@ -90,8 +91,7 @@ function generateContext(http:Response resp) returns @tainted Context {
     return ctx;
 }
 
-public function __register(string handler, (function (Context, anydata) returns json|error) func, 
-                           typedesc<anydata> eventType) {
+public function __register(string handler, FunctionType func, typedesc<anydata> eventType) {
     functions[handler] = [func, eventType];
 }
 
@@ -137,7 +137,7 @@ function processEvent(http:Client clientEP, http:Response resp, FunctionEntry fu
         updateInvocationContext(ctx);
         http:Request req = new;
         // call the target function, handle any errors if raised by the function
-        (function (Context, anydata) returns json|error) func = funcEntry[0];
+        FunctionType func = funcEntry[0];
         var event = jsonToEventType(content, funcEntry[1]);
         json|error funcResp;
         if event is error {

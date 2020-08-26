@@ -381,19 +381,20 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             return false;
         }
         BLangType retType = (BLangType) node.returnTypeNode;
-        if (!(retType instanceof BLangUnionTypeNode)) {
-            return false;
-        }
-        BLangUnionTypeNode unionType = (BLangUnionTypeNode) retType;
-        if (unionType.memberTypeNodes.size() != 2) {
-            return false;
-        }
-        Set<Integer> typeTags = new HashSet<>();
-        typeTags.add(unionType.memberTypeNodes.get(0).type.tag);
-        typeTags.add(unionType.memberTypeNodes.get(1).type.tag);
-        typeTags.remove(TypeTags.JSON_TAG);
-        typeTags.remove(TypeTags.ERROR_TAG);
-        if (!typeTags.isEmpty()) {
+        if (retType instanceof BLangUnionTypeNode) {
+            BLangUnionTypeNode unionType = (BLangUnionTypeNode) retType;
+            Set<Integer> typeTags = new HashSet<>();
+            for (BLangType memberTypeNode : unionType.memberTypeNodes) {
+                typeTags.add(memberTypeNode.type.tag);
+            }
+            typeTags.remove(TypeTags.JSON_TAG);
+            typeTags.remove(TypeTags.ERROR_TAG);
+            typeTags.remove(TypeTags.NULL_TAG);
+            if (!typeTags.isEmpty()) {
+                return false;
+            }
+        } else if (!(retType.type.tag == TypeTags.JSON_TAG || retType.type.tag == TypeTags.ERROR_TAG || 
+                     retType.type.tag == TypeTags.NULL_TAG)) {
             return false;
         }        
         return true;
