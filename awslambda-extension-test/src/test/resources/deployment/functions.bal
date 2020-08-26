@@ -20,3 +20,13 @@ public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
                    RemainingExecTime: ctx.getRemainingExecutionTime() };
    return result;
 }
+
+@awslambda:Function
+public function notifySQS(awslambda:Context ctx, awslambda:SQSEvent event) returns json|error {
+    return event.Records[0].body;
+}
+
+@awslambda:Function
+public function notifyS3(awslambda:Context ctx, awslambda:S3Event event) returns json|error {
+    return event.Records[0].s3.'object.key;
+}
