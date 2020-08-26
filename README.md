@@ -35,22 +35,31 @@ public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
                    RemainingExecTime: ctx.getRemainingExecutionTime() };
    return result;
 }
+
+@awslambda:Function
+public function notifySQS(awslambda:Context ctx, awslambda:SQSEvent event) returns json|error {
+    return event.Records[0].body;
+}
+
+@awslambda:Function
+public function notifyS3(awslambda:Context ctx, awslambda:S3Event event) returns json|error {
+    return event.Records[0].s3.'object.key;
+}
 ```
 
 The output of the Ballerina build is as follows:
 
 ```bash
-$ ./ballerina build functions.bal 
+$ ballerina build functions.bal 
 Compiling source
-    functions.bal
-Generating executable
-    functions.balx
-	@awslambda:Function: echo, uuid, ctxinfo
+	functions.bal
 
-        The Ballerina AWS Lambda layer information can be found at https://ballerina.io/deployment/aws-lambda.
+Generating executables
+	functions.jar
+	@awslambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
-	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --layers <BALLERINA_LAYER_ARN>
+	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:141896495686:layer:ballerina:2
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
