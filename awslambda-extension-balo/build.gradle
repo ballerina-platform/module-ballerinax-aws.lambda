@@ -41,6 +41,7 @@ clean {
     delete "$project.projectDir/Ballerina.lock"
 }
 
+def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
 task unzip {
     doLast {
         configurations.balTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
@@ -50,6 +51,51 @@ task unzip {
             }
         }
     }
+    outputs.dir bDistribution
+}
+
+task unpackStdLibs() {
+    doLast {
+        configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+            copy {
+                from project.zipTree(artifact.getFile())
+                into new File("${buildDir}/extracted-distribution", artifact.name + "-zip")
+            }
+        }
+    }
+}
+
+task copyStdlibs(type: Copy) {
+    into bDistribution
+
+    /* Standard Libraries */
+    configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+        def artifactExtractedPath = "${buildDir}/extracted-distribution/" + artifact.name + "-zip"
+        into("bir-cache/") {
+            from "${artifactExtractedPath}/caches/bir"
+        }
+        into("bre/lib/") {
+            from "${artifactExtractedPath}/libs"
+        }
+        into("docs/") {
+            from "${artifactExtractedPath}/docs"
+        }
+        // pack to new cache
+        into("cache/bir/") {
+            from "${artifactExtractedPath}/caches/bir"
+        }
+        into("cache/balo/") {
+            from "${artifactExtractedPath}/caches/balo"
+        }
+        into("cache/jar/") {
+            from "${artifactExtractedPath}/caches/jar"
+        }
+    }
+}
+
+task copyThridPartyDependencies(type: Copy) {
+    from configurations.thirdPartyJars
+    into "${bDistribution}/bre/lib"
 }
 
 def ballerinaToml = file("$project.projectDir/Ballerina.toml")
@@ -112,4 +158,8 @@ publishing {
     }
 }
 
+unpackStdLibs.dependsOn unzip
+copyStdlibs.dependsOn unpackStdLibs
+copyThridPartyDependencies.dependsOn copyStdlibs
+ballerinaBuild.dependsOn copyThridPartyDependencies
 build.dependsOn ballerinaBuild
