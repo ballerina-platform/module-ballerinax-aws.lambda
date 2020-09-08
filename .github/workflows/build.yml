@@ -8,6 +8,9 @@ jobs:
     env:
       AWS_DEFAULT_REGION: us-east-1
       SAM_CLI_TELEMETRY: 0
+      GITHUB_TOKEN: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
+      packageUser: ${{ github.actor }}
+      packagePAT: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
