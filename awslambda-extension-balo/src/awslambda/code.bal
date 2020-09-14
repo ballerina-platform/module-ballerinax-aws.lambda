@@ -22,7 +22,7 @@ import ballerina/time;
 import ballerina/stringutils;
 
 # Object to represent an AWS Lambda function execution context.
-public type Context object {
+public class Context {
 
     string requestId;
     int deadlineMs;
@@ -70,7 +70,7 @@ public type Context object {
         return result;
     }
 
-};
+}
 
 type FunctionType function (Context, anydata) returns json|error;
 type FunctionEntry [FunctionType, typedesc<anydata>];

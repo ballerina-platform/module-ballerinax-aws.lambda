@@ -23,6 +23,7 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -113,7 +114,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         var.pos = pos;
         var.name = ASTBuilderUtil.createIdentifier(pos, name);
         var.type = type;
-        var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, pos);
+        var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, pos,
+                SymbolOrigin.VIRTUAL);
         return var;
     }
 
@@ -290,7 +292,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.body = this.createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, pos);
+                bLangFunction.type, packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         return bLangFunction;
@@ -307,7 +309,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.body = createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, pos);
+                bLangFunction.type, packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
         functionSymbol.type = bLangFunction.type;
         functionSymbol.retType = retType.type;
         functionSymbol.scope = new Scope(functionSymbol);
