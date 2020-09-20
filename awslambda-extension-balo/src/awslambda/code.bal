@@ -29,7 +29,7 @@ public class Context {
     string invokedFunctionArn;
     string traceId;
 
-    function init(string requestId, int deadlineMs, string invokedFunctionArn, string traceId) {
+    isolated function init(string requestId, int deadlineMs, string invokedFunctionArn, string traceId) {
         self.requestId = requestId;
         self.deadlineMs = deadlineMs;
         self.invokedFunctionArn = invokedFunctionArn;
@@ -38,31 +38,31 @@ public class Context {
 
     # Returns the unique id for this request.
     # + return - the request id
-    public function getRequestId() returns string {
+    public isolated function getRequestId() returns string {
         return self.requestId;
     }
 
     # Returns the request execution deadline in milliseconds from the epoch.
     # + return - the request execution deadline
-    public function getDeadlineMs() returns int {
+    public isolated function getDeadlineMs() returns int {
         return self.deadlineMs;
     }
 
     # Returns the ARN of the function being invoked.
     # + return - the invoked function ARN
-    public function getInvokedFunctionArn() returns string {
+    public isolated function getInvokedFunctionArn() returns string {
         return self.invokedFunctionArn;
     }
 
     # Returns the trace id for this request
     # + return - the trace id
-    public function getTraceId() returns string {
+    public isolated function getTraceId() returns string {
         return self.traceId;
     }
 
     # Returns the remaining execution time for this request in milliseconds
     # + return - the remaining execution time
-    public function getRemainingExecutionTime() returns int {
+    public isolated function getRemainingExecutionTime() returns int {
         int result = self.deadlineMs - time:currentTime().time;
         if (result < 0) {
             result = 0;
@@ -77,7 +77,7 @@ type FunctionEntry [FunctionType, typedesc<anydata>];
 map<FunctionEntry> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
-function generateContext(http:Response resp) returns @tainted Context {
+isolated function generateContext(http:Response resp) returns @tainted Context {
     string requestId = resp.getHeader("Lambda-Runtime-Aws-Request-Id");
     string deadlineMsStr = resp.getHeader("Lambda-Runtime-Deadline-Ms");
     int deadlineMs = 0;
@@ -95,7 +95,7 @@ public function __register(string handler, FunctionType func, typedesc<anydata> 
     functions[handler] = [func, eventType];
 }
 
-function jsonToEventType(json input, typedesc<anydata> eventType) returns anydata|error {
+isolated function jsonToEventType(json input, typedesc<anydata> eventType) returns anydata|error {
     return input.cloneWithType(eventType);
 }
 
@@ -124,7 +124,7 @@ public function __process() {
     }
 }
 
-function updateInvocationContext(Context ctx) {
+isolated function updateInvocationContext(Context ctx) {
     // set the trace id in the invocation context
     var context = runtime:getInvocationContext();
     context.attributes["traceId"] = ctx.getTraceId();
