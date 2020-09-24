@@ -2,7 +2,7 @@
 
 This module offers the capabilities of creating AWS Lambda functions using ballerina. 
 
-- For information on the operations, which you can perform with this module, see [Objects](/swan-lake/learn/api-docs/ballerina/awslambda/index.html#objects). 
+- For information on the operations, which you can perform with this module, see [Classes](/swan-lake/learn/api-docs/ballerina/awslambda/index.html#classes). 
 - For information on the deployment, see the [AWS Lambda Deployment Guide](/swan-lake/learn/deployment/aws-lambda/).
 - For examples on the usage of the operations, see the [AWS Lambda Deployment Example](/swan-lake/learn/by-example/aws-lambda-deployment.html).
 
