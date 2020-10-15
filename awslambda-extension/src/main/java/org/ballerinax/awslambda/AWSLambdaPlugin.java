@@ -20,6 +20,8 @@ package org.ballerinax.awslambda;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.core.model.types.TypeTags;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -28,10 +30,8 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -436,8 +436,10 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + path.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
-            Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+            if (binaryPath.getFileName() != null) {
+                Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
+                Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 

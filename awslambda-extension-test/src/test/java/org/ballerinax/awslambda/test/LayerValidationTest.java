@@ -36,7 +36,14 @@ import javax.xml.bind.DatatypeConverter;
  * Validate that the layer implementation is the same that is used in tests.
  */
 public class LayerValidationTest extends BaseTest {
-    
+
+    public static String getMD5(Path filePath) throws NoSuchAlgorithmException, IOException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(Files.readAllBytes(Paths.get(filePath.toString())));
+        byte[] digest = md.digest();
+        return DatatypeConverter.printHexBinary(digest).toUpperCase();
+    }
+
     @Test
     public void validateMD5OfLayer() throws IOException, NoSuchAlgorithmException {
         Path ballerinaLayer = Paths.get(FilenameUtils.separatorsToSystem(System.getProperty("ballerinaLayer")));
@@ -44,13 +51,5 @@ public class LayerValidationTest extends BaseTest {
         String testLayerMD5 = getMD5(SOURCE_DIR.resolve("layer-pkg").resolve("ballerina-2-d475e820be")
                 .resolve("bootstrap"));
         Assert.assertEquals(ballerinaLayerMD5, testLayerMD5, "Ballerina layers are different in tests.");
-        
-    }
-    
-    public static String getMD5(Path filePath) throws NoSuchAlgorithmException, IOException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(Files.readAllBytes(Paths.get(filePath.toString())));
-        byte[] digest = md.digest();
-        return DatatypeConverter.printHexBinary(digest).toUpperCase();
     }
 }
