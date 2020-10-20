@@ -436,10 +436,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + path.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            if (binaryPath.getFileName() != null) {
-                Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
-                Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
-            }
+            Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
+            Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
