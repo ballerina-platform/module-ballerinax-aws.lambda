@@ -17,7 +17,6 @@
  */
 package org.ballerinax.awslambda.test;
 
-import org.apache.commons.io.FileUtils;
 import org.ballerinax.awslambda.test.utils.BaseTest;
 import org.ballerinax.awslambda.test.utils.ProcessOutput;
 import org.ballerinax.awslambda.test.utils.TestUtils;
@@ -28,7 +27,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -40,19 +38,19 @@ import java.util.HashMap;
  */
 public class DeploymentTest extends BaseTest {
     private Path eventJson;
-    
+
     @BeforeClass
     public void setup() throws IOException {
         this.eventJson = Files.createTempDirectory("ballerina-aws-lambda-test-").resolve("event.json");
     }
-    
-    
+
+
     @Test
     public void testAWSLambdaDeployment() throws IOException, InterruptedException {
         ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@awslambda"));
-        
+
         // Check if jar is in .zip
         Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("aws-ballerina-lambda-functions.zip");
         Assert.assertTrue(Files.exists(zipFilePath));
@@ -62,18 +60,18 @@ public class DeploymentTest extends BaseTest {
             Assert.assertTrue(Files.exists(jarFile));
         }
     }
-    
-    @Test(dependsOnMethods = "testAWSLambdaDeployment", groups = "samCLITest")
-    public void runFunctionTest() throws IOException, InterruptedException {
-        Path srcDirectory = SOURCE_DIR.resolve("deployment");
-    
-        String echoContent = "{\"message\":\"Hello World!\"}";
-        FileUtils.write(this.eventJson.toFile(), echoContent, Charset.defaultCharset());
-        ProcessOutput processOutput = TestUtils.runLambdaFunction(srcDirectory, "EchoFunction", this.eventJson);
-        Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains(echoContent));
-    }
-    
+
+//    @Test(dependsOnMethods = "testAWSLambdaDeployment", groups = "samCLITest")
+//    public void runFunctionTest() throws IOException, InterruptedException {
+//        Path srcDirectory = SOURCE_DIR.resolve("deployment");
+//
+//        String echoContent = "{\"message\":\"Hello World!\"}";
+//        FileUtils.write(this.eventJson.toFile(), echoContent, Charset.defaultCharset());
+//        ProcessOutput processOutput = TestUtils.runLambdaFunction(srcDirectory, "EchoFunction", this.eventJson);
+//        Assert.assertEquals(processOutput.getExitCode(), 0);
+//        Assert.assertTrue(processOutput.getStdOutput().contains(echoContent));
+//    }
+
     @AfterClass
     public void cleanUp() throws IOException {
         TestUtils.deleteDirectory(this.eventJson.getParent());

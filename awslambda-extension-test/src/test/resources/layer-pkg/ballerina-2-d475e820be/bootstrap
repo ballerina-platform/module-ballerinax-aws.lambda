@@ -15,6 +15,9 @@
 #  limitations under the License.
 
 echo "START Ballerina"
-export JAVA_HOME=/usr/lib/jvm/jre-1.8.0-openjdk.x86_64
-java -jar $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | cut -d. -f1).jar"
+ls -ltr $LAMBDA_TASK_ROOT
+JAVA_HOME="/opt/jdk"
+echo $JAVA_HOME
+$JAVA_HOME/bin/java -version
+$JAVA_HOME/bin/java -jar $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | cut -d. -f1).jar"
 echo "END Ballerina"

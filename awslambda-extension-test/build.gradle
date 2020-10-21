@@ -31,6 +31,9 @@ dependencies {
     testImplementation "commons-logging:commons-logging:${commonsLoggingVersion}"
     testImplementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
 
+    testImplementation "javax.xml.bind:jaxb-api:2.3.1"
+    testImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.1"
+
     awsLambdaExtensionPlugin project(":awslambda-extension")
     awsLambdaBallerinaBirDir project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaBirDir")
     awsLambdaBallerinaJar project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaJar")
