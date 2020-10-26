@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: us-east-1
+      AWS_DEFAULT_REGION: us-west-1
       SAM_CLI_TELEMETRY: 0
       GITHUB_TOKEN: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
       packageUser: ${{ github.actor }}
