@@ -133,7 +133,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         List<BLangFunction> lambdaFunctions = new ArrayList<>();
         for (FunctionNode fn : packageNode.getFunctions()) {
             BLangFunction bfn = (BLangFunction) fn;
-            if (this.isLambdaFunction(bfn)) {
+            BLangPackage bPackage = (BLangPackage) packageNode;
+            if (this.isLambdaFunction(bfn, bPackage.packageID)) {
                 lambdaFunctions.add(bfn);
             }
         }
@@ -329,7 +330,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return blockNode;
     }
 
-    private boolean isLambdaFunction(BLangFunction fn) {
+    private boolean isLambdaFunction(BLangFunction fn, PackageID packageID) {
         List<BLangAnnotationAttachment> annotations = fn.annAttachments;
         boolean hasLambdaAnnon = false;
         for (AnnotationAttachmentNode attachmentNode : annotations) {
@@ -341,7 +342,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         if (hasLambdaAnnon) {
             BLangFunction bfn = fn;
             if (!this.validateLambdaFunction(bfn)) {
-                dlog.logDiagnostic(DiagnosticSeverity.ERROR, fn.getPosition(),
+                dlog.logDiagnostic(DiagnosticSeverity.ERROR, packageID, fn.getPosition(),
                         "Invalid function signature for an AWS lambda function: " +
                                 bfn + ", it should be 'public function (awslambda:Context, anydata) returns " +
                                 "json|error'");
