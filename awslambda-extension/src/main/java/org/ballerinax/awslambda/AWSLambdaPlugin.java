@@ -18,6 +18,8 @@
 
 package org.ballerinax.awslambda;
 
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.core.model.types.TypeTags;
@@ -30,7 +32,6 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -63,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
@@ -109,7 +109,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
 
     private SymbolTable symTable;
 
-    public static BLangSimpleVariable createVariable(DiagnosticPos pos, BType type, String name, BSymbol owner) {
+    public static BLangSimpleVariable createVariable(Location pos, BType type, String name, BSymbol owner) {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = pos;
         var.name = ASTBuilderUtil.createIdentifier(pos, name);
@@ -133,7 +133,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         List<BLangFunction> lambdaFunctions = new ArrayList<>();
         for (FunctionNode fn : packageNode.getFunctions()) {
             BLangFunction bfn = (BLangFunction) fn;
-            if (this.isLambdaFunction(bfn)) {
+            BLangPackage bPackage = (BLangPackage) packageNode;
+            if (this.isLambdaFunction(bfn, bPackage.packageID)) {
                 lambdaFunctions.add(bfn);
             }
         }
@@ -166,7 +167,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return "__func_proxy__" + targetFunc.name.value;
     }
 
-    private BLangFunction createProxyFunction(DiagnosticPos pos, BLangPackage myPkg, BLangFunction targetFunc) {
+    private BLangFunction createProxyFunction(Location pos, BLangPackage myPkg, BLangFunction targetFunc) {
         List<String> paramNames = new ArrayList<>();
         List<BType> paramTypes = new ArrayList<>();
         paramNames.add(targetFunc.requiredParams.get(0).name.value);
@@ -207,7 +208,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return null;
     }
 
-    private void addRegisterCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt,
+    private void addRegisterCall(Location pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt,
                                  BLangFunction targetFunc, BLangPackage myPkg) {
         BLangFunction proxyFunc = createProxyFunction(pos, myPkg, targetFunc);
         myPkg.addFunction(proxyFunc);
@@ -221,7 +222,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         blockStmt.addStatement(stmt);
     }
 
-    private BLangLiteral createStringLiteral(DiagnosticPos pos, String value) {
+    private BLangLiteral createStringLiteral(Location pos, String value) {
         BLangLiteral stringLit = new BLangLiteral();
         stringLit.pos = pos;
         stringLit.value = value;
@@ -229,7 +230,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return stringLit;
     }
 
-    private BLangTypedescExpr createTypeDescExpr(DiagnosticPos pos, BType type) {
+    private BLangTypedescExpr createTypeDescExpr(Location pos, BType type) {
         BLangTypedescExpr typeDescExpr = new BLangTypedescExpr();
         typeDescExpr.pos = pos;
         typeDescExpr.type = symTable.typeDesc;
@@ -238,7 +239,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return typeDescExpr;
     }
 
-    private BLangSimpleVarRef createVariableRef(DiagnosticPos pos, BSymbol varSymbol) {
+    private BLangSimpleVarRef createVariableRef(Location pos, BSymbol varSymbol) {
         final BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         varRef.pos = pos;
         varRef.variableName = ASTBuilderUtil.createIdentifier(pos, varSymbol.name.value);
@@ -247,7 +248,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return varRef;
     }
 
-    private void addProcessCall(DiagnosticPos pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt) {
+    private void addProcessCall(Location pos, BPackageSymbol lamdaPkgSymbol, BLangBlockFunctionBody blockStmt) {
         BLangInvocation inv = this.createInvocationNode(lamdaPkgSymbol,
                 LAMBDA_PROCESS_FUNCTION_NAME, new ArrayList<>(0));
         BLangExpressionStmt stmt = new BLangExpressionStmt(inv);
@@ -282,7 +283,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return invocationNode;
     }
 
-    private BLangFunction createFunction(DiagnosticPos pos, String name, BLangPackage packageNode) {
+    private BLangFunction createFunction(Location pos, String name, BLangPackage packageNode) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(pos, name);
         bLangFunction.setName(funcName);
@@ -298,7 +299,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return bLangFunction;
     }
 
-    private BLangFunction createFunction(DiagnosticPos pos, String name, List<String> paramNames,
+    private BLangFunction createFunction(Location pos, String name, List<String> paramNames,
                                          List<BType> paramTypes, BLangType retType, BLangPackage packageNode) {
         final BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         final IdentifierNode funcName = ASTBuilderUtil.createIdentifier(pos, name);
@@ -323,13 +324,13 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         return bLangFunction;
     }
 
-    private BLangFunctionBody createBlockStmt(DiagnosticPos pos) {
+    private BLangFunctionBody createBlockStmt(Location pos) {
         final BLangFunctionBody blockNode = (BLangFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
         blockNode.pos = pos;
         return blockNode;
     }
 
-    private boolean isLambdaFunction(BLangFunction fn) {
+    private boolean isLambdaFunction(BLangFunction fn, PackageID packageID) {
         List<BLangAnnotationAttachment> annotations = fn.annAttachments;
         boolean hasLambdaAnnon = false;
         for (AnnotationAttachmentNode attachmentNode : annotations) {
@@ -341,7 +342,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         if (hasLambdaAnnon) {
             BLangFunction bfn = fn;
             if (!this.validateLambdaFunction(bfn)) {
-                dlog.logDiagnostic(Diagnostic.Kind.ERROR, fn.getPosition(),
+                dlog.logDiagnostic(DiagnosticSeverity.ERROR, packageID, fn.getPosition(),
                         "Invalid function signature for an AWS lambda function: " +
                                 bfn + ", it should be 'public function (awslambda:Context, anydata) returns " +
                                 "json|error'");
