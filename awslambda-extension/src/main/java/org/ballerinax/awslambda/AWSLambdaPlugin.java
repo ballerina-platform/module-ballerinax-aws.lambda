@@ -18,6 +18,8 @@
 
 package org.ballerinax.awslambda;
 
+import io.ballerina.projects.Project;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
@@ -408,18 +410,19 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(PackageID packageID, Path binaryPath) {
+    public void codeGenerated(Project project, Target target) {
         if (AWSLambdaPlugin.generatedFuncs.isEmpty()) {
             // no lambda functions, nothing else to do
             return;
         }
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
         try {
-            this.generateZipFile(binaryPath);
+            this.generateZipFile(target.getExecutablePath(project.currentPackage()));
         } catch (IOException e) {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
-        String balxName = binaryPath.getFileName().toString().split("\\.")[0];
+        String balxName = target.getExecutablePath(project.currentPackage()).getFileName()
+                .toString().split("\\.")[0];
         OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
         OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
