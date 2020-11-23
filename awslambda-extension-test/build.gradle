@@ -19,8 +19,8 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     awsLambdaExtensionPlugin
-    awsLambdaBallerinaBirDir
-    awsLambdaBallerinaJar
+    awsLambdaBalo
+    awsLambdaBallerinaCache
 }
 
 dependencies {
@@ -35,8 +35,8 @@ dependencies {
     testImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.1"
 
     awsLambdaExtensionPlugin project(":awslambda-extension")
-    awsLambdaBallerinaBirDir project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaBirDir")
-    awsLambdaBallerinaJar project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaJar")
+    awsLambdaBalo project(path: ":awslambda-extension-balo", configuration: "awsLambdaBalo")
+    awsLambdaBallerinaCache project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaCache")
 }
 
 description = 'Ballerinax - AWS Lambda Extension Tests'
@@ -55,12 +55,12 @@ task copyBalAWSLambdaExt {
 task copyBallerinaArtifacts {
     doLast {
         copy {
-            from configurations.awsLambdaBallerinaBirDir
-            into file("${distributionLocation}/bir-cache/ballerinax")
+            from configurations.awsLambdaBalo
+            into file("${distributionLocation}/repo/balo/ballerinax")
         }
         copy {
-            from configurations.awsLambdaBallerinaJar
-            into file("${distributionLocation}/bre/lib/")
+            from configurations.awsLambdaBallerinaCache
+            into file("${distributionLocation}/repo/cache/ballerinax")
         }
     }
 }

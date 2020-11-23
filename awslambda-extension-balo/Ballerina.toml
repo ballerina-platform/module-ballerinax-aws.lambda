@@ -1,5 +1,6 @@
-[project]
-org-name = "ballerinax"
-version = "0.0.0"
+dependency = []
 
-[dependencies]
+[package]
+org = "ballerinax"
+name = "awslambda"
+version = "0.0.0"
