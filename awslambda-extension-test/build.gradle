@@ -19,8 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     awsLambdaExtensionPlugin
-    awsLambdaBalo
-    awsLambdaBallerinaCache
+    zipPartent
 }
 
 dependencies {
@@ -35,13 +34,13 @@ dependencies {
     testImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.1"
 
     awsLambdaExtensionPlugin project(":awslambda-extension")
-    awsLambdaBalo project(path: ":awslambda-extension-balo", configuration: "awsLambdaBalo")
-    awsLambdaBallerinaCache project(path: ":awslambda-extension-balo", configuration: "awsLambdaBallerinaCache")
+    zipPartent project(path: ":awslambda-extension-balo", configuration: "zipPartent")
 }
 
 description = 'Ballerinax - AWS Lambda Extension Tests'
 
 def distributionLocation = project(":awslambda-extension-balo").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+def zipDirLocation = configurations.zipPartent.singleFile
 
 task copyBalAWSLambdaExt {
     doLast {
@@ -53,15 +52,17 @@ task copyBalAWSLambdaExt {
 }
 
 task copyBallerinaArtifacts {
+    dependsOn configurations.zipPartent
     doLast {
         copy {
-            from configurations.awsLambdaBalo
+            from file("$zipDirLocation/balo/ballerinax")
             into file("${distributionLocation}/repo/balo/ballerinax")
         }
         copy {
-            from configurations.awsLambdaBallerinaCache
+            from file("$zipDirLocation/cache/ballerinax")
             into file("${distributionLocation}/repo/cache/ballerinax")
         }
+
     }
 }
 
@@ -79,11 +80,11 @@ test {
             suites 'src/test/resources/testng.xml'
         }
         systemProperties = [
-            ballerinaPack: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../awslambda-extension-balo/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
-            ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
-            sampleDir: System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples")
+                ballerinaPack : System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../awslambda-extension-balo/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
+                ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
+                sampleDir     : System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples")
         ]
-	}
+    }
 }
 
 // Disable publishing artifacts
