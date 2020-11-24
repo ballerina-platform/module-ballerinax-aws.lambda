@@ -416,13 +416,15 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             return;
         }
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
+        String balxName = null;
         try {
+            balxName = target.getExecutablePath(project.currentPackage()).getFileName()
+                    .toString().split("\\.")[0];
+
             this.generateZipFile(target.getExecutablePath(project.currentPackage()));
         } catch (IOException e) {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
-        String balxName = target.getExecutablePath(project.currentPackage()).getFileName()
-                .toString().split("\\.")[0];
         OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
         OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
