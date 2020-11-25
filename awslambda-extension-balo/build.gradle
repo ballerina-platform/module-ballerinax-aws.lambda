@@ -21,14 +21,15 @@ description = 'Ballerinax - AWS Lambda Extension Annotations'
 
 configurations {
     balTools
-    awsLambdaBallerinaBirDir
-    awsLambdaBallerinaJar
+    zipPartent
+    extensionPlugin
 }
 
 dependencies {
     balTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
         transitive = false
     }
+    extensionPlugin project(path: ":awslambda-extension")
 }
 
 jar {
@@ -42,6 +43,7 @@ clean {
 }
 
 def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+
 task unzip {
     doLast {
         configurations.balTools.resolvedConfiguration.resolvedArtifacts.each { artifact ->
@@ -71,24 +73,11 @@ task copyStdlibs(type: Copy) {
     /* Standard Libraries */
     configurations.ballerinaStdLibs.resolvedConfiguration.resolvedArtifacts.each { artifact ->
         def artifactExtractedPath = "${buildDir}/extracted-distribution/" + artifact.name + "-zip"
-        into("bir-cache/") {
-            from "${artifactExtractedPath}/caches/bir"
+        into("repo/balo") {
+            from "${artifactExtractedPath}/balo/"
         }
-        into("bre/lib/") {
-            from "${artifactExtractedPath}/libs"
-        }
-        into("docs/") {
-            from "${artifactExtractedPath}/docs"
-        }
-        // pack to new cache
-        into("cache/bir/") {
-            from "${artifactExtractedPath}/caches/bir"
-        }
-        into("cache/balo/") {
-            from "${artifactExtractedPath}/caches/balo"
-        }
-        into("cache/jar/") {
-            from "${artifactExtractedPath}/caches/jar"
+        into("repo/cache") {
+            from "${artifactExtractedPath}/cache"
         }
     }
 }
@@ -102,8 +91,10 @@ def ballerinaToml = file("$project.projectDir/Ballerina.toml")
 def semverMatcher = ballerinaToml.getText("UTF-8") =~ /(([0-9]+)\.([0-9]+)\.([0-9]+))/
 def tomlSemver = semverMatcher[0][1]
 
-def artifactAwsLambdaBallerinaBirDir = file("$project.projectDir/target/caches/bir_cache/ballerinax")
-def artifactAwsLambdaBallerinaJar = file("$project.projectDir/target/caches/jar_cache/ballerinax/awslambda/${tomlSemver}/ballerinax-awslambda-${tomlSemver}.jar")
+def artifactParent = file("$project.projectDir/build/target/awslambda-ballerinax-zip/")
+def artifactDocs = file("$project.buildDir/apidocs/docs/")
+def artifactBalo = file("$project.projectDir/target/balo")
+def artifactCache = file("$project.projectDir/target/cache/")
 
 task ballerinaBuild {
     dependsOn unzip
@@ -113,9 +104,9 @@ task ballerinaBuild {
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc awslambda"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat doc"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc awslambda"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina doc"
             }
         }
         copy {
@@ -125,24 +116,33 @@ task ballerinaBuild {
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c -a --skip-tests"
+                commandLine 'cmd', '/c', "$distributionBinPath/ballerina.bat build -c"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c -a --skip-tests"
+                commandLine 'sh', '-c', "$distributionBinPath/ballerina build -c"
             }
         }
         copy {
-            from file("$project.projectDir/Ballerina.toml")
-            into file("${artifactAwsLambdaBallerinaBirDir}/awslambda/${tomlSemver}")
+            from file("$artifactBalo")
+            into file("$artifactParent/balo/ballerinax/awslambda/$tomlSemver")
+        }
+        copy {
+            from file("$artifactDocs")
+            into file("$artifactParent/docs")
+        }
+        copy {
+            from configurations.extensionPlugin
+            into file("${artifactParent}/libs")
+        }
+        copy {
+            from file("$artifactCache")
+            into file("$artifactParent/cache")
         }
     }
-    outputs.dir artifactAwsLambdaBallerinaBirDir
-    outputs.dir file("$project.buildDir/apidocs")
-    outputs.file artifactAwsLambdaBallerinaJar
+    outputs.dir file("$artifactParent")
 }
 
 artifacts {
-    awsLambdaBallerinaBirDir file: artifactAwsLambdaBallerinaBirDir, builtBy: ballerinaBuild
-    awsLambdaBallerinaJar file: artifactAwsLambdaBallerinaJar, builtBy: ballerinaBuild
+    zipPartent file: artifactParent, builtBy: ballerinaBuild
 }
 
 task createArtifactZip(type: Zip) {
