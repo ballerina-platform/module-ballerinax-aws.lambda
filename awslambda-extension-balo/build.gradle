@@ -43,6 +43,7 @@ clean {
 }
 
 def bDistribution = file("$project.buildDir/extracted-distribution/jballerina-tools-${ballerinaLangVersion}")
+def extensionPluginArtifact = file("$project.projectDir/../awslambda-extension/build/libs/")
 
 task unzip {
     doLast {
@@ -130,7 +131,7 @@ task ballerinaBuild {
             into file("$artifactParent/docs")
         }
         copy {
-            from configurations.extensionPlugin
+            from file("$extensionPluginArtifact")
             into file("${artifactParent}/libs")
         }
         copy {
