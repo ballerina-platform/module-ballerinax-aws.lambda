@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
@@ -416,7 +417,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             return;
         }
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
-        String balxName = null;
+        String balxName;
         try {
             balxName = target.getExecutablePath(project.currentPackage()).getFileName()
                     .toString().split("\\.")[0];
@@ -426,10 +427,15 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
         OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-        OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
-                + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:1 --memory-size 512 --timeout 10");
+        try {
+            OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
+                    + target.getExecutablePath(project.currentPackage()).getParent().toString() + File.separator
+                    + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
+                    + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
+                    + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:1 --memory-size 512 --timeout 10");
+        } catch (IOException e) {
+            //ignored
+        }
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
                 + LAMBDA_OUTPUT_ZIP_FILENAME);
