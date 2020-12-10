@@ -1,4 +1,4 @@
-name: Ballerina AWS Lambda Build
+name: Ballerina AWS Lambda Pull Request
 
 on: [push, pull_request]
 
