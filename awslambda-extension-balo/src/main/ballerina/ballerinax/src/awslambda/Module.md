@@ -1,14 +1,10 @@
-# Ballerina AWS Lambda Extension
+## Module Overview
 
-Annotation based AWS Lambda extension implementation for Ballerina. 
+This module offers the capabilities of creating AWS Lambda functions using ballerina. 
 
-[![AWS Lambda Build](https://github.com/ballerinax/awslambda/workflows/Ballerinax%20AWS%20Lambda%20Build/badge.svg)](https://github.com/ballerinax/awslambda/actions)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-
-## Supported Annotations:
-
-### @awslambda:Function
-- Supported with Ballerina package level functions
+- For information on the operations, which you can perform with this module, see [Objects](/learn/api-docs/ballerina/awslambda/index.html#objects).
+- For information on the deployment, see the [AWS Lambda Deployment Guide](/learn/deployment/aws-lambda/). 
+- For examples on the usage of the operations, see the [AWS Lambda Deployment Example](/learn/by-example/aws-lambda-deployment.html).
 
 ### Annotation Usage Sample:
 
@@ -89,4 +85,3 @@ Generating executables
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip
 ```
-

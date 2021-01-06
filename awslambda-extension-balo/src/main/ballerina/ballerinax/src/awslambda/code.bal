@@ -72,7 +72,9 @@ public type Context object {
 
 };
 
-map<(function (Context, json) returns json|error)> functions = { };
+type FunctionType function (Context, anydata) returns json|error;
+type FunctionEntry [FunctionType, typedesc<anydata>];
+map<FunctionEntry> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
 function generateContext(http:Response resp) returns @tainted Context {
@@ -89,8 +91,12 @@ function generateContext(http:Response resp) returns @tainted Context {
     return ctx;
 }
 
-public function __register(string handler, (function (Context, json) returns json|error) func) {
-    functions[handler] = func;
+public function __register(string handler, FunctionType func, typedesc<anydata> eventType) {
+    functions[handler] = [func, eventType];
+}
+
+function jsonToEventType(json input, typedesc<anydata> eventType) returns anydata|error {
+    return eventType.constructFrom(input);
 }
 
 public function __process() {
@@ -104,7 +110,7 @@ public function __process() {
     }
     string handler = hsc[1];
     var func = functions[handler];
-    if (func is (function (Context, json) returns json|error)) {
+    if (func is FunctionEntry) {
         while (true) {
             var resp = clientEP->get(BASE_URL + "next");
             if (resp is http:Response) {
@@ -124,14 +130,21 @@ function updateInvocationContext(Context ctx) {
     context.attributes["traceId"] = ctx.getTraceId();
 }
 
-function processEvent(http:Client clientEP, http:Response resp, (function (Context, json) returns json|error) func) {
+function processEvent(http:Client clientEP, http:Response resp, FunctionEntry funcEntry) {
     var content = resp.getJsonPayload();
     if (content is json) {
         Context ctx = generateContext(resp);
         updateInvocationContext(ctx);
         http:Request req = new;
         // call the target function, handle any errors if raised by the function
-        var funcResp = trap func(ctx, content);
+        FunctionType func = funcEntry[0];
+        var event = jsonToEventType(content, funcEntry[1]);
+        json|error funcResp;
+        if event is error {
+            funcResp = error("Invalid event type", cause = <@untainted> event);
+        } else {
+            funcResp = trap func(ctx, event);
+        }
         if (funcResp is json) {
             req.setJsonPayload(<@untainted> funcResp);
             // send the response
