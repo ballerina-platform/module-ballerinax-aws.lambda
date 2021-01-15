@@ -30,12 +30,6 @@ jar {
 }
 
 publishing {
-   publications {
-      mavenJava(MavenPublication) {
-         artifact source: zipExamples, extension: 'zip'
-      }
-   }
-
    repositories {
       maven {
          name = "GitHubPackages"
