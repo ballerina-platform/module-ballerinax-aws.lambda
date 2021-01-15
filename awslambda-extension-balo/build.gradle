@@ -152,12 +152,6 @@ task createArtifactZip(type: Zip) {
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact source: createArtifactZip, extension: 'zip'
-        }
-    }
-
     repositories {
         maven {
             name = "GitHubPackages"
