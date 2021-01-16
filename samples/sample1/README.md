@@ -2,7 +2,7 @@
 
 ```ballerina
 import ballerinax/awslambda;
-import ballerina/system;
+import ballerina/uuid;
 
 @awslambda:Function
 public function echo(awslambda:Context ctx, json input) returns json|error {
@@ -11,7 +11,7 @@ public function echo(awslambda:Context ctx, json input) returns json|error {
 
 @awslambda:Function
 public function uuid(awslambda:Context ctx, json input) returns json|error {
-   return system:uuid();
+   return uuid:createType1AsString();
 }
 
 @awslambda:Function
