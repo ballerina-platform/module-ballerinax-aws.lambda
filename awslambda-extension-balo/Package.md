@@ -10,7 +10,7 @@ This module offers the capabilities of creating AWS Lambda functions using Balle
 
 ```ballerina
 import ballerinax/awslambda;
-import ballerina/system;
+import ballerina/uuid;
 import ballerina/io;
 
 // The `@awslambda:Function` annotation marks a function to
@@ -22,7 +22,7 @@ public function echo(awslambda:Context ctx, json input) returns json {
 
 @awslambda:Function
 public function uuid(awslambda:Context ctx, json input) returns json {
-   return system:uuid();
+   return uuid:createType1AsString();
 }
 
 // The `awslambda:Context` object contains request execution

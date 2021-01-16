@@ -17,7 +17,7 @@
 import ballerina/http;
 import ballerina/io;
 import ballerina/runtime;
-import ballerina/system;
+import ballerina/os;
 import ballerina/time;
 import ballerina/stringutils;
 
@@ -100,10 +100,10 @@ isolated function jsonToEventType(json input, typedesc<anydata> eventType) retur
 }
 
 public function __process() {
-    http:Client clientEP = new("http://" + system:getEnv("AWS_LAMBDA_RUNTIME_API"));
-    string handlerStr = system:getEnv("_HANDLER");
+    http:Client clientEP = new("http://" + os:getEnv("AWS_LAMBDA_RUNTIME_API"));
+    string handlerStr = os:getEnv("_HANDLER");
 
-    string[] hsc = stringutils:split(system:getEnv("_HANDLER"), "\\.");
+    string[] hsc = stringutils:split(os:getEnv("_HANDLER"), "\\.");
     if (hsc.length() < 2) {
         io:println("Error - invalid handler string: ", handlerStr, ", should be of format {BALX_NAME}.{FUNC_NAME}");
         return;
