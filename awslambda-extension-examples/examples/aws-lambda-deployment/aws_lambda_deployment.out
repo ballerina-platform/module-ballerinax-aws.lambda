@@ -1,7 +1,7 @@
 # Prerequisites: AWS CLI tools installation and configuration
 
 # Build the Ballerina program to generate the AWS Lambda functions
-$ ballerina build functions.bal
+$ bal build functions.bal
 Compiling source
 	functions.bal
 
