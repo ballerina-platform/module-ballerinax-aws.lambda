@@ -73,10 +73,10 @@ public function apigwRequest(awslambda:Context ctx,
 }
 ```
 
-The output of the Ballerina build is as follows:
+The output of the bal build is as follows:
 
 ```bash
-$ ballerina build functions.bal 
+$ bal build functions.bal 
 Compiling source
 	functions.bal
 

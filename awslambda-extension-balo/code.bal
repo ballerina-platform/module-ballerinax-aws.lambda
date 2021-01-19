@@ -19,7 +19,7 @@ import ballerina/io;
 import ballerina/runtime;
 import ballerina/os;
 import ballerina/time;
-import ballerina/stringutils;
+import ballerina/regex;
 
 # Object to represent an AWS Lambda function execution context.
 public class Context {
@@ -78,15 +78,15 @@ map<FunctionEntry> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
 isolated function generateContext(http:Response resp) returns @tainted Context {
-    string requestId = resp.getHeader("Lambda-Runtime-Aws-Request-Id");
-    string deadlineMsStr = resp.getHeader("Lambda-Runtime-Deadline-Ms");
+    string requestId = checkpanic resp.getHeader("Lambda-Runtime-Aws-Request-Id");
+    string deadlineMsStr = checkpanic resp.getHeader("Lambda-Runtime-Deadline-Ms");
     int deadlineMs = 0;
     var dms = deadlineMsStr.cloneWithType(int);
     if (dms is int) {
         deadlineMs = dms;
     }
-    string invokedFunctionArn = resp.getHeader("Lambda-Runtime-Invoked-Function-Arn");
-    string traceId = resp.getHeader("Lambda-Runtime-Trace-Id");
+    string invokedFunctionArn = checkpanic resp.getHeader("Lambda-Runtime-Invoked-Function-Arn");
+    string traceId = checkpanic resp.getHeader("Lambda-Runtime-Trace-Id");
     Context ctx = new(requestId, deadlineMs, invokedFunctionArn, traceId);
     return ctx;
 }
@@ -100,10 +100,10 @@ isolated function jsonToEventType(json input, typedesc<anydata> eventType) retur
 }
 
 public function __process() {
-    http:Client clientEP = new("http://" + os:getEnv("AWS_LAMBDA_RUNTIME_API"));
+    http:Client clientEP = checkpanic new("http://" + os:getEnv("AWS_LAMBDA_RUNTIME_API"));
     string handlerStr = os:getEnv("_HANDLER");
 
-    string[] hsc = stringutils:split(os:getEnv("_HANDLER"), "\\.");
+    string[] hsc = regex:split(os:getEnv("_HANDLER"), "\\.");
     if (hsc.length() < 2) {
         io:println("Error - invalid handler string: ", handlerStr, ", should be of format {BALX_NAME}.{FUNC_NAME}");
         return;

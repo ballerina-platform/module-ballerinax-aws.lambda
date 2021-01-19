@@ -44,7 +44,7 @@ public class TestUtils {
             System.getProperty("ballerinaPack")));
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
-                      "ballerina.bat" : "ballerina"));
+                      "bal.bat" : "bal"));
     private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
             .toAbsolutePath().normalize();
     private static final String BUILD = "build";
