@@ -2,8 +2,8 @@
 
 Annotation based AWS Lambda extension implementation for Ballerina. 
 
-[![Build Status](https://wso2.org/jenkins/job/ballerinax/job/awslambda-pipeline/badge/icon)](https://wso2.org/jenkins/job/ballerinax/job/awslambda-pipeline/)
-[![AWS Lambda Build](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/workflows/Ballerinax%20AWS%20Lambda%20Build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/actions?query=workflow%3A%22Ballerina+AWS+Lambda+Build%22)
+[![Daily build](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/workflows/Daily%20build/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/actions?query=workflow%3A%22Daily+build%22)
+[![Build master branch](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/workflows/Build%20master%20branch/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-aws.lambda/actions?query=workflow%3A%22Build+master+branch%22)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Supported Annotations:
