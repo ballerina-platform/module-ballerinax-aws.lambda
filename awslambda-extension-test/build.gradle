@@ -34,12 +34,12 @@ dependencies {
     testImplementation "org.glassfish.jaxb:jaxb-runtime:2.3.1"
 
     awsLambdaExtensionPlugin project(":awslambda-extension")
-    zipPartent project(path: ":awslambda-extension-balo", configuration: "zipPartent")
+    zipPartent project(path: ":awslambda-extension-bala", configuration: "zipPartent")
 }
 
 description = 'Ballerinax - AWS Lambda Extension Tests'
 
-def distributionLocation = project(":awslambda-extension-balo").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
+def distributionLocation = project(":awslambda-extension-bala").buildDir.absolutePath + "/extracted-distribution/jballerina-tools-${ballerinaLangVersion}"
 def zipDirLocation = configurations.zipPartent.singleFile
 
 task copyBalAWSLambdaExt {
@@ -55,8 +55,8 @@ task copyBallerinaArtifacts {
     dependsOn configurations.zipPartent
     doLast {
         copy {
-            from file("$zipDirLocation/balo/ballerinax")
-            into file("${distributionLocation}/repo/balo/ballerinax")
+            from file("$zipDirLocation/bala/ballerinax")
+            into file("${distributionLocation}/repo/bala/ballerinax")
         }
         copy {
             from file("$zipDirLocation/cache/ballerinax")
@@ -80,7 +80,7 @@ test {
             suites 'src/test/resources/testng.xml'
         }
         systemProperties = [
-                ballerinaPack : System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../awslambda-extension-balo/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
+                ballerinaPack : System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../awslambda-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
                 ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
                 sampleDir     : System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples")
         ]
