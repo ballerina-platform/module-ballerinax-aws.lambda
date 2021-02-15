@@ -18,6 +18,8 @@ echo "START Ballerina"
 ls -ltr $LAMBDA_TASK_ROOT
 JAVA_HOME="/opt/jdk"
 echo $JAVA_HOME
+echo "Task Root: ${LAMBDA_TASK_ROOT}"
+echo "HANDLER: ${_HANDLER}"
 $JAVA_HOME/bin/java -version
-$JAVA_HOME/bin/java -jar $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | cut -d. -f1).jar"
+$JAVA_HOME/bin/java -Xdiag -jar $LAMBDA_TASK_ROOT/"$(echo $_HANDLER | sed 's/\.[^.]*$//').jar"
 echo "END Ballerina"

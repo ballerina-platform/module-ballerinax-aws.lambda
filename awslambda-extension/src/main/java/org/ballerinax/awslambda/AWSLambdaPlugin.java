@@ -419,8 +419,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
         String balxName;
         try {
-            balxName = target.getExecutablePath(project.currentPackage()).getFileName()
-                    .toString().split("\\.")[0];
+            String fileName = target.getExecutablePath(project.currentPackage()).getFileName().toString();
+            balxName = fileName.substring(0, fileName.lastIndexOf('.'));
 
             this.generateZipFile(target.getExecutablePath(project.currentPackage()));
         } catch (IOException e) {
