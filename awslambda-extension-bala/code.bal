@@ -108,7 +108,7 @@ public function __process() {
         io:println("Error - invalid handler string: ", handlerStr, ", should be of format {BALX_NAME}.{FUNC_NAME}");
         return;
     }
-    string handler = hsc[1];
+    string handler = hsc[hsc.length()-1];
     var func = functions[handler];
     if (func is FunctionEntry) {
         while (true) {

@@ -419,8 +419,8 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
         String balxName;
         try {
-            balxName = target.getExecutablePath(project.currentPackage()).getFileName()
-                    .toString().split("\\.")[0];
+            String fileName = target.getExecutablePath(project.currentPackage()).getFileName().toString();
+            balxName = fileName.substring(0, fileName.lastIndexOf('.'));
 
             this.generateZipFile(target.getExecutablePath(project.currentPackage()));
         } catch (IOException e) {
@@ -432,7 +432,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
                     + target.getExecutablePath(project.currentPackage()).getParent().toString() + File.separator
                     + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
                     + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                    + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:5 --memory-size 512 --timeout 10");
+                    + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:6 --memory-size 512 --timeout 10");
         } catch (IOException e) {
             //ignored
         }
