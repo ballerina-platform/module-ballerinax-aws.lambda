@@ -1,13 +1,27 @@
+# S3Identity.
+#
+# + principalId - S3 principalId   
 public type S3Identity record {
     string principalId;
 };
 
+# S3Bucket details.
+#
+# + name - Parameter Description  
+# + arn - Parameter Description  
+# + ownerIdentity - Parameter Description  
 public type S3Bucket record {
     string name;
     S3Identity ownerIdentity;
     string arn;
 };
 
+# S3Object 
+#
+# + size - Object size
+# + eTag - Object tag
+# + key - Object key
+# + sequencer - Object sequencer  
 public type S3Object record {
     string key;
     int size;
@@ -15,6 +29,12 @@ public type S3Object record {
     string sequencer;
 };
 
+# S3Element
+#
+# + bucket - @S3Bucket configuration
+# + s3SchemaVersion - s3SchemaVersion
+# + configurationId - Configuration id
+# + object - @S3Object config
 public type S3Element record {
     string s3SchemaVersion;
     string configurationId;
@@ -22,6 +42,17 @@ public type S3Element record {
     S3Object 'object;
 };
 
+# S3Record 
+#
+# + s3 - @S3Element 
+# + awsRegion - awsRegion 
+# + eventVersion - eventVersion
+# + responseElements - responseElements
+# + eventSource - eventSource
+# + eventTime - eventTime
+# + requestParameters - requestParameters
+# + eventName - eventName
+# + userIdentity - @S3Identity
 public type S3Record record {
     string eventVersion;
     string eventSource;
@@ -34,10 +65,24 @@ public type S3Record record {
     S3Element s3;
 };
 
+# S3Event
+#
+# + Records - @S3Record array
 public type S3Event record {
     S3Record[] Records;
 };
 
+# SQSRecord
+#
+# + awsRegion - awsRegion
+# + messageAttributes - messageAttributes
+# + eventSourceARN - eventSourceARN
+# + eventSource - eventSource
+# + messageId - messageId
+# + receiptHandle - receiptHandle
+# + md5OfBody - md5OfBody 
+# + attributes - attributes
+# + body - body
 public type SQSRecord record {
     string messageId;
     string receiptHandle;
@@ -50,10 +95,27 @@ public type SQSRecord record {
     string awsRegion;
 };
 
+# SQSEvent
+#
+# + Records - @SQSRecord array
 public type SQSEvent record {
     SQSRecord[] Records;
 };
 
+# APIGatewayProxyRequest
+#
+# + resource - resource
+# + path - Path
+# + headers - Headers
+# + pathParameters - pathParameters
+# + isBase64Encoded - isBase64Encoded
+# + multiValueQueryStringParameters - multiValueQueryStringParameters
+# + requestContext - requestContext
+# + multiValueHeaders - multiValueHeaders
+# + httpMethod - httpMethod
+# + queryStringParameters - queryStringParameters
+# + stageVariables - stageVariables
+# + body - body
 public type APIGatewayProxyRequest record {
     string 'resource;
     string path;
@@ -69,6 +131,14 @@ public type APIGatewayProxyRequest record {
     boolean isBase64Encoded;
 };
 
+# DynamoDBStreamRecord
+#
+# + NewImage - PNewImage
+# + Keys - Keys
+# + SequenceNumber - SequenceNumber
+# + StreamViewType - StreamViewType
+# + SizeBytes - SizeBytes
+# + OldImage - OldImage
 public type DynamoDBStreamRecord record {
     map<json> Keys;
     map<json> NewImage?;
@@ -78,6 +148,15 @@ public type DynamoDBStreamRecord record {
     int SizeBytes;
 };
 
+# DynamoDBRecord
+#
+# + eventID - eventID
+# + awsRegion - awsRegion
+# + eventSourceARN - eventSourceARN
+# + eventVersion - eventVersion
+# + eventSource - @DynamoDBStreamRecord
+# + eventName - eventName
+# + dynamodb - @DynamoDBStreamRecord
 public type DynamoDBRecord record {
     string eventID;
     string eventVersion;
@@ -88,10 +167,21 @@ public type DynamoDBRecord record {
     string eventSource;
 };
 
+# DynamoDBEvent
+#
+# + Records - @DynamoDBEvent array
 public type DynamoDBEvent record {
     DynamoDBRecord[] Records;
 };
 
+# SESCommonHeaders
+#
+# + from - from
+# + to - to
+# + returnPath - Return path
+# + subject - subject
+# + date - date
+# + messageId - messageId
 public type SESCommonHeaders record {
     string[] 'from;
     string[] to;
@@ -101,11 +191,24 @@ public type SESCommonHeaders record {
     string subject;
 };
 
+# NameValue
+#
+# + name - name
+# + value - value
 public type NameValue record {
     string name;
     string value;
 };
 
+# Simple Email Service Mail
+#
+# + headers - Parameter Description  
+# + source - source
+# + destination - destination
+# + headersTruncated - headersTruncated
+# + messageId - messageId
+# + commonHeaders - commonHeaders
+# + timestamp - timestamp
 public type SESMail record {
     SESCommonHeaders commonHeaders;
     string 'source;
@@ -116,16 +219,34 @@ public type SESMail record {
     string messageId;
 };
 
+# Simple Email Service Verdict
+#
+# + status - status
 public type SESVerdict record {
     string status;
 };
 
+# Simple Email Service Action
+#
+# + type - type
+# + invocationType - invocationType
+# + functionArn - functionArn
 public type SESAction record {
     string 'type;
     string invocationType;
     string functionArn;
 };
 
+# Simple Email Service Receipt
+#
+# + spamVerdict - spamVerdict
+# + processingTimeMillis - processingTimeMillis
+# + virusVerdict - virusVerdict
+# + recipients - recipients
+# + action - action
+# + spfVerdict - spfVerdict
+# + dkimVerdict - dkimVerdict
+# + timestamp - timestamp
 public type SESReceipt record {
     string[] recipients;
     string timestamp;
@@ -137,17 +258,29 @@ public type SESReceipt record {
     SESVerdict virusVerdict;
 };
 
+# Simple Email Service Element
+#
+# + mail - @SESMail record
+# + receipt - @SESReceipt record
 public type SESElement record {
     SESMail mail;
     SESReceipt receipt;
 };
 
+# Simple Email Service Record
+#
+# + ses - @SESElement record
+# + eventVersion - event version
+# + eventSource - event source
 public type SESRecord record {
     string eventVersion;
     SESElement ses;
     string eventSource;
 };
 
+# Simple Email Service Event
+#
+# + Records - @SESRecord array
 public type SESEvent record {
     SESRecord[] Records;
 };

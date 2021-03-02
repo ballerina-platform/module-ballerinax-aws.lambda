@@ -20,7 +20,7 @@ import ballerina/runtime;
 import ballerina/os;
 import ballerina/time;
 import ballerina/regex;
-
+  
 # Object to represent an AWS Lambda function execution context.
 public class Context {
 
@@ -72,11 +72,17 @@ public class Context {
 
 }
 
+# Lambda FunctionType
 type FunctionType function (Context, anydata) returns json|error;
+# Lambda FunctionEntry    
 type FunctionEntry [FunctionType, typedesc<anydata>];
 map<FunctionEntry> functions = { };
 const BASE_URL = "/2018-06-01/runtime/invocation/";
 
+# Generates an AWS Lambda function execution context.
+#
+# + resp - HTTP Response
+# + return - Return AWS Lambda function execution context
 isolated function generateContext(http:Response resp) returns @tainted Context {
     string requestId = checkpanic resp.getHeader("Lambda-Runtime-Aws-Request-Id");
     string deadlineMsStr = checkpanic resp.getHeader("Lambda-Runtime-Deadline-Ms");
@@ -91,14 +97,25 @@ isolated function generateContext(http:Response resp) returns @tainted Context {
     return ctx;
 }
 
+# Register a function handler with function and event type
+#
+# + handler - Function Hanlder name
+# + func - Function type
+# + eventType - Event type
 public function __register(string handler, FunctionType func, typedesc<anydata> eventType) {
     functions[handler] = [func, eventType];
 }
 
+# Convert JSON input to an EventType
+#
+# + input - Input JSON
+# + eventType - Event type
+# + return - Returns Event type
 isolated function jsonToEventType(json input, typedesc<anydata> eventType) returns anydata|error {
     return input.cloneWithType(eventType);
 }
 
+# Process and excute the handler.  
 public function __process() {
     http:Client clientEP = checkpanic new("http://" + os:getEnv("AWS_LAMBDA_RUNTIME_API"));
     string handlerStr = os:getEnv("_HANDLER");
@@ -124,12 +141,20 @@ public function __process() {
     }
 }
 
+# Update Invocation Context with Trace Id.
+#
+# + ctx - AWS Lambda @Context
 isolated function updateInvocationContext(Context ctx) {
     // set the trace id in the invocation context
     var context = runtime:getInvocationContext();
     context.attributes["traceId"] = ctx.getTraceId();
 }
 
+# Process call back response.
+#
+# + clientEP - AWS Lambda URL endpoint
+# + resp - Response from AWS Lambda
+# + funcEntry - @FunctionEntry 
 function processEvent(http:Client clientEP, http:Response resp, FunctionEntry funcEntry) {
     var content = resp.getJsonPayload();
     if (content is json) {
