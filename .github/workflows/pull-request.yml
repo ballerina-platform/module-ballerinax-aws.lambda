@@ -8,9 +8,8 @@ jobs:
     env:
       AWS_DEFAULT_REGION: us-west-1
       SAM_CLI_TELEMETRY: 0
-      GITHUB_TOKEN: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
       packageUser: ${{ github.actor }}
-      packagePAT: ${{ secrets.BALLERINA_STDLIB_TOKEN }}
+      packagePAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -29,4 +28,7 @@ jobs:
       - name: Install aws-sam-cli
         run: pip install aws-sam-cli
       - name: Build with gradle
-        run: ./gradlew clean build -PLayerTesting --stacktrace --scan --console=plain --no-daemon
+        run: ./gradlew clean build codeCoverageReport -PLayerTesting --stacktrace --scan --console=plain --no-daemon
+      - name: Generate Codecov Report
+        if:  github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v1
