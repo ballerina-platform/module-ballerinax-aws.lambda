@@ -29,4 +29,7 @@ jobs:
       - name: Install aws-sam-cli
         run: pip install aws-sam-cli
       - name: Build with gradle
-        run: ./gradlew clean build -PLayerTesting --stacktrace --scan --console=plain --no-daemon
+        run: ./gradlew clean build codeCoverageReport -PLayerTesting --stacktrace --scan --console=plain --no-daemon
+      - name: Generate Codecov Report
+        if:  github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v1
