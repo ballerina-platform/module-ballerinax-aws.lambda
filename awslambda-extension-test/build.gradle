@@ -82,7 +82,8 @@ test {
         systemProperties = [
                 ballerinaPack : System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../awslambda-extension-bala/build/extracted-distribution/jballerina-tools-${ballerinaLangVersion}/bin"),
                 ballerinaLayer: System.getProperty('ballerinaPack', project.projectDir.absolutePath + "/../ballerina-layer/bootstrap"),
-                sampleDir     : System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples")
+                sampleDir     : System.getProperty('sampleDir', project.projectDir.absolutePath + "/../samples"),
+                jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader"
         ]
     }
 }
