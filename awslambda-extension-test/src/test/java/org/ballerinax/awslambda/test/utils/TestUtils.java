@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Test utility class.
@@ -52,6 +53,7 @@ public class TestUtils {
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
     private static final String EXIT_CODE = "Exit code: ";
+    private static final String JAVA_OPTS = "JAVA_OPTS";
     
     private static String logOutput(InputStream inputStream) throws IOException {
         StringBuilder output = new StringBuilder();
@@ -83,6 +85,8 @@ public class TestUtils {
         }
         
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
         log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
@@ -121,7 +125,28 @@ public class TestUtils {
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
-    
+
+    private static synchronized void addJavaAgents(Map<String, String> envProperties) {
+        String javaOpts = "";
+        if (envProperties.containsKey(JAVA_OPTS)) {
+            javaOpts = envProperties.get(JAVA_OPTS);
+        }
+        if (javaOpts.contains("jacocoAgentLine")) {
+            return;
+        }
+        javaOpts = getJacocoAgentArgs() + javaOpts;
+        envProperties.put(JAVA_OPTS, javaOpts);
+    }
+
+    private static String getJacocoAgentArgs() {
+        String jacocoArgLine = System.getProperty("jacocoAgentLine");
+        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
+            log.warn("Running integration test without jacoco test coverage");
+            return "";
+        }
+        return jacocoArgLine + " ";
+    }
+
     /**
      * Deletes a given directory.
      *
