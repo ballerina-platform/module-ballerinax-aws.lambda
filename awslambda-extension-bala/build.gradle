@@ -112,8 +112,12 @@ task ballerinaBuild {
             }
         }
         copy {
-            from file("$project.projectDir/target/apidocs/awslambda")
+            from file("$project.projectDir/target/apidocs/ballerinax/awslambda")
             into file("$project.buildDir/apidocs/docs/awslambda")
+        }
+        copy {
+            from file("$artifactDocs")
+            into file("$artifactParent/docs")
         }
         exec {
             workingDir project.projectDir
@@ -129,10 +133,6 @@ task ballerinaBuild {
                 from zipTree(balaFile)
                 into file("$artifactParent/bala/ballerinax/awslambda/$tomlSemver/$platform")
             }
-        }
-        copy {
-            from file("$artifactDocs")
-            into file("$artifactParent/docs")
         }
         copy {
             from file("$extensionPluginArtifact")
