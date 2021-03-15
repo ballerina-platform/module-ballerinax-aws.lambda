@@ -367,7 +367,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         List<BLangSimpleVariable> defaultableParams = new ArrayList<>();
 
         for (BLangSimpleVariable var : node.requiredParams) {
-            if (var.symbol.defaultableParam) {
+            if (var.symbol.isDefaultable) {
                 defaultableParams.add(var);
             }
         }
@@ -438,7 +438,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         }
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                + LAMBDA_OUTPUT_ZIP_FILENAME);
+                + LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
     }
 
     private void generateZipFile(Path binaryPath) throws IOException {

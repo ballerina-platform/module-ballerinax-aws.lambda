@@ -16,10 +16,10 @@
 
 import ballerina/http;
 import ballerina/io;
-import ballerina/runtime;
 import ballerina/os;
 import ballerina/time;
 import ballerina/regex;
+import ballerina/lang.'decimal;
   
 # Object to represent an AWS Lambda function execution context.
 public class Context {
@@ -63,7 +63,12 @@ public class Context {
     # Returns the remaining execution time for this request in milliseconds
     # + return - the remaining execution time
     public isolated function getRemainingExecutionTime() returns int {
-        int result = self.deadlineMs - time:currentTime().time;
+        int s = self.deadlineMs/1000;
+        decimal fs = <decimal>(self.deadlineMs%1000)*1000000;
+        time:Utc deadlineUtc = [s,fs];
+        time:Utc utc = time:utcNow();
+        decimal utcDiff = time:utcDiffSeconds(deadlineUtc, utc);
+        int result = <int>'decimal:round(utcDiff*1000);
         if (result < 0) {
             result = 0;
         }
@@ -141,15 +146,6 @@ public function __process() {
     }
 }
 
-# Update Invocation Context with Trace Id.
-#
-# + ctx - AWS Lambda @Context
-isolated function updateInvocationContext(Context ctx) {
-    // set the trace id in the invocation context
-    var context = runtime:getInvocationContext();
-    context.attributes["traceId"] = ctx.getTraceId();
-}
-
 # Process call back response.
 #
 # + clientEP - AWS Lambda URL endpoint
@@ -159,7 +155,6 @@ function processEvent(http:Client clientEP, http:Response resp, FunctionEntry fu
     var content = resp.getJsonPayload();
     if (content is json) {
         Context ctx = generateContext(resp);
-        updateInvocationContext(ctx);
         http:Request req = new;
         // call the target function, handle any errors if raised by the function
         FunctionType func = funcEntry[0];
