@@ -367,7 +367,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         List<BLangSimpleVariable> defaultableParams = new ArrayList<>();
 
         for (BLangSimpleVariable var : node.requiredParams) {
-            if (var.symbol.defaultableParam) {
+            if (var.symbol.isDefaultable) {
                 defaultableParams.add(var);
             }
         }
