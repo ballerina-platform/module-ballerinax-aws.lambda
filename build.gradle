@@ -67,6 +67,10 @@ allprojects {
             }
         }
     }
+    ext {
+        timestampedVersionRegex = '.*-\\d{8}-\\d{6}-\\w.*\$'
+        snapshotVersion = '-SNAPSHOT'
+    }
 }
 
 subprojects {
@@ -94,9 +98,6 @@ subprojects {
         ballerinaStdLibs "io.ballerina.stdlib:oauth2-ballerina:${stdlibOAuth2Version}"
         ballerinaStdLibs "io.ballerina.stdlib:uuid-ballerina:${stdlibUuidVersion}"
         ballerinaStdLibs "io.ballerina.stdlib:url-ballerina:${stdlibUrlVersion}"
-
-        // mimepull JAR
-        thirdPartyJars "org.jvnet.mimepull:mimepull:1.9.11"
     }
 
     release {
