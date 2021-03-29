@@ -17,7 +17,12 @@
   -->
 
 <FindBugsFilter>
-	
+    <Match>
+        <!--Until dlog is removed-->
+        <Class name="org.ballerinax.awslambda.AWSLambdaPlugin"/>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+    
     <Match>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>

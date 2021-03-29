@@ -65,40 +65,39 @@ public class TestUtils {
         }
         return output.toString();
     }
-    
+
     /**
-     * Compile a ballerina file in a given directory.
+     * Compile a ballerina project in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
-     * @param fileName        Ballerina source file name
      * @return Exit code
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
             IOException {
-        
+
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-        
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD);
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-        log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
+        log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();
-        
+
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-        
+
         ProcessOutput po = new ProcessOutput();
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);
