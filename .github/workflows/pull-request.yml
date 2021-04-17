@@ -1,6 +1,11 @@
 name: Ballerina AWS Lambda Pull Request
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - master
+      - "automated/dependency_version_update"
 
 jobs:
   build:
