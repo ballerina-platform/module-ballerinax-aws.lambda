@@ -134,7 +134,7 @@ public function __process() {
     var func = functions[handler];
     if (func is FunctionEntry) {
         while (true) {
-            var resp = clientEP->get(BASE_URL + "next");
+            http:Response|error resp = clientEP->get(BASE_URL + "next");
             if (resp is http:Response) {
                 processEvent(clientEP, resp, func);
             } else {
@@ -168,7 +168,7 @@ function processEvent(http:Client clientEP, http:Response resp, FunctionEntry fu
         if (funcResp is json) {
             req.setJsonPayload(<@untainted> funcResp);
             // send the response
-            var result = clientEP->post(BASE_URL + <@untainted> ctx.requestId + "/response", req);
+            http:Response|error result = clientEP->post(BASE_URL + <@untainted> ctx.requestId + "/response", req);
             if (result is error) {
                 io:println("Error - sending response: ", result);
             }
@@ -176,7 +176,7 @@ function processEvent(http:Client clientEP, http:Response resp, FunctionEntry fu
             json payload = { errorReason: funcResp.message(), errorDetail: funcResp.detail().toString()};
             req.setJsonPayload(payload);
             // send the error
-            var result = clientEP->post(BASE_URL + <@untainted> ctx.requestId + "/error", req);
+            http:Response|error result = clientEP->post(BASE_URL + <@untainted> ctx.requestId + "/error", req);
             if (result is error) {
                 io:println("Error - sending error: ", result);
             }
