@@ -89,7 +89,7 @@ import java.util.Set;
 /**
  * Compiler plugin to process AWS lambda function annotations.
  */
-@SupportedAnnotationPackages(value = "ballerinax/awslambda:0.0.0")
+@SupportedAnnotationPackages(value = "ballerinax/awslambda:1.0.0")
 public class AWSLambdaPlugin extends AbstractCompilerPlugin {
 
     private static final String LAMBDA_OUTPUT_ZIP_FILENAME = "aws-ballerina-lambda-functions.zip";
