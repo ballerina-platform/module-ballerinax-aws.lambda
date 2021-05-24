@@ -102,7 +102,7 @@ isolated function generateContext(http:Response resp) returns @tainted Context {
     return ctx;
 }
 
-# Register a function handler with function and event type.
+# Register a function handler with the function and event type.
 #
 # + handler - Function Hanlder name
 # + func - Function type
