@@ -1,22 +1,22 @@
-# S3Identity.
+# Represents S3 identity related details.
 #
 # + principalId - S3 principalId   
 public type S3Identity record {
     string principalId;
 };
 
-# S3Bucket details.
+# Represents S3 bucket related details.
 #
-# + name - Parameter Description  
-# + arn - Parameter Description  
-# + ownerIdentity - Parameter Description  
+# + name - S3 bucket name
+# + arn - S3 bucket arn
+# + ownerIdentity - S3 bucket owners identity
 public type S3Bucket record {
     string name;
     S3Identity ownerIdentity;
     string arn;
 };
 
-# S3Object 
+# Represents S3 Object related details.
 #
 # + size - Object size
 # + eTag - Object tag
@@ -29,12 +29,12 @@ public type S3Object record {
     string sequencer;
 };
 
-# S3Element
+# Represents S3 element related details.
 #
-# + bucket - @S3Bucket configuration
+# + bucket - s3 bucket related details
 # + s3SchemaVersion - s3SchemaVersion
 # + configurationId - Configuration id
-# + object - @S3Object config
+# + object - s3 object related details
 public type S3Element record {
     string s3SchemaVersion;
     string configurationId;
@@ -42,17 +42,17 @@ public type S3Element record {
     S3Object 'object;
 };
 
-# S3Record 
+# Represents S3 bucket notification related details.
 #
-# + s3 - @S3Element 
-# + awsRegion - awsRegion 
-# + eventVersion - eventVersion
+# + s3 - s3 element related details
+# + awsRegion - awsRegion the s3 bucket belongs to
+# + eventVersion - version of the event
 # + responseElements - responseElements
-# + eventSource - eventSource
-# + eventTime - eventTime
+# + eventSource - eventSource of the triggered event
+# + eventTime - invoked time of the event
 # + requestParameters - requestParameters
-# + eventName - eventName
-# + userIdentity - @S3Identity
+# + eventName - name of the invoked name
+# + userIdentity - identity of the user who invoked the event
 public type S3Record record {
     string eventVersion;
     string eventSource;
@@ -65,24 +65,24 @@ public type S3Record record {
     S3Element s3;
 };
 
-# S3Event
+# Represents S3 event details recieved from AWS when S3 notification is triggered.
 #
-# + Records - @S3Record array
+# + Records - list of s3 event notifications
 public type S3Event record {
     S3Record[] Records;
 };
 
-# SQSRecord
+# Represents Amazon Simple Queue Service notification related details.
 #
-# + awsRegion - awsRegion
-# + messageAttributes - messageAttributes
-# + eventSourceARN - eventSourceARN
-# + eventSource - eventSource
-# + messageId - messageId
-# + receiptHandle - receiptHandle
-# + md5OfBody - md5OfBody 
+# + awsRegion - region of the SQS notification
+# + messageAttributes - attributes of the message
+# + eventSourceARN - arn of the event source
+# + eventSource - eventSource of the triggered event
+# + messageId - id of the message
+# + receiptHandle - receipt handle of the message 
+# + md5OfBody - md5 hash of the body
 # + attributes - attributes
-# + body - body
+# + body - body of the notification
 public type SQSRecord record {
     string messageId;
     string receiptHandle;
@@ -95,27 +95,27 @@ public type SQSRecord record {
     string awsRegion;
 };
 
-# SQSEvent
+# Represents AWS SQS event details recieved from AWS when SQS notification is triggered.
 #
-# + Records - @SQSRecord array
+# + Records - list of SQS event notifications
 public type SQSEvent record {
     SQSRecord[] Records;
 };
 
-# APIGatewayProxyRequest
+# Represents AWS API Gateway proxy request details recieved from AWS when gateway is triggered.
 #
-# + resource - resource
-# + path - Path
-# + headers - Headers
-# + pathParameters - pathParameters
-# + isBase64Encoded - isBase64Encoded
-# + multiValueQueryStringParameters - multiValueQueryStringParameters
-# + requestContext - requestContext
-# + multiValueHeaders - multiValueHeaders
-# + httpMethod - httpMethod
-# + queryStringParameters - queryStringParameters
-# + stageVariables - stageVariables
-# + body - body
+# + resource - resource of the request
+# + path - path of the request
+# + headers - headers of the request
+# + pathParameters - path parameters of the request
+# + isBase64Encoded - field to identify if the content is based 64 encoded
+# + multiValueQueryStringParameters - multi value query string parameters
+# + requestContext - request context
+# + multiValueHeaders - multi value headers
+# + httpMethod - http method of the request
+# + queryStringParameters - query string parameters
+# + stageVariables - stage variables
+# + body - body of the request
 public type APIGatewayProxyRequest record {
     string 'resource;
     string path;
@@ -131,7 +131,7 @@ public type APIGatewayProxyRequest record {
     boolean isBase64Encoded;
 };
 
-# DynamoDBStreamRecord
+# Represents DynamoDB Stream related details.
 #
 # + NewImage - PNewImage
 # + Keys - Keys
@@ -148,14 +148,14 @@ public type DynamoDBStreamRecord record {
     int SizeBytes;
 };
 
-# DynamoDBRecord
+# Represents DynamoDB related details.
 #
-# + eventID - eventID
-# + awsRegion - awsRegion
-# + eventSourceARN - eventSourceARN
-# + eventVersion - eventVersion
+# + eventID - event id of the dynamodb notification
+# + awsRegion - aws region the s3 bucket belongs to
+# + eventSourceARN - arn of the event soruce
+# + eventVersion - version of the event
 # + eventSource - @DynamoDBStreamRecord
-# + eventName - eventName
+# + eventName - name of the event
 # + dynamodb - @DynamoDBStreamRecord
 public type DynamoDBRecord record {
     string eventID;
@@ -167,19 +167,19 @@ public type DynamoDBRecord record {
     string eventSource;
 };
 
-# DynamoDBEvent
+# Represents DynamoDB event details recieved from AWS when DynamoDB notification is triggered.
 #
 # + Records - @DynamoDBEvent array
 public type DynamoDBEvent record {
     DynamoDBRecord[] Records;
 };
 
-# SESCommonHeaders
+# Represents Simple Email Service related details.
 #
-# + from - from
-# + to - to
-# + returnPath - Return path
-# + subject - subject
+# + from - the sender address of the mail
+# + to - the reciever address of the mail
+# + returnPath - return path of the mail
+# + subject - subject of the mail
 # + date - date
 # + messageId - messageId
 public type SESCommonHeaders record {
@@ -191,7 +191,7 @@ public type SESCommonHeaders record {
     string subject;
 };
 
-# NameValue
+# Represents Simple Email Service name related details.
 #
 # + name - name
 # + value - value
@@ -200,7 +200,7 @@ public type NameValue record {
     string value;
 };
 
-# Simple Email Service Mail
+# Represents Simple Email Service Mail related details.
 #
 # + headers - Parameter Description  
 # + source - source
@@ -219,14 +219,14 @@ public type SESMail record {
     string messageId;
 };
 
-# Simple Email Service Verdict
+# Represents Simple Email Service Verdict related details.
 #
 # + status - status
 public type SESVerdict record {
     string status;
 };
 
-# Simple Email Service Action
+# Represents Simple Email Service Action related details.
 #
 # + type - type
 # + invocationType - invocationType
@@ -237,7 +237,7 @@ public type SESAction record {
     string functionArn;
 };
 
-# Simple Email Service Receipt
+# Represents Simple Email Service Receipt related details.
 #
 # + spamVerdict - spamVerdict
 # + processingTimeMillis - processingTimeMillis
@@ -258,18 +258,18 @@ public type SESReceipt record {
     SESVerdict virusVerdict;
 };
 
-# Simple Email Service Element
+# Represents Simple Email Service Element related details.
 #
-# + mail - @SESMail record
-# + receipt - @SESReceipt record
+# + mail - mail related details of the event
+# + receipt - recipet related details of the event
 public type SESElement record {
     SESMail mail;
     SESReceipt receipt;
 };
 
-# Simple Email Service Record
+# Represents Simple Email Service notification related details.
 #
-# + ses - @SESElement record
+# + ses - details of the SES event
 # + eventVersion - event version
 # + eventSource - event source
 public type SESRecord record {
@@ -278,9 +278,9 @@ public type SESRecord record {
     string eventSource;
 };
 
-# Simple Email Service Event
+# Represents Simple Email Service event details recieved from AWS when SES notification is triggered.
 #
-# + Records - @SESRecord array
+# + Records - record list of SES notifications
 public type SESEvent record {
     SESRecord[] Records;
 };
