@@ -111,7 +111,7 @@ public function __register(string handler, FunctionType func, typedesc<anydata> 
     functions[handler] = [func, eventType];
 }
 
-# Convert JSON input to an EventType.
+# Convert the JSON input to an event type.
 #
 # + input - Input JSON
 # + eventType - Event type
