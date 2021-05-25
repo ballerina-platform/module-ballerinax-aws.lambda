@@ -14,5 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# @awslambda:Function annotation
+# The annotation, which is used to mark the function as an AWS Lambda function.
 public const annotation Function on function;
