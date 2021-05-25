@@ -1,11 +1,11 @@
-# Represents the S3 identity related details.
+# Represents the details of the identity related to the S3 service.
 #
 # + principalId - S3 principal ID
 public type S3Identity record {
     string principalId;
 };
 
-# Represents the S3 bucket related details.
+# Represents the details of the bucket related to the S3 service.
 #
 # + name - S3 bucket name
 # + arn - S3 bucket arn
@@ -16,7 +16,7 @@ public type S3Bucket record {
     string arn;
 };
 
-# Represents the S3 object related details.
+# Represents the details of the object related to the S3 service.
 #
 # + size - Object size
 # + eTag - Object tag
@@ -29,7 +29,7 @@ public type S3Object record {
     string sequencer;
 };
 
-# Represents the S3 element related details.
+# Represents the details of the element related to the S3 service.
 #
 # + bucket - S3 bucket related details
 # + s3SchemaVersion - Version of the S3 schema
@@ -104,17 +104,17 @@ public type SQSEvent record {
 
 # Represents the AWS API Gateway proxy request details received from AWS when the gateway is triggered.
 #
-# + resource - the resource path defined in API Gateway
-# + path - the url path for the caller
+# + resource - the resource path defined in the API Gateway
+# + path - the URL path of the caller
 # + headers - headers of the request
 # + pathParameters - path parameters of the request
 # + isBase64Encoded - field to identify if the content is Base64 encoded
-# + multiValueQueryStringParameters - multi value query string parameters that were part of the request
+# + multiValueQueryStringParameters - multi value query string parameters of the request
 # + requestContext - request context of the request
-# + multiValueHeaders - multi value headers if its enabled
+# + multiValueHeaders - multi value headers (if they are enabled)
 # + httpMethod - HTTP method of the request
-# + queryStringParameters - query string parameters that were part of the request
-# + stageVariables - stage variables defined for the stage in API Gateway
+# + queryStringParameters - query string parameters of the request
+# + stageVariables - stage variables  of the stage in the API Gateway
 # + body - body of the request
 public type APIGatewayProxyRequest record {
     string 'resource;
@@ -131,14 +131,14 @@ public type APIGatewayProxyRequest record {
     boolean isBase64Encoded;
 };
 
-# Represents the DynamoDB Stream related details.
+# Represents the details of the stream related to the DynamoDB.
 #
-# + NewImage - the item in the DynamoDB table as it appeared after it was modified
-# + Keys - the primary key attribute(s) for the DynamoDB item that was modified
+# + NewImage - the item in the DynamoDB table after it is modified
+# + Keys - the primary key attribute(s) of the DynamoDB item that were modified
 # + SequenceNumber - the sequence number of the stream record
-# + StreamViewType - the type of data from the modified DynamoDB item that was captured in this stream record
-# + SizeBytes - the size of the stream record, in bytes
-# + OldImage - the item in the DynamoDB table as it appeared before it was modified
+# + StreamViewType - the type of data of the modified DynamoDB item that was captured in this stream record
+# + SizeBytes - the size of the stream record (in bytes)
+# + OldImage - the item in the DynamoDB table before it was modified
 public type DynamoDBStreamRecord record {
     map<json> Keys;
     map<json> NewImage?;
@@ -151,12 +151,12 @@ public type DynamoDBStreamRecord record {
 # Represents the DynamoDB related details.
 #
 # + eventID - a globally unique identifier for the event that was recorded in this stream record
-# + awsRegion - AWS region to which the DynamoDB belongs to
-# + eventSourceARN - the event source arn of DynamoDB
+# + awsRegion - AWS region to which the DynamoDB belongs
+# + eventSourceARN - the event source arn of then DynamoDB
 # + eventVersion - the version number of the stream record format
 # + eventSource - the AWS service from which the stream record originated
 # + eventName - the type of data modification that was performed on the DynamoDB table
-# + dynamodb - the main body of the stream record, containing all of the DynamoDB-specific fields
+# + dynamodb - the main body of the stream record containing all of the DynamoDB-specific fields
 public type DynamoDBRecord record {
     string eventID;
     string eventVersion;
@@ -169,19 +169,19 @@ public type DynamoDBRecord record {
 
 # Represents the DynamoDB event details received from AWS when the DynamoDB notification is triggered.
 #
-# + Records - record list of DynamoDB notifications
+# + Records - record list of the DynamoDB notifications
 public type DynamoDBEvent record {
     DynamoDBRecord[] Records;
 };
 
 # Represents the simple email service related details.
 #
-# + from - the sender address of the mail
-# + to - the reciever address of the mail
-# + returnPath - return path of the mail
-# + subject - subject of the mail
-# + date - the day on which the mail was sent
-# + messageId - the ID of the message
+# + from - the sender address of the email
+# + to - the receiver address of the email
+# + returnPath - return path of the email
+# + subject - subject of the email
+# + date - the day on which the email was sent
+# + messageId - the unique ID assigned to the email by Amazon SES
 public type SESCommonHeaders record {
     string[] 'from;
     string[] to;
@@ -191,7 +191,7 @@ public type SESCommonHeaders record {
     string subject;
 };
 
-# Represents the simple email service name related details.
+# Represents the details of the name related to the simple email service.
 #
 # + name - name of the header
 # + value - value of the header
@@ -200,15 +200,15 @@ public type NameValue record {
     string value;
 };
 
-# Represents the simple email service mail related details.
+# Represents the details of the email related to the simple email service.
 #
-# + headers - Parameter Description  
-# + source - source of the mail
-# + destination - destination
-# + headersTruncated - headersTruncated
-# + messageId - messageId
-# + commonHeaders - commonHeaders
-# + timestamp - timestamp
+# + headers - parameter description  
+# + source - source of the email
+# + destination - a complete list of all recipient addresses
+# + headersTruncated - specifies whether the headers were truncated in the notification
+# + messageId - the unique ID assigned to the email by Amazon SES
+# + commonHeaders - list of headers common to all emails
+# + timestamp - string that specifies the date and time at which the action was triggered (in the ISO 8601 format)
 public type SESMail record {
     SESCommonHeaders commonHeaders;
     string 'source;
@@ -219,34 +219,34 @@ public type SESMail record {
     string messageId;
 };
 
-# Represents the simple email service verdict related details.
+# Represents the details of the verdict related to the simple email service.
 #
 # + status - status of the verdict
 public type SESVerdict record {
     string status;
 };
 
-# Represents the simple email service action related details.
+# Represents the details of the action related to the simple email service.
 #
 # + type - type of the email service action
 # + invocationType - invocation type of the email service
-# + functionArn - arn of the function thats executed
+# + functionArn - arn of the function that is executed
 public type SESAction record {
     string 'type;
     string invocationType;
     string functionArn;
 };
 
-# Represents the simple email service receipt related details.
+# Represents the details of the receipt related to the simple email service.
 #
 # + spamVerdict - object that indicates whether the message is spam
-# + processingTimeMillis - processing time taken for the mail in milliseconds
-# + virusVerdict - virus verdict status of the mail
+# + processingTimeMillis - processing time taken for the email (in milliseconds)
+# + virusVerdict - virus verdict status of the email
 # + recipients - a list of recipients that were matched by the active receipt rule
-# + action - Object that encapsulates information about the action that was executed
+# + action - Object that encapsulates the information about the action that was executed
 # + spfVerdict - object that indicates whether the Sender Policy Framework (SPF) check passed
 # + dkimVerdict - object that indicates whether the DomainKeys Identified Mail (DKIM) check passed
-# + timestamp - string that specifies the date and time at which the action was triggered, in ISO 8601 format
+# + timestamp - string that specifies the date and time at which the action was triggered (in the ISO 8601 format)
 public type SESReceipt record {
     string[] recipients;
     string timestamp;
@@ -258,20 +258,20 @@ public type SESReceipt record {
     SESVerdict virusVerdict;
 };
 
-# Represents the simple email service element related details.
+# Represents the details of the element related to the simple email service.
 #
-# + mail - mail-related details of the event
-# + receipt - recipet-related details of the event
+# + mail - email-related details of the event
+# + receipt - receipt-related details of the event
 public type SESElement record {
     SESMail mail;
     SESReceipt receipt;
 };
 
-# Represents the simple email service notification related details.
+# Represents the details of the notification related to the simple email service.
 #
 # + ses - details of the SES event
-# + eventVersion - the version number of the mail format
-# + eventSource - the AWS service from which the mail originated
+# + eventVersion - the version number of the email format
+# + eventSource - the AWS service from which the email originated
 public type SESRecord record {
     string eventVersion;
     SESElement ses;
