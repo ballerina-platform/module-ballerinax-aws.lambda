@@ -45,7 +45,7 @@ public type S3Element record {
 # Represents the S3 bucket notification related details.
 #
 # + s3 - S3 element related details
-# + awsRegion - The AWS region to which the S3 bucket belongs 
+# + awsRegion - the AWS region to which the S3 bucket belongs 
 # + eventVersion - version of the event
 # + responseElements - the response elements
 # + eventSource - the source of the triggered event
@@ -67,7 +67,7 @@ public type S3Record record {
 
 # Represents the S3 event details received from AWS when the S3 notification is triggered.
 #
-# + Records - list of S3 event notifications
+# + Records - A list of S3 event notification records
 public type S3Event record {
     S3Record[] Records;
 };
@@ -81,7 +81,7 @@ public type S3Event record {
 # + messageId - ID of the message
 # + receiptHandle - receipt handle of the message 
 # + md5OfBody - md5 hash of the body
-# + attributes - attributes of the notification
+# + attributes - the attributes associated with the queue
 # + body - body of the notification
 public type SQSRecord record {
     string messageId;
@@ -104,17 +104,17 @@ public type SQSEvent record {
 
 # Represents the AWS API Gateway proxy request details received from AWS when the gateway is triggered.
 #
-# + resource - resource of the request
-# + path - path of the request
+# + resource - the resource path defined in API Gateway
+# + path - the url path for the caller
 # + headers - headers of the request
 # + pathParameters - path parameters of the request
 # + isBase64Encoded - field to identify if the content is Base64 encoded
-# + multiValueQueryStringParameters - multi value query string parameters
+# + multiValueQueryStringParameters - multi value query string parameters that were part of the request
 # + requestContext - request context of the request
 # + multiValueHeaders - multi value headers if its enabled
 # + httpMethod - HTTP method of the request
-# + queryStringParameters - query string parameters
-# + stageVariables - stage variables
+# + queryStringParameters - query string parameters that were part of the request
+# + stageVariables - stage variables defined for the stage in API Gateway
 # + body - body of the request
 public type APIGatewayProxyRequest record {
     string 'resource;
@@ -133,12 +133,12 @@ public type APIGatewayProxyRequest record {
 
 # Represents the DynamoDB Stream related details.
 #
-# + NewImage - PNewImage
-# + Keys - Keys
-# + SequenceNumber - SequenceNumber
-# + StreamViewType - StreamViewType
-# + SizeBytes - SizeBytes
-# + OldImage - OldImage
+# + NewImage - the item in the DynamoDB table as it appeared after it was modified
+# + Keys - the primary key attribute(s) for the DynamoDB item that was modified
+# + SequenceNumber - the sequence number of the stream record
+# + StreamViewType - the type of data from the modified DynamoDB item that was captured in this stream record
+# + SizeBytes - the size of the stream record, in bytes
+# + OldImage - the item in the DynamoDB table as it appeared before it was modified
 public type DynamoDBStreamRecord record {
     map<json> Keys;
     map<json> NewImage?;
@@ -150,13 +150,13 @@ public type DynamoDBStreamRecord record {
 
 # Represents the DynamoDB related details.
 #
-# + eventID - event ID of the DynamoDB notification
+# + eventID - a globally unique identifier for the event that was recorded in this stream record
 # + awsRegion - AWS region to which the DynamoDB belongs to
-# + eventSourceARN - arn of the event soruce
-# + eventVersion - version of the event
-# + eventSource - source of the triggered event
-# + eventName - name of the event
-# + dynamodb - dynamodb payload details.
+# + eventSourceARN - the event source arn of DynamoDB
+# + eventVersion - the version number of the stream record format
+# + eventSource - the AWS service from which the stream record originated
+# + eventName - the type of data modification that was performed on the DynamoDB table
+# + dynamodb - the main body of the stream record, containing all of the DynamoDB-specific fields
 public type DynamoDBRecord record {
     string eventID;
     string eventVersion;
@@ -242,7 +242,7 @@ public type SESAction record {
 # + spamVerdict - object that indicates whether the message is spam
 # + processingTimeMillis - processing time taken for the mail in milliseconds
 # + virusVerdict - virus verdict status of the mail
-# + recipients - A list of recipients that were matched by the active receipt rule.
+# + recipients - a list of recipients that were matched by the active receipt rule
 # + action - Object that encapsulates information about the action that was executed
 # + spfVerdict - object that indicates whether the Sender Policy Framework (SPF) check passed
 # + dkimVerdict - object that indicates whether the DomainKeys Identified Mail (DKIM) check passed
@@ -270,8 +270,8 @@ public type SESElement record {
 # Represents the simple email service notification related details.
 #
 # + ses - details of the SES event
-# + eventVersion - event version
-# + eventSource - event source
+# + eventVersion - the version number of the mail format
+# + eventSource - the AWS service from which the mail originated
 public type SESRecord record {
     string eventVersion;
     SESElement ses;
