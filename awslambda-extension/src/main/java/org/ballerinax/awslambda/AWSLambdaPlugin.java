@@ -116,7 +116,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         var.pos = pos;
         var.name = ASTBuilderUtil.createIdentifier(pos, name);
-        var.type = type;
+        var.setBType(type);
         var.symbol = new BVarSymbol(0, new Name(name), type.tsymbol.pkgID, type, owner, pos,
                 SymbolOrigin.VIRTUAL);
         return var;
@@ -175,7 +175,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         List<BType> paramTypes = new ArrayList<>();
         paramNames.add(targetFunc.requiredParams.get(0).name.value);
         paramNames.add(targetFunc.requiredParams.get(1).name.value);
-        paramTypes.add(targetFunc.requiredParams.get(0).type);
+        paramTypes.add(targetFunc.requiredParams.get(0).getBType());
         paramTypes.add(symTable.anydataType);
         BLangType retType = targetFunc.returnTypeNode;
         BLangFunction func = this.createFunction(pos, generateProxyFunctionName(targetFunc), paramNames,
@@ -185,7 +185,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         BLangInvocation inv = this.createInvocationNode(targetFunc.symbol, arg1, arg2);
         BLangReturn ret = new BLangReturn();
         ret.pos = pos;
-        ret.type = retType.type;
+        ret.setBType(retType.getBType());
         ret.expr = inv;
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) func.body;
         body.addStatement(ret);
@@ -229,14 +229,14 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         BLangLiteral stringLit = new BLangLiteral();
         stringLit.pos = pos;
         stringLit.value = value;
-        stringLit.type = symTable.stringType;
+        stringLit.setBType(symTable.stringType);
         return stringLit;
     }
 
     private BLangTypedescExpr createTypeDescExpr(Location pos, BType type) {
         BLangTypedescExpr typeDescExpr = new BLangTypedescExpr();
         typeDescExpr.pos = pos;
-        typeDescExpr.type = symTable.typeDesc;
+        typeDescExpr.setBType(symTable.typeDesc);
         typeDescExpr.resolvedType = type;
         typeDescExpr.expectedType = symTable.typeDesc;
         return typeDescExpr;
@@ -247,7 +247,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         varRef.pos = pos;
         varRef.variableName = ASTBuilderUtil.createIdentifier(pos, varSymbol.name.value);
         varRef.symbol = varSymbol;
-        varRef.type = varSymbol.type;
+        varRef.setBType(varSymbol.type);
         return varRef;
     }
 
@@ -268,7 +268,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationNode.symbol = pkgSymbol.scope.lookup(new Name(functionName)).symbol;
-        invocationNode.type = new BNilType();
+        invocationNode.setBType(new BNilType());
         invocationNode.requiredArgs = args;
         return invocationNode;
     }
@@ -281,7 +281,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         invocationNode.name = name;
         invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         invocationNode.symbol = funcSymbol;
-        invocationNode.type = funcSymbol.getType().getReturnType();
+        invocationNode.setBType(funcSymbol.getType().getReturnType());
         invocationNode.requiredArgs = Arrays.asList(args);
         return invocationNode;
     }
@@ -292,11 +292,11 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         bLangFunction.pos = pos;
-        bLangFunction.type = new BInvokableType(new ArrayList<>(), new BNilType(), null);
+        bLangFunction.setBType(new BInvokableType(new ArrayList<>(), new BNilType(), null));
         bLangFunction.body = this.createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
+                bLangFunction.getBType(), packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         return bLangFunction;
@@ -309,13 +309,13 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.setName(funcName);
         bLangFunction.flagSet = EnumSet.of(Flag.PUBLIC);
         bLangFunction.pos = pos;
-        bLangFunction.type = new BInvokableType(paramTypes, retType.type, null);
+        bLangFunction.setBType(new BInvokableType(paramTypes, retType.getBType(), null));
         bLangFunction.body = createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
                 new Name(bLangFunction.name.value), packageNode.packageID,
-                bLangFunction.type, packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
-        functionSymbol.type = bLangFunction.type;
-        functionSymbol.retType = retType.type;
+                bLangFunction.getBType(), packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
+        functionSymbol.type = bLangFunction.getBType();
+        functionSymbol.retType = retType.getBType();
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
         for (int i = 0; i < paramNames.size(); i++) {
@@ -359,7 +359,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
     }
 
     private BType getEventType(BLangFunction node) {
-        return node.requiredParams.get(1).type;
+        return node.requiredParams.get(1).getBType();
     }
 
     private boolean validateLambdaFunction(BLangFunction node) {
@@ -377,11 +377,11 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         }
         BLangType type1 = node.requiredParams.get(0).getTypeNode();
         BLangType type2 = node.requiredParams.get(1).getTypeNode();
-        if (!type1.type.tsymbol.name.value.equals("Context")) {
+        if (!type1.getBType().tsymbol.name.value.equals("Context")) {
             return false;
         }
-        if (!type1.type.tsymbol.pkgID.orgName.value.equals(AWS_LAMBDA_PACKAGE_ORG) ||
-                !type1.type.tsymbol.pkgID.name.value.equals(AWS_LAMBDA_PACKAGE_NAME)) {
+        if (!type1.getBType().tsymbol.pkgID.orgName.value.equals(AWS_LAMBDA_PACKAGE_ORG) ||
+                !type1.getBType().tsymbol.pkgID.name.value.equals(AWS_LAMBDA_PACKAGE_NAME)) {
             return false;
         }
         if (type2 == null) {
@@ -392,15 +392,15 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             BLangUnionTypeNode unionType = (BLangUnionTypeNode) retType;
             Set<Integer> typeTags = new HashSet<>();
             for (BLangType memberTypeNode : unionType.memberTypeNodes) {
-                typeTags.add(memberTypeNode.type.tag);
+                typeTags.add(memberTypeNode.getBType().tag);
             }
             typeTags.remove(TypeTags.JSON_TAG);
             typeTags.remove(TypeTags.ERROR_TAG);
             typeTags.remove(TypeTags.NULL_TAG);
             return typeTags.isEmpty();
         } else {
-            return retType.type.tag == TypeTags.JSON_TAG || retType.type.tag == TypeTags.ERROR_TAG ||
-                    retType.type.tag == TypeTags.NULL_TAG;
+            return retType.getBType().tag == TypeTags.JSON_TAG || retType.getBType().tag == TypeTags.ERROR_TAG ||
+                    retType.getBType().tag == TypeTags.NULL_TAG;
         }
     }
 
