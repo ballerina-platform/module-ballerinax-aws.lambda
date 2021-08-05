@@ -295,7 +295,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.setBType(new BInvokableType(new ArrayList<>(), new BNilType(), null));
         bLangFunction.body = this.createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                new Name(bLangFunction.name.value), packageNode.packageID,
+                new Name(bLangFunction.name.value), new Name(bLangFunction.name.value), packageNode.packageID,
                 bLangFunction.getBType(), packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
         functionSymbol.scope = new Scope(functionSymbol);
         bLangFunction.symbol = functionSymbol;
@@ -312,7 +312,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         bLangFunction.setBType(new BInvokableType(paramTypes, retType.getBType(), null));
         bLangFunction.body = createBlockStmt(pos);
         BInvokableSymbol functionSymbol = Symbols.createFunctionSymbol(Flags.asMask(bLangFunction.flagSet),
-                new Name(bLangFunction.name.value), packageNode.packageID,
+                new Name(bLangFunction.name.value), new Name(bLangFunction.name.value), packageNode.packageID,
                 bLangFunction.getBType(), packageNode.symbol, true, pos, SymbolOrigin.VIRTUAL);
         functionSymbol.type = bLangFunction.getBType();
         functionSymbol.retType = retType.getBType();
