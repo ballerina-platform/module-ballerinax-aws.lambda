@@ -1,0 +1,6 @@
+[plugin]
+id = "awslambda"
+class = "org.ballerinax.awslambda.AWSLambdaCompilerPlugin"
+
+[[dependency]]
+path = "../awslambda-extension/build/libs/awslambda-extension-@lambda.extension.version@.jar"

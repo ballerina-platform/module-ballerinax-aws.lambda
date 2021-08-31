@@ -15,23 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinax.awslambda;
 
-import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import io.ballerina.projects.plugins.CodeAnalysisContext;
+import io.ballerina.projects.plugins.CodeAnalyzer;
+import org.ballerinax.awslambda.tasks.AWSLambdaCodegenTask;
 
 /**
- * This represents the Ballerina AWSLambda extension package repository provider.
+ * Registers Code generator for AWS Lambda.
+ *
+ * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class AWSLambdaExtensionProvider implements SystemPackageRepositoryProvider {
-
+public class AWSLambdaCodeGenerator extends CodeAnalyzer {
     @Override
-    public Repo loadRepository() {
-        return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
+    public void init(CodeAnalysisContext analysisContext) {
+        analysisContext.addCompilationAnalysisTask(new AWSLambdaCodegenTask());
     }
-
 }

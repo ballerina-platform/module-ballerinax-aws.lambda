@@ -13,6 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerinax/awslambda;
 
-# The annotation, which is used to mark the function as an AWS Lambda function.
-public const annotation Function on function;
+@awslambda:Function
+public function echo(awslambda:Context ctx, json input) returns json {
+   return input;
+}

@@ -14,5 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The annotation, which is used to mark the function as an AWS Lambda function.
-public const annotation Function on function;
+import ballerina/io;
+import ballerinax/awslambda;
+
+@awslambda:Function
+public function echo(awslambda:Context ctx, json input) returns json {
+   return input;
+}
+
+public function main() {
+    io:println("Hello, World!");
+}
+

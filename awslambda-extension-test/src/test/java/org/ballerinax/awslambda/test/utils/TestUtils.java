@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -42,7 +42,7 @@ import java.util.Map;
 public class TestUtils {
     private static final Log log = LogFactory.getLog(TestUtils.class);
     private static final Path DISTRIBUTION_PATH = Paths.get(FilenameUtils.separatorsToSystem(
-            System.getProperty("ballerinaPack")));
+            System.getProperty("ballerina.home"))).resolve("bin");
     private static final Path BALLERINA_COMMAND = DISTRIBUTION_PATH
             .resolve((System.getProperty("os.name").toLowerCase(Locale.getDefault()).contains("win") ?
                       "bal.bat" : "bal"));
@@ -65,40 +65,39 @@ public class TestUtils {
         }
         return output.toString();
     }
-    
+
     /**
-     * Compile a ballerina file in a given directory.
+     * Compile a ballerina project in a given directory.
      *
      * @param sourceDirectory Ballerina source directory
-     * @param fileName        Ballerina source file name
      * @return Exit code
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaFile(Path sourceDirectory, String fileName) throws InterruptedException,
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
             IOException {
-        
+
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
             log.warn("Deleting already existing ballerina-internal.log file.");
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
-        
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, fileName);
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD);
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
-        log.info(COMPILING + sourceDirectory.normalize().resolve(fileName));
+        log.info(COMPILING + sourceDirectory);
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
         int exitCode = process.waitFor();
-        
+
         // log ballerina-internal.log content
         if (Files.exists(ballerinaInternalLog)) {
             log.info("ballerina-internal.log file found. content: ");
             log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
         }
-        
+
         ProcessOutput po = new ProcessOutput();
         log.info(EXIT_CODE + exitCode);
         po.setExitCode(exitCode);

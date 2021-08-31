@@ -15,23 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinax.awslambda;
 
-import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.spi.SystemPackageRepositoryProvider;
-import org.wso2.ballerinalang.compiler.packaging.repo.JarRepo;
-import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
+import io.ballerina.projects.plugins.CompilerPlugin;
+import io.ballerina.projects.plugins.CompilerPluginContext;
 
 /**
- * This represents the Ballerina AWSLambda extension package repository provider.
+ * AWS Lambda Compiler plugin initializer.
+ *
+ * @since 2.0.0
  */
-@JavaSPIService("org.ballerinalang.spi.SystemPackageRepositoryProvider")
-public class AWSLambdaExtensionProvider implements SystemPackageRepositoryProvider {
-
+public class AWSLambdaCompilerPlugin extends CompilerPlugin {
     @Override
-    public Repo loadRepository() {
-        return new JarRepo(SystemPackageRepositoryProvider.getClassUri(this));
+    public void init(CompilerPluginContext pluginContext) {
+        pluginContext.addCodeAnalyzer(new AWSLambdaCodeGenerator());
+        pluginContext.addCompilerLifecycleListener(new LambdaLifecycleListener());
     }
-
 }
