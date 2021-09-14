@@ -68,10 +68,14 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -85,6 +89,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Compiler plugin to process AWS lambda function annotations.
@@ -417,28 +422,27 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             return;
         }
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
-        String balxName;
         try {
+            String version = getResourceFileAsString("layer-version.txt");
             String fileName = target.getExecutablePath(project.currentPackage()).getFileName().toString();
-            balxName = fileName.substring(0, fileName.lastIndexOf('.'));
+            String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
 
             this.generateZipFile(target.getExecutablePath(project.currentPackage()));
-        } catch (IOException e) {
-            throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
-        }
-        OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-        try {
+
+            OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
             OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
                     + target.getExecutablePath(project.currentPackage()).getParent().toString() + File.separator
                     + LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " + balxName
                     + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                    + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:6 --memory-size 512 --timeout 10");
+                    + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
+                    " --memory-size 512 --timeout 10");
+
+            OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
+            OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
+                    + LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
         } catch (IOException e) {
-            //ignored
+            throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
-        OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
-        OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                + LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
     }
 
     private void generateZipFile(Path binaryPath) throws IOException {
@@ -450,6 +454,23 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
             Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * Reads given resource file as a string.
+     *
+     * @param fileName path to the resource file
+     * @return the file's contents
+     * @throws IOException if read fails for any reason
+     */
+    private static String getResourceFileAsString(String fileName) throws IOException {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        try (InputStream is = classLoader.getResourceAsStream(fileName)) {
+            try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+                 BufferedReader reader = new BufferedReader(isr)) {
+                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            }
         }
     }
 
