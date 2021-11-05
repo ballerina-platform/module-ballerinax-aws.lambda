@@ -122,9 +122,9 @@ task ballerinaBuild {
         exec {
             workingDir project.projectDir
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', '/c', "$distributionBinPath/bal.bat build -c"
+                commandLine 'cmd', '/c', "$distributionBinPath/bal.bat pack"
             } else {
-                commandLine 'sh', '-c', "$distributionBinPath/bal build -c"
+                commandLine 'sh', '-c', "$distributionBinPath/bal pack"
             }
         }
         // extract bala file to artifact cache directory
