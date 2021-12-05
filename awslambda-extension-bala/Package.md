@@ -1,6 +1,6 @@
 ## Package Overview
 
-This module offers the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina. 
+This module provides the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina. 
 
 - For information on the operations, which you can perform with this module, see [Classes](/learn/api-docs/ballerina/index.html#/ballerinax/awslambda/0.0.0/awslambda/classes/Context). 
 - For information on the deployment, see the [AWS Lambda Deployment Guide](/learn/deployment/aws-lambda/).

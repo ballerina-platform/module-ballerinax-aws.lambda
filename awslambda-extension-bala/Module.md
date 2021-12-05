@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module offers the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina. 
+This module provides the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina. 
  
 
 ### Annotation Usage Sample:
