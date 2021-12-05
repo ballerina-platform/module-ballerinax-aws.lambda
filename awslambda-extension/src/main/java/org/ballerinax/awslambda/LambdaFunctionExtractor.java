@@ -24,11 +24,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import io.ballerina.tools.diagnostics.Diagnostic;
-import org.ballerinax.awslambda.validators.MainFunctionValidator;
-import org.ballerinax.awslambda.validators.SubmoduleValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +48,9 @@ public class LambdaFunctionExtractor {
         for (DocumentId documentId : module.documentIds()) {
             Document document = module.document(documentId);
             Node node = document.syntaxTree().rootNode();
+            if (document.name().startsWith(Constants.AWS_LAMBDA_PREFIX)) {
+                continue;
+            }
             SemanticModel semanticModel = module.getCompilation().getSemanticModel();
             LambdaFunctionVisitor lambdaFunctionVisitor = new LambdaFunctionVisitor(semanticModel);
             node.accept(lambdaFunctionVisitor);
@@ -59,37 +58,5 @@ public class LambdaFunctionExtractor {
             handlerList.add(new LambdaHandlerContainer(functions));
         }
         return handlerList;
-    }
-
-    public List<Diagnostic> validateModules() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        for (ModuleId moduleId : this.currentPackage.moduleIds()) {
-            Module module = this.currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                Document document = module.document(documentId);
-                Node rootNode = document.syntaxTree().rootNode();
-                if (document.name().endsWith(Constants.GENERATED_FILE_NAME)) {
-                    continue;
-                }
-                diagnostics.addAll(validateMainFunction(rootNode));
-                if (module.isDefaultModule()) {
-                    continue;
-                }
-                diagnostics.addAll(validateSubmoduleDocument(rootNode));
-            }
-        }
-        return diagnostics;
-    }
-
-    private List<Diagnostic> validateMainFunction(Node node) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        node.accept(new MainFunctionValidator(diagnostics));
-        return diagnostics;
-    }
-
-    private List<Diagnostic> validateSubmoduleDocument(Node node) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        node.accept(new SubmoduleValidator(diagnostics));
-        return diagnostics;
     }
 }

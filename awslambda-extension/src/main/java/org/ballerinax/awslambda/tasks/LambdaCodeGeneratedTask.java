@@ -25,10 +25,14 @@ import org.ballerinax.awslambda.FunctionDeploymentContext;
 import org.ballerinax.awslambda.LambdaFunctionHolder;
 import org.ballerinax.awslambda.LambdaUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -38,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Contains the code generation part of the lambda functions.
@@ -50,8 +55,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
 
     @Override
     public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
-        List<FunctionDeploymentContext> generatedFunctions =
-                LambdaFunctionHolder.getInstance().getGeneratedFunctions();
+        List<FunctionDeploymentContext> generatedFunctions = LambdaFunctionHolder.getInstance().getGeneratedFunctions();
         if (generatedFunctions.isEmpty()) {
             // no lambda functions, nothing else to do
             return;
@@ -60,24 +64,24 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
         if (generatedArtifactPath.isPresent()) {
             Path executablePath = generatedArtifactPath.get();
-            String balxName;
             try {
                 this.generateZipFile(executablePath);
+                String version = getResourceFileAsString("layer-version.txt");
+                String fileName = executablePath.getFileName().toString();
+                String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
+                OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
+                Path parent = executablePath.getParent();
+                OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
+                        + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " +
+                        balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
+                        + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
+                        " --memory-size 512 --timeout 10");
+                OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
+                OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
+                        + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
             } catch (IOException e) {
                 throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
             }
-            String fileName = executablePath.getFileName().toString();
-            balxName = fileName.substring(0, fileName.lastIndexOf('.'));
-            OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-            Path parent = executablePath.getParent();
-            OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                    + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " +
-                    balxName
-                    + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                    + "arn:aws:lambda:$REGION_ID:" + Constants.AWS_BALLERINA_LAYER + " --memory-size 512 --timeout 10");
-            OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
-            OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                    + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
         }
     }
 
@@ -90,6 +94,23 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
             Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /**
+     * Reads given resource file as a string.
+     *
+     * @param fileName path to the resource file
+     * @return the file's contents
+     * @throws IOException if read fails for any reason
+     */
+    private static String getResourceFileAsString(String fileName) throws IOException {
+        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        try (InputStream is = classLoader.getResourceAsStream(fileName)) {
+            try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+                 BufferedReader reader = new BufferedReader(isr)) {
+                return reader.lines().collect(Collectors.joining(System.lineSeparator()));
+            }
         }
     }
 }

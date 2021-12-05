@@ -29,8 +29,7 @@ public class Constants {
     public static final String LAMBDA_CONTEXT = "Context";
     public static final String CTX_PARAMS_NAME = "ctx";
     public static final String INPUT_PARAMS_NAME = "input";
-    public static final String GENERATED_FILE_NAME = "lambda-func-generated-handler.bal";
     public static final String PROXY_FUNCTION_PREFIX = "__func_proxy__";
     public static final String LAMBDA_OUTPUT_ZIP_FILENAME = "aws-ballerina-lambda-functions.zip";
-    public static final String AWS_BALLERINA_LAYER = "134633749276:layer:ballerina-jre11:6";
+    public static final String AWS_LAMBDA_PREFIX = "aws-lamb";
 }

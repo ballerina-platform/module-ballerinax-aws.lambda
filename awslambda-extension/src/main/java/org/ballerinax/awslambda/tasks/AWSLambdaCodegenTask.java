@@ -19,14 +19,12 @@ package org.ballerinax.awslambda.tasks;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.plugins.AnalysisTask;
-import io.ballerina.projects.plugins.CompilationAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.projects.plugins.GeneratorTask;
+import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import org.ballerinax.awslambda.Constants;
 import org.ballerinax.awslambda.FunctionDeploymentContext;
 import org.ballerinax.awslambda.LambdaFunctionExtractor;
@@ -34,8 +32,6 @@ import org.ballerinax.awslambda.LambdaFunctionHolder;
 import org.ballerinax.awslambda.LambdaHandlerContainer;
 import org.ballerinax.awslambda.LambdaUtils;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,13 +39,12 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class AWSLambdaCodegenTask implements AnalysisTask<CompilationAnalysisContext> {
+public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContext> {
 
     @Override
-    public void perform(CompilationAnalysisContext compilationAnalysisContext) {
-        Package currentPackage = compilationAnalysisContext.currentPackage();
+    public void generate(SourceGeneratorContext sourceGeneratorContext) {
+        Package currentPackage = sourceGeneratorContext.currentPackage();
         LambdaFunctionExtractor lambdaFunctionExtractor = new LambdaFunctionExtractor(currentPackage);
-        List<Diagnostic> diagnostics = new ArrayList<>(lambdaFunctionExtractor.validateModules());
         Module module = currentPackage.getDefaultModule();
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
@@ -59,27 +54,13 @@ public class AWSLambdaCodegenTask implements AnalysisTask<CompilationAnalysisCon
                 generatedFunctions.add(functionDeploymentContext);
             }
         }
-        DocumentConfig documentConfig =
-                generateIntermediateHandlerDocument(currentPackage.project(), generatedFunctions);
-        //Used to avoid duplicate documents as codeAnalyze is getting called multiple times
-        if (!LambdaUtils.isDocumentExistInModule(module, documentConfig)) {
-            module.modify().addDocument(documentConfig).apply();
-            currentPackage.getCompilation();
-        }
-        for (Diagnostic diagnostic : diagnostics) {
-            compilationAnalysisContext.reportDiagnostic(diagnostic);
-        }
+        TextDocument textDocument = generateHandlerDocument(generatedFunctions);
+        sourceGeneratorContext.addSourceFile(textDocument, Constants.AWS_LAMBDA_PREFIX, module.moduleId());
     }
-
-    private DocumentConfig generateIntermediateHandlerDocument(Project project,
-                                                               List<FunctionDeploymentContext> generatedFunctions) {
-        Module module = project.currentPackage().getDefaultModule();
+    
+    private TextDocument generateHandlerDocument(List<FunctionDeploymentContext> generatedFunctions) {
         FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction(generatedFunctions);
         ModulePartNode modulePartNode = LambdaUtils.createModulePartNode(generatedFunctions, mainFunction);
-        String newFileContent = modulePartNode.toSourceCode();
-        String fileName = module.moduleName().toString() + "-" + Constants.GENERATED_FILE_NAME;
-        Path filePath = project.sourceRoot().resolve(fileName);
-        DocumentId newDocumentId = DocumentId.create(filePath.toString(), module.moduleId());
-        return DocumentConfig.from(newDocumentId, newFileContent, fileName);
+        return TextDocuments.from(modulePartNode.toSourceCode());
     }
 }

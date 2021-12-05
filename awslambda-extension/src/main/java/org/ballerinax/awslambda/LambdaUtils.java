@@ -46,10 +46,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.Module;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -61,7 +57,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Contains Utility methods required to generate hander functions.
+ * Contains Utility methods required to generate handler functions.
  *
  * @since 2.0.0
  */
@@ -310,15 +306,5 @@ public class LambdaUtils {
         return NodeFactory.createFunctionCallExpressionNode(simpleNameReferenceNode,
                 NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN), separatedNodeList,
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
-    }
-
-    public static boolean isDocumentExistInModule(Module module, DocumentConfig document) {
-        for (DocumentId id : module.documentIds()) {
-            Document moduleDoc = module.document(id);
-            if (moduleDoc.name().equals(document.name())) {
-                return true;
-            }
-        }
-        return false;
     }
 }
