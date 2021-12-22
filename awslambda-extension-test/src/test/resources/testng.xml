@@ -25,7 +25,7 @@
             </run>
         </groups>
         <classes>
-<!--            <class name="org.ballerinax.awslambda.test.DeploymentTest"/>-->
+            <class name="org.ballerinax.awslambda.test.DeploymentTest"/>
             <class name="org.ballerinax.awslambda.test.LayerValidationTest"/>
             <class name="org.ballerinax.awslambda.test.HandlerTest"/>
             <class name="org.ballerinax.awslambda.test.ProjectValidationTest"/>

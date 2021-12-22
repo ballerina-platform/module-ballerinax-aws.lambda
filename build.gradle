@@ -23,6 +23,7 @@ plugins {
     id "net.researchgate.release" version "2.6.0"
 }
 
+ext.googleGsonVersion = "2.7"
 ext.ballerinaLangVersion = project.ballerinaLangVersion
 ext.testngVersion = "6.14.3"
 ext.commomsIOVersion = "2.6"

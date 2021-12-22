@@ -291,14 +291,6 @@ public class LambdaUtils {
         return NodeFactory.createSeparatedNodeList(nodeList);
     }
 
-    public static List<String> getFunctionList(List<FunctionDeploymentContext> generatedFuncs) {
-        List<String> functionNames = new ArrayList<>();
-        for (FunctionDeploymentContext function : generatedFuncs) {
-            functionNames.add(function.getOriginalFunction().functionName().text());
-        }
-        return functionNames;
-    }
-
     public static ExpressionNode createFunctionInvocationNode(String functionName, PositionalArgumentNode... args) {
         SimpleNameReferenceNode simpleNameReferenceNode =
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));

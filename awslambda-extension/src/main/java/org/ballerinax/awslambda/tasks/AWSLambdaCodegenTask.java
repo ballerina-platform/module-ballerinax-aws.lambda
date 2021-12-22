@@ -17,14 +17,22 @@
  */
 package org.ballerinax.awslambda.tasks;
 
+import com.google.gson.Gson;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.GeneratorTask;
 import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinax.awslambda.Constants;
 import org.ballerinax.awslambda.FunctionDeploymentContext;
 import org.ballerinax.awslambda.LambdaFunctionExtractor;
@@ -32,6 +40,12 @@ import org.ballerinax.awslambda.LambdaFunctionHolder;
 import org.ballerinax.awslambda.LambdaHandlerContainer;
 import org.ballerinax.awslambda.LambdaUtils;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,13 +68,55 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
                 generatedFunctions.add(functionDeploymentContext);
             }
         }
+        try {
+            writeObjectToJson(sourceGeneratorContext.currentPackage().project().targetDir(), generatedFunctions);
+        } catch (IOException e) {
+            DiagnosticInfo
+                    diagnosticInfo = new DiagnosticInfo("AWS-Lambda-001", e.getMessage(), DiagnosticSeverity.ERROR);
+            sourceGeneratorContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                    new NullLocation()));
+        }
         TextDocument textDocument = generateHandlerDocument(generatedFunctions);
         sourceGeneratorContext.addSourceFile(textDocument, Constants.AWS_LAMBDA_PREFIX, module.moduleId());
     }
-    
+
     private TextDocument generateHandlerDocument(List<FunctionDeploymentContext> generatedFunctions) {
         FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction(generatedFunctions);
         ModulePartNode modulePartNode = LambdaUtils.createModulePartNode(generatedFunctions, mainFunction);
         return TextDocuments.from(modulePartNode.toSourceCode());
+    }
+
+    private void writeObjectToJson(Path targetPath, List<FunctionDeploymentContext> generatedFunctions)
+            throws IOException {
+        Gson gson = new Gson();
+        Path jsonPath = targetPath.resolve("aws-lambda.json");
+        Files.deleteIfExists(jsonPath);
+        Files.createFile(jsonPath);
+        try (FileWriter r = new FileWriter(jsonPath.toAbsolutePath().toString(), StandardCharsets.UTF_8)) {
+            List<String> functionList = new ArrayList<>();
+            for (FunctionDeploymentContext ctx : generatedFunctions) {
+                functionList.add(ctx.getOriginalFunction().functionName().text());
+            }
+            gson.toJson(functionList, r);
+        }
+    }
+}
+
+/**
+ * Represents Null Location in a ballerina document.
+ *
+ * @since 2.0.0
+ */
+class NullLocation implements Location {
+
+    @Override
+    public LineRange lineRange() {
+        LinePosition from = LinePosition.from(0, 0);
+        return LineRange.from("", from, from);
+    }
+
+    @Override
+    public TextRange textRange() {
+        return TextRange.from(0, 0);
     }
 }

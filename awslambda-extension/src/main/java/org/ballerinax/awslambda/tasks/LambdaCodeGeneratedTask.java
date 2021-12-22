@@ -17,16 +17,15 @@
  */
 package org.ballerinax.awslambda.tasks;
 
+import com.google.gson.Gson;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinax.awslambda.Constants;
-import org.ballerinax.awslambda.FunctionDeploymentContext;
-import org.ballerinax.awslambda.LambdaFunctionHolder;
-import org.ballerinax.awslambda.LambdaUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,34 +53,39 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     private static final PrintStream OUT = System.out;
 
     @Override
-    public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
-        List<FunctionDeploymentContext> generatedFunctions = LambdaFunctionHolder.getInstance().getGeneratedFunctions();
-        if (generatedFunctions.isEmpty()) {
-            // no lambda functions, nothing else to do
-            return;
-        }
-        OUT.println("\t@awslambda:Function: " + String.join(", ", LambdaUtils.getFunctionList(generatedFunctions)));
-        Optional<Path> generatedArtifactPath = compilerLifecycleEventContext.getGeneratedArtifactPath();
-        if (generatedArtifactPath.isPresent()) {
-            Path executablePath = generatedArtifactPath.get();
-            try {
-                this.generateZipFile(executablePath);
-                String version = getResourceFileAsString("layer-version.txt");
-                String fileName = executablePath.getFileName().toString();
-                String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
-                OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-                Path parent = executablePath.getParent();
-                OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                        + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + " --handler " +
-                        balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                        + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
-                        " --memory-size 512 --timeout 10");
-                OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
-                OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                        + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
-            } catch (IOException e) {
-                throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
+    public void perform(CompilerLifecycleEventContext lifecycleEventContext) {
+        Path lambdaJson = lifecycleEventContext.currentPackage().project().targetDir().resolve("aws-lambda.json");
+        Gson gson = new Gson();
+        try (FileReader file = new FileReader(lambdaJson.toAbsolutePath().toString(),
+                StandardCharsets.UTF_8)) {
+            List<String> generatedFunctions = gson.fromJson(file, List.class);
+            file.close();
+            OUT.println("\t@awslambda:Function: " + String.join(", ", generatedFunctions));
+            Optional<Path> generatedArtifactPath = lifecycleEventContext.getGeneratedArtifactPath();
+            if (generatedArtifactPath.isPresent()) {
+                Path executablePath = generatedArtifactPath.get();
+                try {
+                    this.generateZipFile(executablePath);
+                    String version = getResourceFileAsString("layer-version.txt");
+                    String fileName = executablePath.getFileName().toString();
+                    String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
+                    OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
+                    Path parent = executablePath.getParent();
+                    OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
+                            + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
+                            " --handler " +
+                            balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
+                            + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
+                            " --memory-size 512 --timeout 10");
+                    OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
+                    OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
+                            + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+                } catch (IOException e) {
+                    throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
+                }
             }
+        } catch (IOException e) {
+            OUT.println("Internal error occurred. Unable to read target/aws-lambda.json " + e.getMessage());
         }
     }
 
@@ -104,8 +108,8 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
      * @return the file's contents
      * @throws IOException if read fails for any reason
      */
-    private static String getResourceFileAsString(String fileName) throws IOException {
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+    private String getResourceFileAsString(String fileName) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
         try (InputStream is = classLoader.getResourceAsStream(fileName)) {
             try (InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
                  BufferedReader reader = new BufferedReader(isr)) {
