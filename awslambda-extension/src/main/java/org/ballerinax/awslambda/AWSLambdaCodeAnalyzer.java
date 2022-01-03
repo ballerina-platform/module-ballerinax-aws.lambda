@@ -17,19 +17,19 @@
  */
 package org.ballerinax.awslambda;
 
-import io.ballerina.projects.plugins.CompilerPlugin;
-import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.CodeAnalysisContext;
+import io.ballerina.projects.plugins.CodeAnalyzer;
+import org.ballerinax.awslambda.validators.AWSLambdaCodeAnalyzerTask;
 
 /**
- * AWS Lambda Compiler plugin initializer.
+ * Contains the code analyzers for azure functions.
  *
  * @since 2.0.0
  */
-public class AWSLambdaCompilerPlugin extends CompilerPlugin {
+public class AWSLambdaCodeAnalyzer extends CodeAnalyzer {
+
     @Override
-    public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new AWSLambdaCodeAnalyzer());
-        pluginContext.addCodeGenerator(new AWSLambdaCodeGenerator());
-        pluginContext.addCompilerLifecycleListener(new LambdaLifecycleListener());
+    public void init(CodeAnalysisContext codeAnalysisContext) {
+        codeAnalysisContext.addCompilationAnalysisTask(new AWSLambdaCodeAnalyzerTask());
     }
 }

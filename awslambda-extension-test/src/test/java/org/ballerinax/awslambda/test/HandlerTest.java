@@ -18,11 +18,12 @@
 package org.ballerinax.awslambda.test;
 
 import com.google.gson.JsonObject;
+import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import org.ballerinax.awslambda.test.utils.ParserTestUtils;
@@ -41,24 +42,25 @@ public class HandlerTest {
     public void testGeneratedHandlerSource() {
         try {
             BuildProject project = BuildProject.load(RESOURCE_DIRECTORY.resolve("code"));
-            PackageCompilation compilation = project.currentPackage().getCompilation();
+            CodeGeneratorResult codeGeneratorResult = project.currentPackage().runCodeGeneratorPlugins();
+            Package updatedPackage = codeGeneratorResult.updatedPackage().orElseThrow();
+            PackageCompilation compilation = updatedPackage.getCompilation();
             DiagnosticResult diagnosticResult = compilation.diagnosticResult();
             Assert.assertFalse(diagnosticResult.hasErrors());
-            for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-                Module module = project.currentPackage().module(moduleId);
-                for (DocumentId documentId : module.documentIds()) {
-                    Document document = module.document(documentId);
-                    if (document.name().equals("main.bal")) {
-                        continue;
-                    }
-
-                    JsonObject assertJson =
-                            ParserTestUtils.readAssertFile(RESOURCE_DIRECTORY.resolve("generated").resolve("generated" +
-                            ".json"));
-
-                    // Validate the tree against the assertion file
-                    ParserTestUtils.assertNode(document.syntaxTree().rootNode().internalNode(), assertJson);
+            Module module = project.currentPackage().getDefaultModule();
+            Assert.assertEquals(module.documentIds().size(), 2);
+            for (DocumentId documentId : module.documentIds()) {
+                Document document = module.document(documentId);
+                if (document.name().equals("main.bal")) {
+                    continue;
                 }
+
+                JsonObject assertJson =
+                        ParserTestUtils.readAssertFile(RESOURCE_DIRECTORY.resolve("generated").resolve("generated" +
+                        ".json"));
+
+                // Validate the tree against the assertion file
+                ParserTestUtils.assertNode(document.syntaxTree().rootNode().internalNode(), assertJson);
             }
         } catch (Exception e) {
             Assert.fail(e.getMessage());

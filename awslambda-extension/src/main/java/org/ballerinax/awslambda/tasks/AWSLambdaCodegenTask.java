@@ -17,16 +17,22 @@
  */
 package org.ballerinax.awslambda.tasks;
 
+import com.google.gson.Gson;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.projects.DocumentConfig;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.plugins.AnalysisTask;
-import io.ballerina.projects.plugins.CompilationAnalysisContext;
-import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.projects.plugins.GeneratorTask;
+import io.ballerina.projects.plugins.SourceGeneratorContext;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinax.awslambda.Constants;
 import org.ballerinax.awslambda.FunctionDeploymentContext;
 import org.ballerinax.awslambda.LambdaFunctionExtractor;
@@ -34,6 +40,10 @@ import org.ballerinax.awslambda.LambdaFunctionHolder;
 import org.ballerinax.awslambda.LambdaHandlerContainer;
 import org.ballerinax.awslambda.LambdaUtils;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +53,12 @@ import java.util.List;
  *
  * @since 1.0.0
  */
-public class AWSLambdaCodegenTask implements AnalysisTask<CompilationAnalysisContext> {
+public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContext> {
 
     @Override
-    public void perform(CompilationAnalysisContext compilationAnalysisContext) {
-        Package currentPackage = compilationAnalysisContext.currentPackage();
+    public void generate(SourceGeneratorContext sourceGeneratorContext) {
+        Package currentPackage = sourceGeneratorContext.currentPackage();
         LambdaFunctionExtractor lambdaFunctionExtractor = new LambdaFunctionExtractor(currentPackage);
-        List<Diagnostic> diagnostics = new ArrayList<>(lambdaFunctionExtractor.validateModules());
         Module module = currentPackage.getDefaultModule();
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
@@ -59,27 +68,55 @@ public class AWSLambdaCodegenTask implements AnalysisTask<CompilationAnalysisCon
                 generatedFunctions.add(functionDeploymentContext);
             }
         }
-        DocumentConfig documentConfig =
-                generateIntermediateHandlerDocument(currentPackage.project(), generatedFunctions);
-        //Used to avoid duplicate documents as codeAnalyze is getting called multiple times
-        if (!LambdaUtils.isDocumentExistInModule(module, documentConfig)) {
-            module.modify().addDocument(documentConfig).apply();
-            currentPackage.getCompilation();
+        try {
+            writeObjectToJson(sourceGeneratorContext.currentPackage().project().targetDir(), generatedFunctions);
+        } catch (IOException e) {
+            DiagnosticInfo
+                    diagnosticInfo = new DiagnosticInfo("AWS-Lambda-001", e.getMessage(), DiagnosticSeverity.ERROR);
+            sourceGeneratorContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                    new NullLocation()));
         }
-        for (Diagnostic diagnostic : diagnostics) {
-            compilationAnalysisContext.reportDiagnostic(diagnostic);
-        }
+        TextDocument textDocument = generateHandlerDocument(generatedFunctions);
+        sourceGeneratorContext.addSourceFile(textDocument, Constants.AWS_LAMBDA_PREFIX, module.moduleId());
     }
 
-    private DocumentConfig generateIntermediateHandlerDocument(Project project,
-                                                               List<FunctionDeploymentContext> generatedFunctions) {
-        Module module = project.currentPackage().getDefaultModule();
+    private TextDocument generateHandlerDocument(List<FunctionDeploymentContext> generatedFunctions) {
         FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction(generatedFunctions);
         ModulePartNode modulePartNode = LambdaUtils.createModulePartNode(generatedFunctions, mainFunction);
-        String newFileContent = modulePartNode.toSourceCode();
-        String fileName = module.moduleName().toString() + "-" + Constants.GENERATED_FILE_NAME;
-        Path filePath = project.sourceRoot().resolve(fileName);
-        DocumentId newDocumentId = DocumentId.create(filePath.toString(), module.moduleId());
-        return DocumentConfig.from(newDocumentId, newFileContent, fileName);
+        return TextDocuments.from(modulePartNode.toSourceCode());
+    }
+
+    private void writeObjectToJson(Path targetPath, List<FunctionDeploymentContext> generatedFunctions)
+            throws IOException {
+        Gson gson = new Gson();
+        Path jsonPath = targetPath.resolve("aws-lambda.json");
+        Files.deleteIfExists(jsonPath);
+        Files.createFile(jsonPath);
+        try (FileWriter r = new FileWriter(jsonPath.toAbsolutePath().toString(), StandardCharsets.UTF_8)) {
+            List<String> functionList = new ArrayList<>();
+            for (FunctionDeploymentContext ctx : generatedFunctions) {
+                functionList.add(ctx.getOriginalFunction().functionName().text());
+            }
+            gson.toJson(functionList, r);
+        }
+    }
+}
+
+/**
+ * Represents Null Location in a ballerina document.
+ *
+ * @since 2.0.0
+ */
+class NullLocation implements Location {
+
+    @Override
+    public LineRange lineRange() {
+        LinePosition from = LinePosition.from(0, 0);
+        return LineRange.from("", from, from);
+    }
+
+    @Override
+    public TextRange textRange() {
+        return TextRange.from(0, 0);
     }
 }

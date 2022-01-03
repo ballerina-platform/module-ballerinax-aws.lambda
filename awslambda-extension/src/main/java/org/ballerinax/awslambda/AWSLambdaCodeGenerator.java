@@ -17,8 +17,8 @@
  */
 package org.ballerinax.awslambda;
 
-import io.ballerina.projects.plugins.CodeAnalysisContext;
-import io.ballerina.projects.plugins.CodeAnalyzer;
+import io.ballerina.projects.plugins.CodeGenerator;
+import io.ballerina.projects.plugins.CodeGeneratorContext;
 import org.ballerinax.awslambda.tasks.AWSLambdaCodegenTask;
 
 /**
@@ -26,9 +26,10 @@ import org.ballerinax.awslambda.tasks.AWSLambdaCodegenTask;
  *
  * @since 2.0.0
  */
-public class AWSLambdaCodeGenerator extends CodeAnalyzer {
+public class AWSLambdaCodeGenerator extends CodeGenerator {
+
     @Override
-    public void init(CodeAnalysisContext analysisContext) {
-        analysisContext.addCompilationAnalysisTask(new AWSLambdaCodegenTask());
+    public void init(CodeGeneratorContext codeGeneratorContext) {
+        codeGeneratorContext.addSourceGeneratorTask(new AWSLambdaCodegenTask());
     }
 }

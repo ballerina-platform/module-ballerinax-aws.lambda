@@ -1,0 +1,76 @@
+name: Bump Version of Ballerina Layer
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'ballerina-layer/**'
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    env:
+      LAYER_NAME: "ballerina-test1"
+      TEMP_BUCKET_NAME: "layer-bucket-temp"
+    strategy:
+      max-parallel: 1
+      matrix:
+        region: [ "us-west-1", "us-east-1", "us-east-2", "us-west-2", "ap-south-1", "ap-northeast-3", 
+                  "ap-northeast-2", "ap-southeast-1", "ap-southeast-2" ,"ap-northeast-1", "eu-central-1", 
+                  "eu-west-1", "eu-west-2", "eu-west-3", "eu-north-1", "sa-east-1" ]
+    outputs:
+      layer-version: ${{ steps.setup.outputs.layer-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ matrix.region }}
+      - name: Setup and Upload lambda Layer
+        id: setup
+        run: |
+          bucketName="${TEMP_BUCKET_NAME}-${{ matrix.region }}-${{ GITHUB.RUN_NUMBER }}"
+          cd ballerina-layer
+          wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.12%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.12_7.tar.gz -O openjre.tar.gz
+          tar -xvzf openjre.tar.gz
+          mv jdk-11.0.12+7-jre jdk
+          zip -r layer.zip .
+          aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }} --create-bucket-configuration LocationConstraint=${{ matrix.region }}
+          aws s3 cp --acl private ./layer.zip s3://$bucketName/layer.zip
+          aws lambda publish-layer-version \
+                        --layer-name ${LAYER_NAME} \
+                        --description "Ballerina Lambda runtime layer" \
+                        --content S3Bucket=$bucketName,S3Key=layer.zip \
+                        --license-info "Apache 2.0" --compatible-runtimes provided
+          version=`aws lambda list-layer-versions --layer-name ${LAYER_NAME}  --query 'LayerVersions[0].Version'`
+          aws lambda add-layer-version-permission --layer-name ${LAYER_NAME} --version-number $version --statement-id \
+          ${{ matrix.region }}-$version --action  lambda:GetLayerVersion --principal '*'
+          aws s3 rb --force s3://$bucketName
+          echo "::set-output name=layer-version::$version"
+  write:
+    runs-on: ubuntu-latest
+    needs: upload
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Write version to resource file
+        run: |
+          echo ${{needs.upload.outputs.layer-version}} > awslambda-extension/src/main/resources/layer-version.txt
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          commit-message: Update Layer Version
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: temp-layer
+          delete-branch: true
+          title: '[Automated] Update Layers'
+          body: |
+            Updates AWS Layer version to `${{needs.upload.outputs.layer-version}}`
+          draft: false

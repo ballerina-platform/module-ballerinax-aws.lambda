@@ -1,0 +1,22 @@
+name: Merge ballerina bot pull requests
+
+on:
+  workflow_run:
+    types:
+      - completed
+    workflows:
+      - 'Bump Version of Ballerina Layer'
+
+jobs:
+  merge-automated-pr:
+    name: Merge Automated PRs
+    runs-on: ubuntu-latest
+    steps:
+      - # It is often a desired behavior to merge only when a workflow execution
+        # succeeds. This can be changed as needed.
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Merge Automated PRs
+        uses: ridedott/merge-me-action@v2.8.35
+        with:
+          GITHUB_LOGIN: ballerina-bot
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
