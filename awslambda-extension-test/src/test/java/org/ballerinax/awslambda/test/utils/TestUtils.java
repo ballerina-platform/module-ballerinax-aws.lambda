@@ -106,6 +106,46 @@ public class TestUtils {
         po.setErrOutput(logOutput(process.getErrorStream()));
         return po;
     }
+
+    /**
+     * Compile a ballerina project in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @return Exit code
+     * @throws InterruptedException if an error occurs while compiling
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
+            IOException {
+
+        Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
+        if (ballerinaInternalLog.toFile().exists()) {
+            log.warn("Deleting already existing ballerina-internal.log file.");
+            FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
+        }
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD);
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+        log.info(COMPILING + sourceDirectory.normalize());
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+
+        // log ballerina-internal.log content
+        if (Files.exists(ballerinaInternalLog)) {
+            log.info("ballerina-internal.log file found. content: ");
+            log.info(FileUtils.readFileToString(ballerinaInternalLog.toFile(), Charset.defaultCharset()));
+        }
+
+        ProcessOutput po = new ProcessOutput();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
+        return po;
+    }
     
 
     public static ProcessOutput runLambdaFunction(Path sourceDirectory, String functionName, Path eventJson)

@@ -44,19 +44,26 @@ public class DeploymentTest extends BaseTest {
         this.eventJson = Files.createTempDirectory("ballerina-aws-lambda-test-").resolve("event.json");
     }
 
-
+    @Test
+    public void testSingleFileDeployment() throws Exception {
+        ProcessOutput processOutput =
+                TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("single_file"), "functions.bal");
+        Assert.assertTrue(processOutput.getStdOutput().contains("bal init"));
+    }
+    
     @Test
     public void testAWSLambdaDeployment() throws IOException, InterruptedException {
-        ProcessOutput processOutput = TestUtils.compileBallerinaFile(SOURCE_DIR.resolve("deployment"), "functions.bal");
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@awslambda"));
 
         // Check if jar is in .zip
-        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("aws-ballerina-lambda-functions.zip");
+        Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("target").resolve("bin").resolve("aws-ballerina" +
+                "-lambda-functions.zip");
         Assert.assertTrue(Files.exists(zipFilePath));
         URI uri = URI.create("jar:file:" + zipFilePath.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            Path jarFile = zipfs.getPath("/functions.jar");
+            Path jarFile = zipfs.getPath("/deployment.jar");
             Assert.assertTrue(Files.exists(jarFile));
         }
     }
