@@ -19,6 +19,7 @@
 package org.ballerinax.awslambda;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
@@ -421,6 +422,12 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             // no lambda functions, nothing else to do
             return;
         }
+        if (project.kind() != ProjectKind.BUILD_PROJECT) {
+            OUT.println("AWS lambda functions are only allowed in ballerina packages. Execute `bal init` in the " +
+                    "code directory to initialize a ballerina package");
+            return;
+        }
+        
         OUT.println("\t@awslambda:Function: " + String.join(", ", AWSLambdaPlugin.generatedFuncs));
         try {
             String version = getResourceFileAsString("layer-version.txt");
