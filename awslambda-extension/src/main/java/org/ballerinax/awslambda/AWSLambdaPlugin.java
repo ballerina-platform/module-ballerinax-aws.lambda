@@ -21,12 +21,11 @@ package org.ballerinax.awslambda;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.plugins.CompilerPluginException;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -67,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.BufferedReader;
@@ -152,7 +152,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             BPackageSymbol lambdaPkgSymbol = this.extractLambdaPackageSymbol(myPkg);
             if (lambdaPkgSymbol == null) {
                 // this symbol will always be there, since the import is needed to add the annotation
-                throw new BallerinaException("AWS Lambda package symbol cannot be found");
+                throw new CompilerPluginException("AWS Lambda package symbol cannot be found");
             }
             BLangFunction epFunc = this.extractMainFunction(myPkg);
             if (epFunc == null) {
@@ -400,13 +400,13 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             for (BLangType memberTypeNode : unionType.memberTypeNodes) {
                 typeTags.add(memberTypeNode.getBType().tag);
             }
-            typeTags.remove(TypeTags.JSON_TAG);
-            typeTags.remove(TypeTags.ERROR_TAG);
-            typeTags.remove(TypeTags.NULL_TAG);
+            typeTags.remove(TypeTags.JSON);
+            typeTags.remove(TypeTags.ERROR);
+            typeTags.remove(TypeTags.NIL);
             return typeTags.isEmpty();
         } else {
-            return retType.getBType().tag == TypeTags.JSON_TAG || retType.getBType().tag == TypeTags.ERROR_TAG ||
-                    retType.getBType().tag == TypeTags.NULL_TAG;
+            return retType.getBType().tag == TypeTags.JSON || retType.getBType().tag == TypeTags.ERROR ||
+                    retType.getBType().tag == TypeTags.NIL;
         }
     }
 
@@ -448,7 +448,7 @@ public class AWSLambdaPlugin extends AbstractCompilerPlugin {
             OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
                     + LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
         } catch (IOException e) {
-            throw new BallerinaException("Error generating AWS lambda zip file: " + e.getMessage(), e);
+            throw new CompilerPluginException("Error generating AWS lambda zip file: " + e.getMessage(), e);
         }
     }
 
