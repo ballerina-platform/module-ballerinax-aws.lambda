@@ -31,8 +31,7 @@ hs_err_pid*
 
 *Ballerina.lock
 awslambda/awslambda-extension-bala/src/main/ballerina/ballerinax/target
-*Dependencies.toml
-
+compiler-plugin-tests/**/Dependencies.toml
 # generated files
 build
 target
