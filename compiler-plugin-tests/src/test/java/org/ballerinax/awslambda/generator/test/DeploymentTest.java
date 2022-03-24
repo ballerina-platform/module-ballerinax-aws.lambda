@@ -46,6 +46,9 @@ public class DeploymentTest extends BaseTest {
     
     @Test
     public void testAWSLambdaDeployment() throws IOException, InterruptedException {
+        Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
+        Files.delete(depedenciesToml);
+        
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@awslambda"));

@@ -83,7 +83,7 @@ public class TestUtils {
             FileUtils.deleteQuietly(ballerinaInternalLog.toFile());
         }
 
-        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD);
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline");
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
         log.info(COMPILING + sourceDirectory.normalize());
