@@ -273,7 +273,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "awslambda"
-version = "3.0.0"
+version = "2.1.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
