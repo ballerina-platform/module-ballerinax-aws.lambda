@@ -1,4 +1,4 @@
-name: Ballerina AWS Lambda Pull Request
+name: Ballerina AWS Lambda Build
 
 on:
   pull_request:
@@ -12,30 +12,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: us-west-1
-      SAM_CLI_TELEMETRY: 0
       packageUser: ${{ github.actor }}
       packagePAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v2
       - name: Set up JDK 11
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 11
-      - name: Set up Docker
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest
-      - name: Setup Python 3.7
-        uses: actions/setup-python@master
-        with:
-          python-version: '3.7'
-      - name: Install aws-sam-cli
-        run: pip install aws-sam-cli
-      - name: Build with gradle
-        run: ./gradlew clean build codeCoverageReport -PLayerTesting --stacktrace --scan --console=plain --no-daemon
+      - name: Build with Gradle
+        env:
+          packageUser: ${{ github.actor }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./gradlew build
       - name: Generate Codecov Report
-        if:  github.event_name == 'pull_request'
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2

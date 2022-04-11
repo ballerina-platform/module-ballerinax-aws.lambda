@@ -1,0 +1,4 @@
+[package]
+org = "ballerinax"
+name = "awslambda_tests"
+version = "@toml.version@"
