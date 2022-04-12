@@ -1,0 +1,4 @@
+[package]
+org = "ballerinax"
+name = "awslambda"
+version = "2.1.0"

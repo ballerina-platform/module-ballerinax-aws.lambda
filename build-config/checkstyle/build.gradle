@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ plugins {
     id "de.undercouch.download"
 }
 
-task downloadMultipleFiles(type: Download) {
+apply plugin: 'java'
+
+task downloadCheckstyleRuleFiles(type: Download) {
     src([
-        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml',
-        'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml'
+            'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/checkstyle.xml',
+            'https://raw.githubusercontent.com/wso2/code-quality-tools/v1.3/checkstyle/suppressions.xml'
     ])
     overwrite false
     onlyIfNewer true
@@ -38,9 +40,9 @@ clean {
 }
 
 artifacts.add('default', file("$project.buildDir/checkstyle.xml")) {
-    builtBy('downloadMultipleFiles')
+    builtBy('downloadCheckstyleRuleFiles')
 }
 
 artifacts.add('default', file("$project.buildDir/suppressions.xml")) {
-    builtBy('downloadMultipleFiles')
+    builtBy('downloadCheckstyleRuleFiles')
 }
