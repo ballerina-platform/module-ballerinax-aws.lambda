@@ -3,6 +3,9 @@ name: Daily build
 on:
   schedule:
     - cron:  '0 */12 * * *'
+  repository_dispatch:
+    types:
+      check_connector_for_breaking_changes
 
 jobs:
   build:
@@ -15,13 +18,38 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 11
+      
+      - name: Set environment variable
+        if: github.event.action == 'check_connector_for_breaking_changes'
+        run: |
+          echo "CHECK_BRAEKING_CHANGES=true" >> $GITHUB_ENV
+          echo "GRADLE_SKIP_TASKS=-x :awslambda-compiler-plugin-tests:test"  >> $GITHUB_ENV
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Build with Gradle
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          ./gradlew clean build --scan --no-daemon
+          ./gradlew clean build --scan --no-daemon $GRADLE_SKIP_TASKS
+
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v1
+
+        # Send notification when build fails
+      - name: Notify failure
+        if: failure() && (github.event.action == 'check_connector_for_breaking_changes')
+        run: |
+          curl -X POST \
+          'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
+          -H 'Accept: application/vnd.github.v3+json' \
+          -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+          --data "{
+            \"event_type\": \"notify-ballerinax-connector-build-failure\",
+            \"client_payload\": {
+              \"repoName\": \"module-ballerinax-aws.lambda\",
+              \"workflow\": \"Daily build\"
+            }
+          }"
