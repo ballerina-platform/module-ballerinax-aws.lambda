@@ -22,7 +22,7 @@ jobs:
       - name: Set environment variable
         if: github.event.action == 'check_connector_for_breaking_changes'
         run: |
-          echo "BUILD_USING_DOCKER=true" >> $GITHUB_ENV
+          echo "BUILD_USING_DOCKER=-PbuildUsingDocker=true" >> $GITHUB_ENV
           echo "GRADLE_SKIP_TASKS=-x :awslambda-compiler-plugin-tests:test"  >> $GITHUB_ENV
 
       - name: Grant execute permission for gradlew
@@ -33,7 +33,7 @@ jobs:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          ./gradlew clean build --scan --no-daemon $GRADLE_SKIP_TASKS
+          ./gradlew clean build --scan --no-daemon $GRADLE_SKIP_TASKS $BUILD_USING_DOCKER
 
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v1
