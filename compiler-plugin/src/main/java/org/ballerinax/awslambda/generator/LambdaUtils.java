@@ -100,7 +100,7 @@ public class LambdaUtils {
         ExpressionStatementNode processStatement =
                 NodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, processExpr,
                         NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
-        
+
         return addStatementToFunctionBody(processStatement, mainFunction);
     }
 
@@ -192,8 +192,8 @@ public class LambdaUtils {
                         NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 LambdaUtils.generateMinutiaeListWithNewline()), null,
                         NodeFactory.createNodeList(returnStatementNode),
-                        NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
-
+                        NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN),
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
         return NodeFactory.createFunctionDefinitionNode(
                 SyntaxKind.FUNCTION_DEFINITION, null,
                 NodeFactory.createNodeList(NodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD,
@@ -227,7 +227,8 @@ public class LambdaUtils {
                 NodeFactory.createFunctionBodyBlockNode(
                         NodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, NodeFactory.createEmptyMinutiaeList(),
                                 LambdaUtils.generateMinutiaeListWithNewline()), null,
-                        NodeFactory.createEmptyNodeList(), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN));
+                        NodeFactory.createEmptyNodeList(), NodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN),
+                        NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN));
 
         return NodeFactory.createFunctionDefinitionNode(
                 SyntaxKind.FUNCTION_DEFINITION, null,
