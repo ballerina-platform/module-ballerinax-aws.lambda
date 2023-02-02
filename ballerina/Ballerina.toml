@@ -1,8 +1,8 @@
 [package]
 org = "ballerinax"
 name = "awslambda"
-version = "2.2.0"
-distribution = "2201.3.0"
+version = "2.3.0"
+distribution = "2201.4.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-aws.lambda"
 license = ["Apache-2.0"]
 keywords = ["aws", "lambda", "serverless", "cloud"]
