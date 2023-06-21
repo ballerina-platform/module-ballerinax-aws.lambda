@@ -21,7 +21,7 @@ jobs:
         if: github.event.action == 'check_connector_for_breaking_changes'
         run: |
           echo "BUILD_USING_DOCKER=-PbuildUsingDocker=nightly" >> $GITHUB_ENV
-          echo "GRADLE_SKIP_TASKS=-x :awslambda-compiler-plugin-tests:test"  >> $GITHUB_ENV
+          echo "GRADLE_SKIP_TASKS=-x :aws.lambda-compiler-plugin-tests:test"  >> $GITHUB_ENV
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew

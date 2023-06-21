@@ -60,7 +60,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 StandardCharsets.UTF_8)) {
             List<String> generatedFunctions = gson.fromJson(file, List.class);
             file.close();
-            OUT.println("\t@awslambda:Function: " + String.join(", ", generatedFunctions));
+            OUT.println("\t@aws.lambda:Function: " + String.join(", ", generatedFunctions));
             Optional<Path> generatedArtifactPath = lifecycleEventContext.getGeneratedArtifactPath();
             if (generatedArtifactPath.isPresent()) {
                 Path executablePath = generatedArtifactPath.get();

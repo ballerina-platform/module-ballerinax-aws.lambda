@@ -25,7 +25,9 @@ public class Constants {
     public static final String LAMBDA_REG_FUNCTION_NAME = "__register";
     public static final String MAIN_FUNC_NAME = "main";
     public static final String LAMBDA_ORG_NAME = "ballerinax";
-    public static final String LAMBDA_MODULE_NAME = "awslambda";
+    public static final String AWS_ORG = "aws";
+    public static final String LAMBDA_KEYWORD = "lambda";
+    public static final String LAMBDA_MODULE_NAME = AWS_ORG + "." + LAMBDA_KEYWORD;
     public static final String LAMBDA_CONTEXT = "Context";
     public static final String CTX_PARAMS_NAME = "ctx";
     public static final String INPUT_PARAMS_NAME = "input";

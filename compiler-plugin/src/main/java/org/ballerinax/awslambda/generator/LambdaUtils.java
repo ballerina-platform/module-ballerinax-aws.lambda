@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
@@ -72,6 +73,24 @@ public class LambdaUtils {
     public static boolean isAwsLambdaModule(ModuleID moduleId) {
         return moduleId.orgName().equals(Constants.LAMBDA_ORG_NAME) && moduleId.moduleName().equals(
                 Constants.LAMBDA_MODULE_NAME);
+    }
+
+    public static boolean isAwsLambdaModule(ImportDeclarationNode importDeclarationNode) {
+        if (importDeclarationNode.orgName().isEmpty()) {
+            return false;
+        }
+        String orgName = importDeclarationNode.orgName().get().orgName().text();
+        if (!Constants.LAMBDA_ORG_NAME.equals(orgName)) {
+            return false;
+        }
+
+        SeparatedNodeList<IdentifierToken> moduleNames = importDeclarationNode.moduleName();
+        if (moduleNames.size() != 2) {
+            return false;
+        }
+
+        return Constants.AWS_ORG.equals(moduleNames.get(0).text()) &&
+                Constants.LAMBDA_KEYWORD.equals(moduleNames.get(1).text());
     }
 
     public static FunctionDefinitionNode createMainFunction(
@@ -139,7 +158,7 @@ public class LambdaUtils {
         String originalFunctionName = originalFunctionDefNode.functionName().text();
         QualifiedNameReferenceNode awsHandlerParamsType =
                 NodeFactory.createQualifiedNameReferenceNode(
-                        NodeFactory.createIdentifierToken(Constants.LAMBDA_MODULE_NAME),
+                        NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
                         NodeFactory.createIdentifierToken(Constants.LAMBDA_CONTEXT,
                                 NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()));
@@ -270,7 +289,7 @@ public class LambdaUtils {
                                                                     PositionalArgumentNode... args) {
         QualifiedNameReferenceNode qualifiedNameReferenceNode =
                 NodeFactory.createQualifiedNameReferenceNode(
-                        NodeFactory.createIdentifierToken(Constants.LAMBDA_MODULE_NAME),
+                        NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD),
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
                         NodeFactory.createIdentifierToken(functionName));
         SeparatedNodeList<FunctionArgumentNode> separatedNodeList = getFunctionParamList(args);

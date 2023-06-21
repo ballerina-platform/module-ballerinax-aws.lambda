@@ -51,7 +51,7 @@ public class DeploymentTest extends BaseTest {
         
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"));
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@awslambda"));
+        Assert.assertTrue(processOutput.getStdOutput().contains("@aws.lambda"));
 
         // Check if jar is in .zip
         Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("target").resolve("bin").resolve("aws-ballerina" +

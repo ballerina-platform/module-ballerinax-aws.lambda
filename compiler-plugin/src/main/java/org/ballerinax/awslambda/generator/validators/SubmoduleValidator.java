@@ -23,7 +23,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
-import org.ballerinax.awslambda.generator.Constants;
+import org.ballerinax.awslambda.generator.LambdaUtils;
 
 import java.util.List;
 
@@ -41,18 +41,7 @@ public class SubmoduleValidator extends NodeVisitor {
 
     @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {
-        if (importDeclarationNode.orgName().isEmpty()) {
-            return;
-        }
-        String orgName = importDeclarationNode.orgName().get().orgName().text();
-        if (!Constants.LAMBDA_ORG_NAME.equals(orgName)) {
-            return;
-        }
-        if (importDeclarationNode.moduleName().size() != 1) {
-            return;
-        }
-        String moduleName = importDeclarationNode.moduleName().get(0).text();
-        if (Constants.LAMBDA_MODULE_NAME.equals(moduleName)) {
+        if (LambdaUtils.isAwsLambdaModule(importDeclarationNode)) {
             DiagnosticInfo diagnosticInfo = new DiagnosticInfo("AZ011", "lambda functions is not allowed inside" +
                     " sub modules", DiagnosticSeverity.ERROR);
             this.diagnostics.add(DiagnosticFactory.createDiagnostic(diagnosticInfo,

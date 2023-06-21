@@ -33,7 +33,14 @@
                             "children": [
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "value": "awslambda"
+                                    "value": "aws"
+                                },
+                                {
+                                    "kind": "DOT_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "lambda"
                                 }
                             ]
                         },
@@ -174,7 +181,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -267,7 +274,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -360,7 +367,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -453,7 +460,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -518,7 +525,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -560,7 +567,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -625,7 +632,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -667,7 +674,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -732,7 +739,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -774,7 +781,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -839,7 +846,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -881,7 +888,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -946,7 +953,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -988,7 +995,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -1089,7 +1096,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1376,7 +1383,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1663,7 +1670,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1966,7 +1973,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2147,7 +2154,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2267,7 +2274,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2448,7 +2455,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2568,7 +2575,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2749,7 +2756,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2869,7 +2876,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -3050,7 +3057,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -3170,7 +3177,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -3319,7 +3326,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"

@@ -76,7 +76,7 @@ public class LambdaFunctionVisitor extends NodeVisitor {
             if (parameters.size() != 2) {
                 this.diagnostics.add(LambdaUtils.getDiagnostic(functionTypeSymbol.location(), "AZ0001",
                         "Invalid function signature for an AWS lambda function: , it should be 'public " +
-                                "function (awslambda:Context, anydata) returns json|error'",
+                                "function (lambda:Context, anydata) returns json|error'",
                         DiagnosticSeverity.ERROR));
             }
             ParameterSymbol contextParam = parameters.get(0);
@@ -103,7 +103,7 @@ public class LambdaFunctionVisitor extends NodeVisitor {
 
             if (!isContext(contextParam.typeDescriptor())) {
                 this.diagnostics.add(LambdaUtils.getDiagnostic(functionTypeSymbol.location(), "AZ0004",
-                        "First parameter of AWS Lambda function should be `awslambda:Context`",
+                        "First parameter of AWS Lambda function should be `lambda:Context`",
                         DiagnosticSeverity.ERROR));
 
             }

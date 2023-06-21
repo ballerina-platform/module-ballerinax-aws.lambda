@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.awslambda.generator.Constants;
+import org.ballerinax.awslambda.generator.LambdaUtils;
 
 import java.util.List;
 
@@ -34,33 +35,25 @@ import java.util.List;
  * @since 2.0.0
  */
 public class MainFunctionValidator extends NodeVisitor {
+
     private final List<Diagnostic> diagnostics;
     private boolean isLambdaFunctionsImportExist = false;
 
     public MainFunctionValidator(List<Diagnostic> diagnostics) {
+
         this.diagnostics = diagnostics;
     }
 
     @Override
     public void visit(ImportDeclarationNode importDeclarationNode) {
-        if (importDeclarationNode.orgName().isEmpty()) {
-            return;
-        }
-        String orgName = importDeclarationNode.orgName().get().orgName().text();
-        if (!Constants.LAMBDA_ORG_NAME.equals(orgName)) {
-            return;
-        }
-        if (importDeclarationNode.moduleName().size() != 1) {
-            return;
-        }
-        String moduleName = importDeclarationNode.moduleName().get(0).text();
-        if (Constants.LAMBDA_MODULE_NAME.equals(moduleName)) {
-            isLambdaFunctionsImportExist = true;
+        if (LambdaUtils.isAwsLambdaModule(importDeclarationNode)) {
+            this.isLambdaFunctionsImportExist = true;
         }
     }
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
+
         if (!isLambdaFunctionsImportExist) {
             return;
         }

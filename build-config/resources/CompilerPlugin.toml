@@ -3,4 +3,4 @@ id = "awslambda"
 class = "org.ballerinax.awslambda.generator.AWSLambdaCompilerPlugin"
 
 [[dependency]]
-path = "../compiler-plugin/build/libs/awslambda-compiler-plugin-@project.version@.jar"
+path = "../compiler-plugin/build/libs/aws.lambda-compiler-plugin-@project.version@.jar"
