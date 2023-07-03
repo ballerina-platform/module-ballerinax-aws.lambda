@@ -75,7 +75,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                             + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
                             " --handler " +
                             balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                            + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
+                            + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre17:" + version +
                             " --memory-size 512 --timeout 10");
                     OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
                     OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
