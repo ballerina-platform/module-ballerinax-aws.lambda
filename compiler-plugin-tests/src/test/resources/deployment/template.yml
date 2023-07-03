@@ -12,7 +12,7 @@ Resources:
       CodeUri: aws-ballerina-lambda-functions.zip
       Handler: functions.echo
       Layers:
-        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre11:6
+        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre17:6
   UUIDFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -20,7 +20,7 @@ Resources:
       CodeUri: aws-ballerina-lambda-functions.zip
       Handler: functions.uuid
       Layers:
-        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre11:6
+        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre17:6
   CtxInfoFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -28,4 +28,4 @@ Resources:
       CodeUri: aws-ballerina-lambda-functions.zip
       Handler: functions.ctxinfo
       Layers:
-        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre11:6
+        - arn:aws:lambda:us-west-1:134633749276:layer:ballerina-jre17:6

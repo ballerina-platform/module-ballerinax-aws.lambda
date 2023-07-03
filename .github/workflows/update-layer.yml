@@ -23,7 +23,7 @@ jobs:
       layer-version: ${{ steps.setup.outputs.layer-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -35,9 +35,9 @@ jobs:
         run: |
           bucketName="${TEMP_BUCKET_NAME}-${{ matrix.region }}-${{ GITHUB.RUN_NUMBER }}"
           cd ballerina-layer
-          wget https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.12%2B7/OpenJDK11U-jre_x64_linux_hotspot_11.0.12_7.tar.gz -O openjre.tar.gz
+          wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.7%2B7/OpenJDK17U-jre_x64_linux_hotspot_17.0.7_7.tar.gz -O openjre.tar.gz
           tar -xvzf openjre.tar.gz
-          mv jdk-11.0.12+7-jre jdk
+          mv jdk-17.0.7+7-jre jdkq
           zip -r layer.zip .
           aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }} --create-bucket-configuration LocationConstraint=${{ matrix.region }}
           aws s3 cp --acl private ./layer.zip s3://$bucketName/layer.zip
@@ -56,7 +56,7 @@ jobs:
     needs: upload
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Write version to resource file
         run: |
           echo ${{needs.upload.outputs.layer-version}} > awslambda-extension/src/main/resources/layer-version.txt

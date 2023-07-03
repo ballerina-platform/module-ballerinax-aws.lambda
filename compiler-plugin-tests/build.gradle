@@ -72,9 +72,9 @@ jacocoTestReport {
     def classFiles = new File("${rootDir}/compiler-plugin/build/classes/java/main/org/ballerinax/awslambda")
     additionalClassDirs(classFiles)
     reports {
-        xml.enabled = true
-        html.enabled = true
-        csv.enabled = true
+        xml.required = true
+        html.required = true
+        csv.required = true
         xml.destination = new File("${buildDir}/reports/jacoco/report.xml")
         html.destination = new File("${buildDir}/reports/jacoco/report.html")
         csv.destination = new File("${buildDir}/reports/jacoco/report.csv")
