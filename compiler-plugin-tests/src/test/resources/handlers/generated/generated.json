@@ -509,13 +509,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                          "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -616,13 +610,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                         "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -723,13 +711,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                               "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -830,13 +812,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                          "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -937,13 +913,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                             "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -2134,13 +2104,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                          "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -2435,13 +2399,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                         "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -2736,13 +2694,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                               "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -3037,13 +2989,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                          "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -3306,13 +3252,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                             "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",

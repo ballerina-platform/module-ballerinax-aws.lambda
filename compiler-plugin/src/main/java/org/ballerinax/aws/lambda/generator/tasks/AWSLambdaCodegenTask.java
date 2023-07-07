@@ -18,6 +18,7 @@
 package org.ballerinax.aws.lambda.generator.tasks;
 
 import com.google.gson.Gson;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.Module;
@@ -62,10 +63,11 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         Module module = currentPackage.getDefaultModule();
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
+        SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(module.moduleId());
         for (LambdaHandlerContainer container : lambdaFunctionExtractor.extractFunctions()) {
             for (FunctionDefinitionNode function : container.getFunctions()) {
-                FunctionDeploymentContext functionDeploymentContext = new FunctionDeploymentContext(function);
-                generatedFunctions.add(functionDeploymentContext);
+                FunctionDeploymentContext functionContext = new FunctionDeploymentContext(function, semanticModel);
+                generatedFunctions.add(functionContext);
             }
         }
         try {
@@ -76,12 +78,13 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
             sourceGeneratorContext.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
                     new NullLocation()));
         }
-        TextDocument textDocument = generateHandlerDocument(generatedFunctions);
+        TextDocument textDocument = generateHandlerDocument(generatedFunctions, semanticModel);
         sourceGeneratorContext.addSourceFile(textDocument, Constants.AWS_LAMBDA_PREFIX, module.moduleId());
     }
 
-    private TextDocument generateHandlerDocument(List<FunctionDeploymentContext> generatedFunctions) {
-        FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction(generatedFunctions);
+    private TextDocument generateHandlerDocument(List<FunctionDeploymentContext> generatedFunctions,
+                                                 SemanticModel semanticModel) {
+        FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction(semanticModel, generatedFunctions);
         ModulePartNode modulePartNode = LambdaUtils.createModulePartNode(generatedFunctions, mainFunction);
         return TextDocuments.from(modulePartNode.toSourceCode());
     }

@@ -18,6 +18,8 @@
 package org.ballerinax.aws.lambda.generator;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -56,6 +58,7 @@ import io.ballerina.tools.diagnostics.Location;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Contains Utility methods required to generate handler functions.
@@ -66,16 +69,19 @@ public class LambdaUtils {
 
     public static Diagnostic getDiagnostic(Location location, String code,
                                            String message, DiagnosticSeverity severity, Object... args) {
+
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, message, severity);
         return DiagnosticFactory.createDiagnostic(diagnosticInfo, location, args);
     }
 
     public static boolean isAwsLambdaModule(ModuleID moduleId) {
+
         return moduleId.orgName().equals(Constants.LAMBDA_ORG_NAME) && moduleId.moduleName().equals(
                 Constants.LAMBDA_MODULE_NAME);
     }
 
     public static boolean isAwsLambdaModule(ImportDeclarationNode importDeclarationNode) {
+
         if (importDeclarationNode.orgName().isEmpty()) {
             return false;
         }
@@ -93,19 +99,20 @@ public class LambdaUtils {
                 Constants.LAMBDA_KEYWORD.equals(moduleNames.get(1).text());
     }
 
-    public static FunctionDefinitionNode createMainFunction(
+    public static FunctionDefinitionNode createMainFunction(SemanticModel semanticModel,
             Collection<FunctionDeploymentContext> functionDeploymentContexts) {
+
         FunctionDefinitionNode mainFunction = LambdaUtils.createMainFunction();
-        for (FunctionDeploymentContext functionDeploymentContext : functionDeploymentContexts) {
-            String functionHandlerName = functionDeploymentContext.getGeneratedFunction().functionName().text();
+        for (FunctionDeploymentContext functionContext : functionDeploymentContexts) {
+            String functionHandlerName = functionContext.getGeneratedFunction().functionName().text();
             PositionalArgumentNode handler = NodeFactory.createPositionalArgumentNode(
                     NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionHandlerName)));
             PositionalArgumentNode functionName =
                     NodeFactory.createPositionalArgumentNode(
                             LambdaUtils
                                     .createStringLiteral(
-                                            functionDeploymentContext.getOriginalFunction().functionName().text()));
-            TypeDescriptorNode eventTypeDesc = getEventType(functionDeploymentContext.getOriginalFunction());
+                                            functionContext.getOriginalFunction().functionName().text()));
+            TypeDescriptorNode eventTypeDesc = getEventType(functionContext.getOriginalFunction(), semanticModel);
             PositionalArgumentNode typeDesc = NodeFactory.createPositionalArgumentNode(eventTypeDesc);
             ExpressionNode register =
                     createLambdaFunctionInvocationNode(Constants.LAMBDA_REG_FUNCTION_NAME, functionName, handler,
@@ -123,10 +130,13 @@ public class LambdaUtils {
         return addStatementToFunctionBody(processStatement, mainFunction);
     }
 
-    private static TypeDescriptorNode getEventType(FunctionDefinitionNode functionDefinitionNode) {
+    private static TypeDescriptorNode getEventType(FunctionDefinitionNode functionDefinitionNode,
+                                                   SemanticModel semanticModel) {
+
         RequiredParameterNode requiredParameterNode =
                 (RequiredParameterNode) functionDefinitionNode.functionSignature().parameters().get(1);
-        return (TypeDescriptorNode) requiredParameterNode.typeName();
+        IdentifierToken lambdaIdentifier = NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD);
+        return (TypeDescriptorNode) getTypeNameNode(semanticModel, lambdaIdentifier, requiredParameterNode);
     }
 
     public static ModulePartNode createModulePartNode(Collection<FunctionDeploymentContext> functionDeploymentContexts,
@@ -154,11 +164,14 @@ public class LambdaUtils {
         return NodeFactory.createModulePartNode(NodeFactory.createNodeList(afImport), nodeList, eofToken);
     }
 
-    public static FunctionDefinitionNode createHandlerFunction(FunctionDefinitionNode originalFunctionDefNode) {
+    public static FunctionDefinitionNode createHandlerFunction(FunctionDefinitionNode originalFunctionDefNode,
+                                                               SemanticModel semanticModel) {
+
         String originalFunctionName = originalFunctionDefNode.functionName().text();
+        IdentifierToken lambdaIdentifier = NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD);
         QualifiedNameReferenceNode awsHandlerParamsType =
                 NodeFactory.createQualifiedNameReferenceNode(
-                        NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD),
+                        lambdaIdentifier,
                         NodeFactory.createToken(SyntaxKind.COLON_TOKEN),
                         NodeFactory.createIdentifierToken(Constants.LAMBDA_CONTEXT,
                                 NodeFactory.createEmptyMinutiaeList(), generateMinutiaeListWithWhitespace()));
@@ -190,9 +203,9 @@ public class LambdaUtils {
 
         SimpleNameReferenceNode inputExpression = NodeFactory
                 .createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(Constants.INPUT_PARAMS_NAME));
-        Node typeNameNode =
-                ((RequiredParameterNode) originalFunctionDefNode.functionSignature().parameters().get(1)).typeName();
-
+        RequiredParameterNode paramNode = (RequiredParameterNode) originalFunctionDefNode.functionSignature()
+                .parameters().get(1);
+        Node typeNameNode = getTypeNameNode(semanticModel, lambdaIdentifier, paramNode);
         TypeCastExpressionNode typeCastExpressionNode =
                 NodeFactory.createTypeCastExpressionNode(NodeFactory.createToken(SyntaxKind.LT_TOKEN),
                         NodeFactory.createTypeCastParamNode(NodeFactory.createEmptyNodeList(), typeNameNode),
@@ -224,7 +237,22 @@ public class LambdaUtils {
                 NodeFactory.createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
+    private static Node getTypeNameNode(SemanticModel semanticModel, IdentifierToken lambdaIdentifier,
+                                        RequiredParameterNode paramNode) {
+
+        Node typeNameNode = paramNode.typeName();
+        Optional<Symbol> typeSymbol = semanticModel.symbol(typeNameNode);
+        if (typeSymbol.isPresent() && typeSymbol.get().getModule().isPresent() &&
+                isAwsLambdaModule(typeSymbol.get().getModule().get().id()) &&
+                typeNameNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            typeNameNode = ((QualifiedNameReferenceNode) typeNameNode).modify().withModulePrefix(lambdaIdentifier)
+                    .apply();
+        }
+        return typeNameNode;
+    }
+
     public static FunctionDefinitionNode createMainFunction() {
+
         OptionalTypeDescriptorNode optionalErrorTypeDescriptorNode =
                 NodeFactory.createOptionalTypeDescriptorNode(
                         NodeFactory.createParameterizedTypeDescriptorNode(SyntaxKind.ERROR_TYPE_DESC,
@@ -261,14 +289,17 @@ public class LambdaUtils {
     }
 
     public static MinutiaeList generateMinutiaeListWithWhitespace() {
+
         return NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae(" "));
     }
 
     public static MinutiaeList generateMinutiaeListWithNewline() {
+
         return NodeFactory.createMinutiaeList(NodeFactory.createWhitespaceMinutiae("\n"));
     }
 
     public static BasicLiteralNode createStringLiteral(String content) {
+
         return NodeFactory
                 .createBasicLiteralNode(SyntaxKind.STRING_LITERAL, NodeFactory
                         .createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, "\"" + content + "\"",
@@ -278,6 +309,7 @@ public class LambdaUtils {
 
     private static FunctionDefinitionNode addStatementToFunctionBody(StatementNode statementNode,
                                                                      FunctionDefinitionNode function) {
+
         FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) function.functionBody();
         NodeList<StatementNode> newBodyStatements = functionBodyBlockNode.statements().add(statementNode);
         FunctionBodyBlockNode newFunctionBodyBlock =
@@ -287,6 +319,7 @@ public class LambdaUtils {
 
     public static ExpressionNode createLambdaFunctionInvocationNode(String functionName,
                                                                     PositionalArgumentNode... args) {
+
         QualifiedNameReferenceNode qualifiedNameReferenceNode =
                 NodeFactory.createQualifiedNameReferenceNode(
                         NodeFactory.createIdentifierToken(Constants.LAMBDA_KEYWORD),
@@ -300,6 +333,7 @@ public class LambdaUtils {
     }
 
     private static SeparatedNodeList<FunctionArgumentNode> getFunctionParamList(PositionalArgumentNode... args) {
+
         List<Node> nodeList = new ArrayList<>();
         for (PositionalArgumentNode arg : args) {
             nodeList.add(arg);
@@ -312,6 +346,7 @@ public class LambdaUtils {
     }
 
     public static ExpressionNode createFunctionInvocationNode(String functionName, PositionalArgumentNode... args) {
+
         SimpleNameReferenceNode simpleNameReferenceNode =
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(functionName));
         SeparatedNodeList<FunctionArgumentNode> separatedNodeList = getFunctionParamList(args);

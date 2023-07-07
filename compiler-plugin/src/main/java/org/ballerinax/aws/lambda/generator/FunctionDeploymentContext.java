@@ -18,6 +18,7 @@
 
 package org.ballerinax.aws.lambda.generator;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 
 /**
@@ -28,10 +29,9 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 public class FunctionDeploymentContext {
     private final FunctionDefinitionNode originalFunction;
     private final FunctionDefinitionNode generatedFunction;
-
-    public FunctionDeploymentContext(FunctionDefinitionNode originalFunction) {
+    public FunctionDeploymentContext(FunctionDefinitionNode originalFunction, SemanticModel semanticModel) {
         this.originalFunction = originalFunction;
-        this.generatedFunction = LambdaUtils.createHandlerFunction(originalFunction);
+        this.generatedFunction = LambdaUtils.createHandlerFunction(originalFunction, semanticModel);
     }
 
     public FunctionDefinitionNode getOriginalFunction() {
