@@ -15,10 +15,10 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/awslambda;
+import ballerinax/aws.lambda;
 
-@awslambda:Function
-public function echo(awslambda:Context ctx, json input) returns json {
+@lambda:Function
+public function echo(lambda:Context ctx, json input) returns json {
    return input;
 }
 

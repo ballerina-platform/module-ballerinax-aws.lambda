@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Write version to resource file
         run: |
-          echo ${{needs.upload.outputs.layer-version}} > awslambda-extension/src/main/resources/layer-version.txt
+          echo ${{needs.upload.outputs.layer-version}} > compiler-plugin/src/main/resources/layer-version.txt
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:

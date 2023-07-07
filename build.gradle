@@ -125,5 +125,5 @@ release {
 }
 
 task build {
-    dependsOn('awslambda-ballerina:build')
+    dependsOn('aws.lambda-ballerina:build')
 }

@@ -35,7 +35,7 @@ buildscript {
 
 description = 'Ballerinax - AWS Lambda Extension Annotations'
 
-def packageName = "awslambda"
+def packageName = "aws.lambda"
 def packageOrg = "ballerinax"
 
 def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
