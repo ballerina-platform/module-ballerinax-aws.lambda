@@ -25,10 +25,10 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinax.awslambda.generator.test.DeploymentTest"/>
-            <class name="org.ballerinax.awslambda.generator.test.LayerValidationTest"/>
-            <class name="org.ballerinax.awslambda.generator.test.HandlerTest"/>
-            <class name="org.ballerinax.awslambda.generator.test.ProjectValidationTest"/>
+            <class name="org.ballerinax.aws.lambda.generator.test.DeploymentTest"/>
+            <class name="org.ballerinax.aws.lambda.generator.test.LayerValidationTest"/>
+            <class name="org.ballerinax.aws.lambda.generator.test.HandlerTest"/>
+            <class name="org.ballerinax.aws.lambda.generator.test.ProjectValidationTest"/>
         </classes>
     </test>
 </suite>
