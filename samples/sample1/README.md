@@ -1,21 +1,21 @@
 ## Sample: functions.bal  
 
 ```ballerina
-import ballerinax/awslambda;
+import ballerinax/aws.lambda;
 import ballerina/uuid;
 
-@awslambda:Function
-public function echo(awslambda:Context ctx, json input) returns json|error {
+@lambda:Function
+public function echo(lambda:Context ctx, json input) returns json|error {
    return input;
 }
 
-@awslambda:Function
-public function uuid(awslambda:Context ctx, json input) returns json|error {
+@lambda:Function
+public function uuid(lambda:Context ctx, json input) returns json|error {
    return uuid:createType1AsString();
 }
 
-@awslambda:Function
-public function ctxinfo(awslambda:Context ctx, json input) returns json|error {
+@lambda:Function
+public function ctxinfo(lambda:Context ctx, json input) returns json|error {
    json result = { RequestID: ctx.getRequestId(),
                    DeadlineMS: ctx.getDeadlineMs(),
                    InvokedFunctionArn: ctx.getInvokedFunctionArn(),
@@ -33,7 +33,7 @@ Compiling source
     functions.bal
 Generating executable
     functions.balx
-	@awslambda:Function: echo, uuid, ctxinfo
+	@lambda:Function: echo, uuid, ctxinfo
 
         The Ballerina AWS Lambda layer information can be found at https://ballerina.io/deployment/aws-lambda.
 

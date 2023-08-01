@@ -19,19 +19,19 @@ plugins {
     id "com.gradle.enterprise" version "3.13.2"
 }
 
-rootProject.name = 'awslambda'
+rootProject.name = 'aws.lambda'
 
 include ':checkstyle'
-include ':awslambda-ballerina'
-include ':awslambda-compiler-plugin'
-include ':awslambda-ballerina-tests'
-include ':awslambda-compiler-plugin-tests'
+include ':aws.lambda-ballerina'
+include ':aws.lambda-compiler-plugin'
+include ':aws.lambda-ballerina-tests'
+include ':aws.lambda-compiler-plugin-tests'
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
-project(':awslambda-ballerina').projectDir = file('ballerina')
-project(':awslambda-compiler-plugin').projectDir = file('compiler-plugin')
-project(':awslambda-ballerina-tests').projectDir = file('ballerina-tests')
-project(':awslambda-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
+project(':aws.lambda-ballerina').projectDir = file('ballerina')
+project(':aws.lambda-compiler-plugin').projectDir = file('compiler-plugin')
+project(':aws.lambda-ballerina-tests').projectDir = file('ballerina-tests')
+project(':aws.lambda-compiler-plugin-tests').projectDir = file('compiler-plugin-tests')
 
 gradleEnterprise {
     buildScan {
@@ -39,4 +39,3 @@ gradleEnterprise {
         termsOfServiceAgree = 'yes'
     }
 }
-

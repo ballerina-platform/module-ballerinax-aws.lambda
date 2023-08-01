@@ -33,7 +33,14 @@
                             "children": [
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
-                                    "value": "awslambda"
+                                    "value": "aws"
+                                },
+                                {
+                                    "kind": "DOT_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "lambda"
                                 }
                             ]
                         },
@@ -174,7 +181,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -267,7 +274,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -360,7 +367,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -453,7 +460,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -502,13 +509,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                          "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -518,7 +519,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -560,7 +561,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -609,13 +610,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                         "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -625,7 +620,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -667,7 +662,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -716,13 +711,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                               "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -732,7 +721,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -774,7 +763,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -823,13 +812,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                          "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -839,7 +822,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -881,7 +864,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -930,13 +913,7 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "COMMA_TOKEN",
-                                                                    "trailingMinutiae": [
-                                                                        {
-                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                            "value": "                             "
-                                                                        }
-                                                                    ]
+                                                                    "kind": "COMMA_TOKEN"
                                                                 },
                                                                 {
                                                                     "kind": "POSITIONAL_ARG",
@@ -946,7 +923,7 @@
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                    "value": "awslambda"
+                                                                                    "value": "lambda"
                                                                                 },
                                                                                 {
                                                                                     "kind": "COLON_TOKEN"
@@ -988,7 +965,7 @@
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "awslambda"
+                                                                    "value": "lambda"
                                                                 },
                                                                 {
                                                                     "kind": "COLON_TOKEN"
@@ -1089,7 +1066,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1376,7 +1353,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1663,7 +1640,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -1966,7 +1943,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2127,13 +2104,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                          "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -2147,7 +2118,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2267,7 +2238,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2428,13 +2399,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                         "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -2448,7 +2413,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2568,7 +2533,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -2729,13 +2694,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                               "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -2749,7 +2708,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -2869,7 +2828,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -3030,13 +2989,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                          "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -3050,7 +3003,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"
@@ -3170,7 +3123,7 @@
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "awslambda"
+                                                            "value": "lambda"
                                                         },
                                                         {
                                                             "kind": "COLON_TOKEN"
@@ -3299,13 +3252,7 @@
                                                                             "kind": "TYPE_CAST_EXPRESSION",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "LT_TOKEN",
-                                                                                    "trailingMinutiae": [
-                                                                                        {
-                                                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                                                            "value": "                             "
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "LT_TOKEN"
                                                                                 },
                                                                                 {
                                                                                     "kind": "TYPE_CAST_PARAM",
@@ -3319,7 +3266,7 @@
                                                                                             "children": [
                                                                                                 {
                                                                                                     "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "awslambda"
+                                                                                                    "value": "lambda"
                                                                                                 },
                                                                                                 {
                                                                                                     "kind": "COLON_TOKEN"

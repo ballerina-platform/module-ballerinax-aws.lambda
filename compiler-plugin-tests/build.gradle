@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     
-    implementation project(':awslambda-compiler-plugin')
+    implementation project(':aws.lambda-compiler-plugin')
 
     testImplementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     testImplementation "org.ballerinalang:ballerina-parser:${ballerinaLangVersion}"
@@ -69,7 +69,7 @@ test {
 
 jacocoTestReport {
     dependsOn test
-    def classFiles = new File("${rootDir}/compiler-plugin/build/classes/java/main/org/ballerinax/awslambda")
+    def classFiles = new File("${rootDir}/compiler-plugin/build/classes/java/main/org/ballerinax/aws.lambda")
     additionalClassDirs(classFiles)
     reports {
         xml.required = true
@@ -81,7 +81,7 @@ jacocoTestReport {
     }
 }
 
-test.dependsOn ":awslambda-ballerina:build"
+test.dependsOn ":aws.lambda-ballerina:build"
 
 
 // Disable publishing artifacts
