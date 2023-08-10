@@ -30,5 +30,45 @@
     <Match>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
-
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.FunctionDeploymentContext"/>
+        <Method name="getGeneratedFunction"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.FunctionDeploymentContext"/>
+        <Method name="getOriginalFunction"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.FunctionDeploymentContext"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.LambdaFunctionHolder"/>
+        <Method name="getGeneratedFunctions"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.LambdaFunctionVisitor"/>
+        <Method name="getFunctions"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.LambdaHandlerContainer"/>
+        <Method name="getFunctions"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.LambdaHandlerContainer"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.validators.MainFunctionValidator"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.validators.SubmoduleValidator"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>
