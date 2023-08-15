@@ -18,10 +18,14 @@
 package org.ballerinax.aws.lambda.generator.tasks;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import io.ballerina.projects.plugins.CompilerPluginException;
 import org.ballerinax.aws.lambda.generator.Constants;
+import org.ballerinax.aws.lambda.generator.DockerBuildException;
+import org.ballerinax.aws.lambda.generator.LambdaUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,10 +41,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -54,28 +61,42 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
 
     @Override
     public void perform(CompilerLifecycleEventContext lifecycleEventContext) {
-        Path lambdaJson = lifecycleEventContext.currentPackage().project().targetDir().resolve("aws-lambda.json");
+
+        Project project = lifecycleEventContext.currentPackage().project();
+        Path lambdaJson = project.targetDir().resolve("aws-lambda.json");
         Gson gson = new Gson();
         try (FileReader file = new FileReader(lambdaJson.toAbsolutePath().toString(),
                 StandardCharsets.UTF_8)) {
             List<String> generatedFunctions = gson.fromJson(file, List.class);
             file.close();
-            OUT.println("\t@aws.lambda:Function: " + String.join(", ", generatedFunctions));
+            BuildOptions buildOptions = project.buildOptions();
+            boolean isNative = buildOptions.nativeImage();
             Optional<Path> generatedArtifactPath = lifecycleEventContext.getGeneratedArtifactPath();
             if (generatedArtifactPath.isPresent()) {
                 Path executablePath = generatedArtifactPath.get();
                 try {
-                    this.generateZipFile(executablePath);
+                    Path functionsDir = LambdaUtils.getFunctionsDir(project, executablePath);
+                    LambdaUtils.deleteDirectory(functionsDir);
+                    Files.createDirectories(functionsDir);
+
+                    if (isNative) {
+                        this.generateNativeZipFile(functionsDir, executablePath);
+                    } else {
+                        this.generateZipFile(functionsDir, executablePath, false);
+                    }
                     String version = getResourceFileAsString("layer-version.txt");
                     String fileName = executablePath.getFileName().toString();
                     String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
+                    String layer = " --layers arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version;
+                    if (isNative) {
+                        layer = "";
+                    }
+                    OUT.println("\t@aws.lambda:Function: " + String.join(", ", generatedFunctions));
                     OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-                    Path parent = executablePath.getParent();
                     OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                            + parent.toString() + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
+                            + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
                             " --handler " +
-                            balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers "
-                            + "arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre11:" + version +
+                            balxName + ".$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN" + layer +
                             " --memory-size 512 --timeout 10");
                     OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
                     OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
@@ -89,15 +110,60 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         }
     }
 
-    private void generateZipFile(Path binaryPath) throws IOException {
-        Path path = binaryPath.toAbsolutePath().getParent().resolve(Constants.LAMBDA_OUTPUT_ZIP_FILENAME);
+    private void generateZipFile(Path functionsDir, Path binaryPath, boolean isNative) throws IOException {
+        Path path = functionsDir.toAbsolutePath().resolve(Constants.LAMBDA_OUTPUT_ZIP_FILENAME);
         Files.deleteIfExists(path);
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
         URI uri = URI.create("jar:file:" + path.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
             Path pathInZipfile = zipfs.getPath("/" + binaryPath.getFileName());
-            Files.copy(binaryPath, pathInZipfile, StandardCopyOption.REPLACE_EXISTING);
+            if (isNative) {
+                Set<PosixFilePermission> ownerWritable = PosixFilePermissions.fromString("rwxr-xr-x");
+                Path bootstrapPath = functionsDir.resolve("bootstrap");
+                Files.write(bootstrapPath, Constants.BOOTSTRAP_CONTENT.getBytes(StandardCharsets.UTF_8));
+                Files.setPosixFilePermissions(bootstrapPath, ownerWritable);
+                Path bootstrapZipPath = zipfs.getPath("/bootstrap");
+                Files.copy(bootstrapPath, bootstrapZipPath, StandardCopyOption.COPY_ATTRIBUTES);
+            }
+            Files.copy(binaryPath, pathInZipfile, StandardCopyOption.COPY_ATTRIBUTES);
+        }
+    }
+
+    private void generateNativeZipFile(Path functionsDir, Path binaryPath) throws IOException {
+
+        String jarFileName = binaryPath.getFileName().toString();
+        Path jarPath = functionsDir.resolve(jarFileName);
+        Files.copy(binaryPath, jarPath, StandardCopyOption.REPLACE_EXISTING);
+        buildRemoteArtifacts(functionsDir, jarFileName);
+        String executableName = jarFileName.replaceFirst(".jar", "");
+        generateZipFile(functionsDir, functionsDir.resolve(executableName), true);
+
+    }
+
+    public void buildRemoteArtifacts(Path jarPath, String jarFileName) {
+        OUT.println("\t@aws.lambda:Building native image compatible for the Cloud using Docker. " +
+                "This may take a while.\n");
+        String executableName = jarFileName.replaceFirst(".jar", "");
+        String volumeMount = jarPath.toAbsolutePath() + Constants.CONTAINER_OUTPUT_PATH;
+        ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", Constants.DOCKER_PLATFORM_FLAG,
+                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, "-v", volumeMount, Constants.NATIVE_BUILDER_IMAGE,
+                jarFileName, executableName);
+
+        pb.inheritIO();
+
+        try {
+            Process process = pb.start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new DockerBuildException(
+                        "Native executable generation for cloud using docker failed with exit code " + exitCode +
+                                ". Refer to the above build log for information");
+            }
+        } catch (IOException | InterruptedException | RuntimeException e) {
+            throw new DockerBuildException(
+                    "Native executable generation for cloud using docker failed. Refer to the above build log for " +
+                            "information");
         }
     }
 

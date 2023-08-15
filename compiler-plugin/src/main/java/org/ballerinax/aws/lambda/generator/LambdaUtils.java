@@ -49,14 +49,21 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -353,5 +360,28 @@ public class LambdaUtils {
         return NodeFactory.createFunctionCallExpressionNode(simpleNameReferenceNode,
                 NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN), separatedNodeList,
                 NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
+    }
+
+    public static Path getFunctionsDir(Project project, Path jarPath) {
+
+        return getTargetDir(project, jarPath).resolve(Constants.FUNCTION_DIRECTORY);
+    }
+
+    public static Path getTargetDir(Project project, Path jarPath) {
+
+        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return jarPath.getParent();
+        }
+        return project.targetDir();
+    }
+
+    public static void deleteDirectory(Path azureFunctionsDir) throws IOException {
+
+        if (azureFunctionsDir.toFile().exists()) {
+            Files.walk(azureFunctionsDir)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
     }
 }

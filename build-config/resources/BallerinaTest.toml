@@ -2,3 +2,6 @@
 org = "ballerinax"
 name = "aws.lambda.tests"
 version = "@toml.version@"
+
+[platform.java11]
+graalvmCompatible = true
