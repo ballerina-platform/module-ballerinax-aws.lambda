@@ -34,6 +34,6 @@ jobs:
           publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          ./gradlew publish --scan --no-daemon
+          ./gradlew publish -PnativeTest --scan --no-daemon
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v1
