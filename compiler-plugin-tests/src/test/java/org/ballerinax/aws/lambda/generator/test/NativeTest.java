@@ -36,7 +36,7 @@ import java.util.HashMap;
 /**
  * Test creating awslambda deployment artifacts.
  */
-public class DeploymentTest extends BaseTest {
+public class NativeTest extends BaseTest {
 
     private Path eventJson;
 
@@ -52,7 +52,7 @@ public class DeploymentTest extends BaseTest {
         Path depedenciesToml = SOURCE_DIR.resolve("deployment").resolve("Dependencies.toml");
         Files.deleteIfExists(depedenciesToml);
 
-        ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"), false);
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"), true);
         Assert.assertEquals(processOutput.getExitCode(), 0);
         Assert.assertTrue(processOutput.getStdOutput().contains("@aws.lambda"));
 
@@ -62,21 +62,12 @@ public class DeploymentTest extends BaseTest {
         Assert.assertTrue(Files.exists(zipFilePath));
         URI uri = URI.create("jar:file:" + zipFilePath.toUri().getPath());
         try (FileSystem zipfs = FileSystems.newFileSystem(uri, new HashMap<>())) {
-            Path jarFile = zipfs.getPath("/deployment.jar");
-            Assert.assertTrue(Files.exists(jarFile));
+            Path nativeExecFile = zipfs.getPath("/deployment");
+            Assert.assertTrue(Files.exists(nativeExecFile));
+            Path bootstrapFile = zipfs.getPath("/bootstrap");
+            Assert.assertTrue(Files.exists(bootstrapFile));
         }
     }
-
-//    @Test(dependsOnMethods = "testAWSLambdaDeployment", groups = "samCLITest")
-//    public void runFunctionTest() throws IOException, InterruptedException {
-//        Path srcDirectory = SOURCE_DIR.resolve("deployment");
-//
-//        String echoContent = "{\"message\":\"Hello World!\"}";
-//        FileUtils.write(this.eventJson.toFile(), echoContent, Charset.defaultCharset());
-//        ProcessOutput processOutput = TestUtils.runLambdaFunction(srcDirectory, "EchoFunction", this.eventJson);
-//        Assert.assertEquals(processOutput.getExitCode(), 0);
-//        Assert.assertTrue(processOutput.getStdOutput().contains(echoContent));
-//    }
 
     @AfterClass
     public void cleanUp() throws IOException {

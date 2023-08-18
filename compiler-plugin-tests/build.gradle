@@ -53,6 +53,8 @@ compileJava {
     }
 }
 
+def nativeTests = project.hasProperty("nativeTest")
+
 test {
     systemProperties =  [ jacocoAgentLine: "-javaagent:${configurations.jacocoRuntime.asPath}=destfile=${test.jacoco.destinationFile.absolutePath},append=true,inclnolocationclasses=true,exclclassloader=jdk.internal.reflect.DelegatingClassLoader" ,
                           "ballerina.home": System.getProperty('sampleDir', project.projectDir.absolutePath +
@@ -63,6 +65,9 @@ test {
     ]
     useTestNG() {
         suites "src/test/resources/testng.xml"
+        if (nativeTests) {
+            suites "src/test/resources/native-testing.xml"
+        }
     }
     finalizedBy jacocoTestReport
 }
