@@ -77,7 +77,7 @@ Generating executable
 	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
-	aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre17:6 --memory-size 512 --timeout 10
+	aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre17:1 --memory-size 512 --timeout 10
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip

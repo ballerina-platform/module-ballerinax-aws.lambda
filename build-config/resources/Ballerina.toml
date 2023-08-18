@@ -7,5 +7,5 @@ repository = "https://github.com/ballerina-platform/module-ballerinax-aws.lambda
 license = ["Apache-2.0"]
 keywords = ["aws", "lambda", "serverless", "cloud"]
 
-[platform.java11]
+[platform.java17]
 graalvmCompatible = true
