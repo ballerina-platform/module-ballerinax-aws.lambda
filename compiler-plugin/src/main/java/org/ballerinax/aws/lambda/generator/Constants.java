@@ -42,7 +42,7 @@ public class Constants {
 
     public static final String BALLERINA_ORG = "ballerina";
     public static final String NATIVE_BUILDER_IMAGE_NAME = "lambda_native_builder";
-    public static final String BUILDER_TAG = "jre11";
+    public static final String BUILDER_TAG = "java11";
     public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME +
             ":" + BUILDER_TAG;
 
