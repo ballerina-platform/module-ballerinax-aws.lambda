@@ -5,7 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.7.0"
+distribution-version = "2201.8.0-20230726-145300-b2bdf796"
 
 [[package]]
 org = "ballerina"
@@ -295,7 +295,7 @@ dependencies = [
 [[package]]
 org = "ballerinax"
 name = "aws.lambda"
-version = "3.1.0"
+version = "3.2.0"
 dependencies = [
 	{org = "ballerina", name = "http"},
 	{org = "ballerina", name = "io"},
