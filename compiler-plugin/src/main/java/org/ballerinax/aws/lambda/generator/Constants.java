@@ -34,4 +34,25 @@ public class Constants {
     public static final String PROXY_FUNCTION_PREFIX = "__func_proxy__";
     public static final String LAMBDA_OUTPUT_ZIP_FILENAME = "aws-ballerina-lambda-functions.zip";
     public static final String AWS_LAMBDA_PREFIX = "aws-lamb";
+
+    public static final String CONTAINER_OUTPUT_PATH = ":/app/build/output";
+
+    public static final String DOCKER_PLATFORM_FLAG = "--platform";
+    public static final String LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE = "linux/amd64";
+
+    public static final String BALLERINA_ORG = "ballerina";
+    public static final String NATIVE_BUILDER_IMAGE_NAME = "lambda_native_builder";
+    public static final String BUILDER_TAG = "jre11";
+    public static final String NATIVE_BUILDER_IMAGE = BALLERINA_ORG + "/" + NATIVE_BUILDER_IMAGE_NAME +
+            ":" + BUILDER_TAG;
+
+    public static final String BOOTSTRAP_CONTENT = "#!/bin/sh\n" +
+            "\n" +
+            "set -euo pipefail\n" +
+            "echo \"START Ballerina\"\n" +
+            "echo \"HANDLER: ${_HANDLER}\"\n" +
+            "$LAMBDA_TASK_ROOT/\"$(echo $_HANDLER | sed 's/\\.[^.]*$//')\"\n" +
+            "echo \"END Ballerina\"\n";
+
+    public static final String FUNCTION_DIRECTORY = "aws_lambda";
 }

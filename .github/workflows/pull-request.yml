@@ -27,6 +27,6 @@ jobs:
           packageUser: ${{ github.actor }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./gradlew build
+          ./gradlew build -PnativeTest
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v2

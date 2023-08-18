@@ -31,7 +31,7 @@ jobs:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
         run: |
-          ./gradlew clean build --scan --no-daemon $GRADLE_SKIP_TASKS $BUILD_USING_DOCKER
+          ./gradlew clean build -PnativeTest --scan --no-daemon $GRADLE_SKIP_TASKS $BUILD_USING_DOCKER
 
       - name: Generate Codecov Report
         uses: codecov/codecov-action@v1
