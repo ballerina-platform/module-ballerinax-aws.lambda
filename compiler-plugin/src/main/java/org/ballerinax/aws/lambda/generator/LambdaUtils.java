@@ -375,10 +375,10 @@ public class LambdaUtils {
         return project.targetDir();
     }
 
-    public static void deleteDirectory(Path azureFunctionsDir) throws IOException {
+    public static void deleteDirectory(Path functionsDir) throws IOException {
 
-        if (azureFunctionsDir.toFile().exists()) {
-            Files.walk(azureFunctionsDir)
+        if (functionsDir.toFile().exists()) {
+            Files.walk(functionsDir)
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
