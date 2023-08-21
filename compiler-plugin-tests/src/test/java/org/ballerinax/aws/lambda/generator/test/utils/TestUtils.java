@@ -74,8 +74,8 @@ public class TestUtils {
      * @throws InterruptedException if an error occurs while compiling
      * @throws IOException          if an error occurs while writing file
      */
-    public static ProcessOutput compileBallerinaProject(Path sourceDirectory) throws InterruptedException,
-            IOException {
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative)
+            throws InterruptedException, IOException {
 
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
@@ -84,6 +84,10 @@ public class TestUtils {
         }
 
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline");
+        if (isNative) {
+            pb.command().add("--graalvm");
+            pb.command().add("--cloud=aws_lambda");
+        }
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
         log.info(COMPILING + sourceDirectory.normalize());
