@@ -2,16 +2,12 @@ name: Bump Version of Ballerina Layer
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'master'
-    paths:
-      - 'ballerina-layer/**'
+
 jobs:
   upload:
     runs-on: ubuntu-latest
     env:
-      LAYER_NAME: "ballerina-test1"
+      LAYER_NAME: "ballerina-test2"
       TEMP_BUCKET_NAME: "layer-bucket-temp"
     strategy:
       max-parallel: 1
@@ -37,8 +33,8 @@ jobs:
           cd ballerina-layer
           wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.7%2B7/OpenJDK17U-jre_x64_linux_hotspot_17.0.7_7.tar.gz -O openjre.tar.gz
           tar -xvzf openjre.tar.gz
-          mv jdk-17.0.7+7-jre jdkq
-          zip -r layer.zip .
+          mv jdk-17.0.7+7-jre jdk
+          zip -r layer.zip jdk bootstrap
           aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }} --create-bucket-configuration LocationConstraint=${{ matrix.region }}
           aws s3 cp --acl private ./layer.zip s3://$bucketName/layer.zip
           aws lambda publish-layer-version \
