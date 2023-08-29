@@ -18,7 +18,6 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/os;
 import ballerina/time;
-import ballerina/regex;
 import ballerina/lang.'decimal;
   
 # Object to represent an AWS Lambda function execution context.
@@ -125,7 +124,7 @@ public function __process() {
     http:Client clientEP = checkpanic new("http://" + os:getEnv("AWS_LAMBDA_RUNTIME_API"));
     string handlerStr = os:getEnv("_HANDLER");
 
-    string[] hsc = regex:split(os:getEnv("_HANDLER"), "\\.");
+    string[] hsc = re `\.`.split(os:getEnv("_HANDLER"));
     if (hsc.length() < 2) {
         io:println("Error - invalid handler string: ", handlerStr, ", should be of format {BALX_NAME}.{FUNC_NAME}");
         return;
