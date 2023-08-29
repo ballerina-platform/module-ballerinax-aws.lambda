@@ -7,8 +7,8 @@ jobs:
   upload:
     runs-on: ubuntu-latest
     env:
-      LAYER_NAME: "ballerina-test2"
-      TEMP_BUCKET_NAME: "layer-bucket-temp"
+      LAYER_NAME: "ballerina-jre17"
+      TEMP_BUCKET_NAME: "layer-bucket-temp1"
     strategy:
       max-parallel: 1
       matrix:
@@ -35,7 +35,11 @@ jobs:
           tar -xvzf openjre.tar.gz
           mv jdk-17.0.7+7-jre jdk
           zip -r layer.zip jdk bootstrap
-          aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }} --create-bucket-configuration LocationConstraint=${{ matrix.region }}
+          if [[ "${{ matrix.region }}" == "us-east-1" ]]; then
+            aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }}
+          else
+            aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }} --create-bucket-configuration LocationConstraint=${{ matrix.region }}
+          fi
           aws s3 cp --acl private ./layer.zip s3://$bucketName/layer.zip
           aws lambda publish-layer-version \
                         --layer-name ${LAYER_NAME} \
