@@ -31,9 +31,9 @@ jobs:
         run: |
           bucketName="${TEMP_BUCKET_NAME}-${{ matrix.region }}-${{ GITHUB.RUN_NUMBER }}"
           cd ballerina-layer
-          wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.7%2B7/OpenJDK17U-jre_x64_linux_hotspot_17.0.7_7.tar.gz -O openjre.tar.gz
+          wget https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.5%2B11/OpenJDK21U-jre_x64_linux_hotspot_21.0.5_11.tar.gz -O openjre.tar.gz
           tar -xvzf openjre.tar.gz
-          mv jdk-17.0.7+7-jre jdk
+          mv jdk-21.0.5+11-jre jdk
           zip -r layer.zip jdk bootstrap
           if [[ "${{ matrix.region }}" == "us-east-1" ]]; then
             aws s3api create-bucket --bucket $bucketName --region ${{ matrix.region }}
