@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ghcr.io/graalvm/native-image-community:17-ol8
+FROM ghcr.io/graalvm/native-image-community:21-ol9
 
 COPY build-native.sh build/
 
