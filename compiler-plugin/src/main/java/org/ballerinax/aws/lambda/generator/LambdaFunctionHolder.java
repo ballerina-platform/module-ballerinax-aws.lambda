@@ -29,7 +29,7 @@ public class LambdaFunctionHolder {
     private static LambdaFunctionHolder instance;
     private final List<FunctionDeploymentContext> generatedFunctions;
 
-    public LambdaFunctionHolder() {
+    private LambdaFunctionHolder() {
         this.generatedFunctions = new ArrayList<>();
     }
 
