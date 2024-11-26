@@ -87,7 +87,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                     String version = getResourceFileAsString("layer-version.txt");
                     String fileName = executablePath.getFileName().toString();
                     String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
-                    String layer = " --layers arn:aws:lambda:$REGION_ID:134633749276:layer:ballerina-jre21:" + version;
+                    String layer = " --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:" + version;
                     if (isNative) {
                         layer = "";
                     }
