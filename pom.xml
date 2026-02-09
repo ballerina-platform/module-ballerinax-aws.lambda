@@ -184,6 +184,20 @@
             </releases>
         </repository>
         <repository>
+            <id>wso2-nexus</id>
+            <name>WSO2 Nexus Repository</name>
+            <url>https://maven.wso2.org/nexus/content/groups/wso2-public/</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <repository>
             <id>wso2.stage</id>
             <name>WSO2 Stage Repository</name>
             <url>https://maven.wso2.org/nexus/content/repositories/orgballerinalang-1802/</url>
