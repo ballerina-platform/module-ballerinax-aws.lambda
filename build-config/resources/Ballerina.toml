@@ -5,7 +5,7 @@ version = "@toml.version@"
 distribution = "2201.11.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-aws.lambda"
 license = ["Apache-2.0"]
-keywords = ["aws", "lambda", "serverless", "cloud", "Vendor/AWS", "Area/Cloud & Infrastructure", "Type/Other"]
+keywords = ["Vendor/AWS", "Area/Cloud & Infrastructure", "Type/Connector"]
 
 [platform.java21]
 graalvmCompatible = true
