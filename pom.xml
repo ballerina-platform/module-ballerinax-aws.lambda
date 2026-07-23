@@ -207,6 +207,17 @@
                 <checksumPolicy>ignore</checksumPolicy>
             </releases>
         </repository>
+        <repository>
+            <id>wso2-nexus3</id>
+            <name>Nexus3 Repository</name>
+            <url>https://maven3-upgrade.wso2.org/nexus/repository/releases/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <build>
@@ -303,6 +314,19 @@
         <connection>scm:git:https://github.com/ballerinax/awslambda.git</connection>
         <tag>HEAD</tag>
     </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>wso2-nexus3</id>
+            <name>Nexus3 Repository</name>
+            <url>https://maven3-upgrade.wso2.org/nexus/repository/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>wso2-nexus3</id>
+            <name>Nexus3 Repository</name>
+            <url>https://maven3-upgrade.wso2.org/nexus/repository/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <mvn.processor.plugin.version>2.2.4</mvn.processor.plugin.version>
