@@ -136,3 +136,40 @@ created before then is still configured with a runtime that can no longer be sel
 ```bash
 aws lambda update-function-configuration --function-name <FUNCTION_NAME> --runtime provided.al2023
 ```
+
+## Container Image Deployment
+
+By default `bal build` produces a ZIP deployment package, which AWS Lambda limits to 250 MB
+unzipped. Building with `--cloud=aws_lambda_image` instead packages the function as a container
+image, which supports images up to 10 GB:
+
+```bash
+$ bal build --cloud=aws_lambda_image
+Compiling source
+	functions.bal
+
+Generating executables
+	@aws.lambda:Building the container image using Docker. This may take a while.
+
+	@aws.lambda:Function: echo, uuid, notifySQS
+	Built the container image functions:0.1.0.
+
+	Run the following commands to push the image to Amazon ECR:
+	aws ecr get-login-password --region <REGION_ID> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com
+	docker tag functions:0.1.0 <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
+	docker push <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
+
+	Run the following command to deploy each Ballerina AWS Lambda function...
+	aws lambda create-function --function-name <FUNCTION_NAME> --package-type Image --code ImageUri=<ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0 --role <LAMBDA_ROLE_ARN> --image-config '{"command":["functions.<FUNCTION_NAME>"]}'
+```
+
+The image is named after the package and tagged with the package version. Docker must be
+available on the build machine.
+
+The handler is not baked into the image. It is selected per function with `--image-config`, so a
+single image can serve every `@lambda:Function` in the package, matching how one ZIP serves every
+function today.
+
+Combining `--cloud=aws_lambda_image` with `--graalvm` produces a native image on the
+`provided.al2023` base image instead of a JVM image on `public.ecr.aws/lambda/java:21`, giving a
+considerably smaller image and faster cold starts.

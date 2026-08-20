@@ -143,3 +143,18 @@ no longer accepts for new functions. Move it to `provided.al2023` once, then red
 ```bash
 aws lambda update-function-configuration --function-name $FUNCTION_NAME --runtime provided.al2023
 ```
+
+## Container Image Deployment
+
+`bal build` produces a ZIP deployment package by default, which AWS Lambda limits to 250 MB
+unzipped. Build with `--cloud=aws_lambda_image` to package the function as a container image
+instead, which supports images up to 10 GB:
+
+```bash
+bal build --cloud=aws_lambda_image
+```
+
+The image is named after the package and tagged with the package version, and Docker must be
+available on the build machine. The handler is selected per function at deployment time with
+`--image-config`, so a single image can serve every `@lambda:Function` in the package. Adding
+`--graalvm` produces a smaller native image on the `provided.al2023` base image.

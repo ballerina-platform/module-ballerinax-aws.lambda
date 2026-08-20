@@ -19,6 +19,7 @@ package org.ballerinax.aws.lambda.generator.tasks;
 
 import com.google.gson.Gson;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.plugins.CompilerLifecycleEventContext;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
@@ -45,6 +46,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -71,6 +73,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
             file.close();
             BuildOptions buildOptions = project.buildOptions();
             boolean isNative = buildOptions.nativeImage();
+            boolean isContainerImage = Constants.CLOUD_AWS_LAMBDA_IMAGE.equals(buildOptions.cloud());
             Optional<Path> generatedArtifactPath = lifecycleEventContext.getGeneratedArtifactPath();
             if (generatedArtifactPath.isPresent()) {
                 Path executablePath = generatedArtifactPath.get();
@@ -79,34 +82,127 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                     LambdaUtils.deleteDirectory(functionsDir);
                     Files.createDirectories(functionsDir);
 
-                    if (isNative) {
+                    String fileName = executablePath.getFileName().toString();
+                    String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
+                    String imageName = null;
+                    if (isContainerImage) {
+                        imageName = this.buildContainerImage(functionsDir, executablePath, isNative,
+                                lifecycleEventContext.currentPackage());
+                    } else if (isNative) {
                         this.generateNativeZipFile(functionsDir, executablePath);
                     } else {
                         this.generateZipFile(functionsDir, executablePath, false);
                     }
-                    String version = getResourceFileAsString("layer-version.txt");
-                    String fileName = executablePath.getFileName().toString();
-                    String balxName = fileName.substring(0, fileName.lastIndexOf('.'));
-                    String layer = " --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:" + version;
-                    if (isNative) {
-                        layer = "";
-                    }
                     OUT.println("\t@aws.lambda:Function: " + String.join(", ", generatedFunctions));
-                    OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-                    OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                            + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
-                            " --handler " +
-                            balxName + ".$FUNCTION_NAME --runtime provided.al2023 --role $LAMBDA_ROLE_ARN" + layer +
-                            " --memory-size 512 --timeout 10");
-                    OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
-                    OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                            + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+                    if (isContainerImage) {
+                        this.printImageInstructions(imageName, balxName);
+                    } else {
+                        this.printZipInstructions(functionsDir, balxName, isNative);
+                    }
                 } catch (IOException e) {
                     throw new CompilerPluginException("Error generating AWS lambda zip file: " + e.getMessage(), e);
                 }
             }
         } catch (IOException e) {
             OUT.println("Internal error occurred. Unable to read target/aws-lambda.json " + e.getMessage());
+        }
+    }
+
+    private void printZipInstructions(Path functionsDir, String balxName, boolean isNative) throws IOException {
+        String layer = "";
+        if (!isNative) {
+            String version = getResourceFileAsString("layer-version.txt");
+            layer = " --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:" + version;
+        }
+        OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
+        OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
+                + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
+                " --handler " +
+                balxName + ".$FUNCTION_NAME --runtime provided.al2023 --role $LAMBDA_ROLE_ARN" + layer +
+                " --memory-size 512 --timeout 10");
+        OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
+        OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
+                + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+    }
+
+    private void printImageInstructions(String imageName, String balxName) {
+        OUT.println("\n\tBuilt the container image " + imageName + ".");
+        OUT.println("\n\tRun the following commands to push the image to Amazon ECR:");
+        OUT.println("\taws ecr get-login-password --region $REGION_ID | docker login --username AWS " +
+                "--password-stdin $ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com");
+        OUT.println("\tdocker tag " + imageName +
+                " $ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName);
+        OUT.println("\tdocker push $ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName);
+        OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function. The handler is " +
+                "selected with --image-config, so a single image can serve every function in the package:");
+        OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --package-type Image" +
+                " --code ImageUri=$ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName +
+                " --role $LAMBDA_ROLE_ARN --image-config '{\"command\":[\"" + balxName + ".$FUNCTION_NAME\"]}'" +
+                " --memory-size 512 --timeout 10");
+        OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
+        OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME" +
+                " --image-uri $ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName + "\n\n");
+    }
+
+    /**
+     * Packages the built artifact as a Lambda container image. The Ballerina runtime already implements the
+     * Lambda Runtime API, so the image only has to start the artifact and let it poll for invocations.
+     *
+     * @param functionsDir   the directory the deployment artifacts are written to
+     * @param binaryPath     the built jar or native executable
+     * @param isNative       whether the build produced a native executable
+     * @param currentPackage the package being built, used to name the image
+     * @return the name and tag of the image that was built
+     * @throws IOException if writing the Dockerfile fails
+     */
+    private String buildContainerImage(Path functionsDir, Path binaryPath, boolean isNative, Package currentPackage)
+            throws IOException {
+        String jarFileName = binaryPath.getFileName().toString();
+        Files.copy(binaryPath, functionsDir.resolve(jarFileName), StandardCopyOption.REPLACE_EXISTING);
+        String artifactName = jarFileName;
+        if (isNative) {
+            // The native builder reads and writes the jar directory, so the jar has to be in place first.
+            buildRemoteArtifacts(functionsDir, jarFileName);
+            artifactName = jarFileName.replaceFirst("\\.jar$", "");
+            Files.deleteIfExists(functionsDir.resolve(jarFileName));
+        }
+        String imageName = currentPackage.packageName().value().toLowerCase(Locale.ENGLISH) + ":"
+                + currentPackage.packageVersion().value().toString();
+        Files.write(functionsDir.resolve(Constants.DOCKERFILE),
+                dockerFileContent(artifactName, isNative).getBytes(StandardCharsets.UTF_8));
+        OUT.println("\t@aws.lambda:Building the container image using Docker. This may take a while.\n");
+        runDockerBuild(functionsDir, imageName);
+        return imageName;
+    }
+
+    private String dockerFileContent(String artifactName, boolean isNative) {
+        String taskRoot = Constants.LAMBDA_TASK_ROOT;
+        if (isNative) {
+            return "FROM " + Constants.NATIVE_BASE_IMAGE + "\n" +
+                    "COPY " + artifactName + " " + taskRoot + "/\n" +
+                    "ENTRYPOINT [\"" + taskRoot + "/" + artifactName + "\"]\n";
+        }
+        return "FROM " + Constants.JVM_BASE_IMAGE + "\n" +
+                "COPY " + artifactName + " " + taskRoot + "/\n" +
+                "ENTRYPOINT [\"" + Constants.JVM_JAVA_PATH + "\", \"-jar\", \"" +
+                taskRoot + "/" + artifactName + "\"]\n";
+    }
+
+    private void runDockerBuild(Path contextDir, String imageName) {
+        ProcessBuilder pb = new ProcessBuilder("docker", "build", Constants.DOCKER_PLATFORM_FLAG,
+                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, "-t", imageName, ".");
+        pb.directory(contextDir.toFile());
+        pb.inheritIO();
+        try {
+            Process process = pb.start();
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new DockerBuildException("Container image generation failed with exit code " + exitCode +
+                        ". Refer to the above build log for information");
+            }
+        } catch (IOException | InterruptedException | RuntimeException e) {
+            throw new DockerBuildException(
+                    "Container image generation failed. Refer to the above build log for information");
         }
     }
 

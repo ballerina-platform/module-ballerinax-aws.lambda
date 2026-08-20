@@ -55,4 +55,11 @@ public class Constants {
             "echo \"END Ballerina\"\n";
 
     public static final String FUNCTION_DIRECTORY = "aws_lambda";
+
+    public static final String CLOUD_AWS_LAMBDA_IMAGE = "aws_lambda_image";
+    public static final String DOCKERFILE = "Dockerfile";
+    public static final String JVM_BASE_IMAGE = "public.ecr.aws/lambda/java:21";
+    public static final String NATIVE_BASE_IMAGE = "public.ecr.aws/lambda/provided:al2023";
+    public static final String LAMBDA_TASK_ROOT = "/var/task";
+    public static final String JVM_JAVA_PATH = "/var/lang/bin/java";
 }
