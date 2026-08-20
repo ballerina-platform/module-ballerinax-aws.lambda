@@ -64,6 +64,24 @@ public function notifySES(lambda:Context ctx,
 }
 
 @lambda:Function
+public function notifyEventBridge(lambda:Context ctx,
+                                  lambda:EventBridgeEvent event) returns json {
+    return event.detail\-type;
+}
+
+@lambda:Function
+public function notifySNS(lambda:Context ctx,
+                          lambda:SNSEvent event) returns json {
+    return event.Records[0].Sns.Message;
+}
+
+@lambda:Function
+public function notifyKinesis(lambda:Context ctx,
+                              lambda:KinesisEvent event) returns json {
+    return event.Records[0].kinesis.partitionKey;
+}
+
+@lambda:Function
 public function apigwRequest(lambda:Context ctx,
                              lambda:APIGatewayProxyRequest request) {
     io:println("Path: ", request.path);

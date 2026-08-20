@@ -284,3 +284,125 @@ public type SESRecord record {
 public type SESEvent record {
     SESRecord[] Records;
 };
+
+# Represents the Amazon EventBridge event details received from AWS when an EventBridge rule is triggered.
+#
+# + version - the version of the event schema
+# + id - the unique identifier of the event
+# + detail\-type - the detail type of the event
+# + 'source - the source of the event
+# + account - the AWS account ID of the event
+# + time - the time at which the event was emitted
+# + region - the AWS region from which the event originated
+# + resources - the ARNs of the resources involved in the event
+# + detail - the payload of the event
+public type EventBridgeEvent record {
+    string version;
+    string id;
+    string detail\-type;
+    string 'source;
+    string account;
+    string time;
+    string region;
+    string[] resources;
+    json detail;
+};
+
+# Represents the message attribute of an Amazon simple notification service message.
+#
+# + Type - the data type of the attribute
+# + Value - the value of the attribute
+public type SNSMessageAttribute record {
+    string Type;
+    string Value;
+};
+
+# Represents the Amazon simple notification service message related details.
+#
+# + Type - the type of the SNS message
+# + MessageId - the unique identifier of the message
+# + TopicArn - the arn of the topic the message was published to
+# + Subject - the subject of the message
+# + Message - the body of the message
+# + Timestamp - the time at which the message was published
+# + SignatureVersion - the version of the signature used for the message
+# + Signature - the signature of the message
+# + SigningCertUrl - the URL of the certificate used to sign the message
+# + UnsubscribeUrl - the URL used to unsubscribe from the topic
+# + MessageAttributes - the attributes associated with the message
+public type SNSMessage record {
+    string Type;
+    string MessageId;
+    string TopicArn;
+    string Subject?;
+    string Message;
+    string Timestamp;
+    string SignatureVersion;
+    string Signature;
+    string SigningCertUrl;
+    string UnsubscribeUrl;
+    map<SNSMessageAttribute> MessageAttributes?;
+};
+
+# Represents the details of the notification related to the simple notification service.
+#
+# + EventVersion - the version of the event
+# + EventSubscriptionArn - the arn of the subscription that triggered the event
+# + EventSource - the AWS service from which the notification originated
+# + Sns - details of the SNS message
+public type SNSRecord record {
+    string EventVersion;
+    string EventSubscriptionArn;
+    string EventSource;
+    SNSMessage Sns;
+};
+
+# Represents the simple notification service event details received from AWS when the SNS notification is triggered.
+#
+# + Records - record list of the SNS notifications
+public type SNSEvent record {
+    SNSRecord[] Records;
+};
+
+# Represents the Amazon Kinesis data related details of a stream record.
+#
+# + kinesisSchemaVersion - the version of the Kinesis record schema
+# + partitionKey - the partition key of the record
+# + sequenceNumber - the sequence number of the record
+# + data - the Base64-encoded payload of the record
+# + approximateArrivalTimestamp - the approximate time at which the record was inserted into the stream
+public type KinesisStreamData record {
+    string kinesisSchemaVersion;
+    string partitionKey;
+    string sequenceNumber;
+    string data;
+    decimal approximateArrivalTimestamp;
+};
+
+# Represents the details of the record related to the Kinesis data stream.
+#
+# + kinesis - the Kinesis data of the stream record
+# + eventSource - the AWS service from which the stream record originated
+# + eventVersion - the version number of the stream record format
+# + eventID - a globally unique identifier for the event that was recorded in this stream record
+# + eventName - the type of the event that was recorded in this stream record
+# + invokeIdentityArn - the arn of the identity used to invoke the function
+# + awsRegion - the AWS region to which the Kinesis data stream belongs
+# + eventSourceARN - the event source arn of the Kinesis data stream
+public type KinesisRecord record {
+    KinesisStreamData kinesis;
+    string eventSource;
+    string eventVersion;
+    string eventID;
+    string eventName;
+    string invokeIdentityArn;
+    string awsRegion;
+    string eventSourceARN;
+};
+
+# Represents the Kinesis data stream event details received from AWS when the stream records are delivered.
+#
+# + Records - record list of the Kinesis stream records
+public type KinesisEvent record {
+    KinesisRecord[] Records;
+};

@@ -68,6 +68,24 @@ public function notifySES(lambda:Context ctx,
 }
 
 @lambda:Function
+public function notifyEventBridge(lambda:Context ctx,
+                                  lambda:EventBridgeEvent event) returns json {
+    return event.detail\-type;
+}
+
+@lambda:Function
+public function notifySNS(lambda:Context ctx,
+                          lambda:SNSEvent event) returns json {
+    return event.Records[0].Sns.Message;
+}
+
+@lambda:Function
+public function notifyKinesis(lambda:Context ctx,
+                              lambda:KinesisEvent event) returns json {
+    return event.Records[0].kinesis.partitionKey;
+}
+
+@lambda:Function
 public function apigwRequest(lambda:Context ctx, 
                              lambda:APIGatewayProxyRequest request) {
     io:println("Path: ", request.path);
@@ -83,7 +101,7 @@ Compiling source
 
 Generating executables
 	functions.jar
-	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, apigwRequest
+	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, notifyEventBridge, notifySNS, notifyKinesis, apigwRequest
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided.al2023 --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:367134611783:layer:ballerina-jre21:1
