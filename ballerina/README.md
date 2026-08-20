@@ -86,6 +86,23 @@ public function apigwRequest(lambda:Context ctx,
                              lambda:APIGatewayProxyRequest request) {
     io:println("Path: ", request.path);
 }
+
+@lambda:Function
+public function urlRequest(lambda:Context ctx,
+                           lambda:FunctionURLRequest request) returns json {
+    return {method: request.requestContext.http.method, path: request.rawPath};
+}
+
+@lambda:Function
+public function urlCustomResponse(lambda:Context ctx,
+                                  lambda:FunctionURLRequest request) returns json {
+    lambda:FunctionURLResponse response = {
+        statusCode: 201,
+        headers: {"Content-Type": "application/json"},
+        body: "{\"message\":\"Hello, world!\"}"
+    };
+    return response.toJson();
+}
 ```
 
 The output of the bal build is as follows:

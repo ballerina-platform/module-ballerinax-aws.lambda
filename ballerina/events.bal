@@ -406,3 +406,114 @@ public type KinesisRecord record {
 public type KinesisEvent record {
     KinesisRecord[] Records;
 };
+
+# Represents the IAM identity of the caller of a Lambda function URL.
+#
+# + accessKey - the access key of the caller identity
+# + accountId - the AWS account ID of the caller identity
+# + callerId - the ID of the caller
+# + cognitoIdentity - not used by function URLs
+# + principalOrgId - the principal org ID associated with the caller identity
+# + userArn - the user arn of the caller identity
+# + userId - the user ID of the caller identity
+public type FunctionURLIAMIdentity record {
+    string accessKey?;
+    string accountId?;
+    string callerId?;
+    string? cognitoIdentity?;
+    string? principalOrgId?;
+    string userArn?;
+    string userId?;
+};
+
+# Represents the authorizer details of a Lambda function URL request.
+#
+# + iam - the IAM identity of the caller, available when the `AWS_IAM` auth type is used
+public type FunctionURLAuthorizer record {
+    FunctionURLIAMIdentity iam?;
+};
+
+# Represents the HTTP details of a Lambda function URL request.
+#
+# + method - the HTTP method used in the request
+# + path - the request path
+# + protocol - the protocol of the request
+# + sourceIp - the source IP address of the request
+# + userAgent - the user agent of the request
+public type FunctionURLHttp record {
+    string method;
+    string path;
+    string protocol;
+    string sourceIp;
+    string userAgent;
+};
+
+# Represents the request context of a Lambda function URL request.
+#
+# + accountId - the AWS account ID of the function owner
+# + apiId - the ID of the function URL
+# + authorizer - the caller identity, available when the `AWS_IAM` auth type is used
+# + domainName - the domain name of the function URL
+# + domainPrefix - the domain prefix of the function URL
+# + http - the HTTP details of the request
+# + requestId - the ID of the invocation request
+# + routeKey - not used by function URLs, always `$default`
+# + stage - not used by function URLs, always `$default`
+# + time - the timestamp of the request
+# + timeEpoch - the timestamp of the request in Unix epoch time
+public type FunctionURLRequestContext record {
+    string accountId;
+    string apiId;
+    FunctionURLAuthorizer? authorizer;
+    string domainName;
+    string domainPrefix;
+    FunctionURLHttp http;
+    string requestId;
+    string routeKey;
+    string stage;
+    string time;
+    int timeEpoch;
+};
+
+# Represents the Lambda function URL request received from AWS when the function URL is invoked.
+# Function URLs use the API Gateway payload format version 2.0.
+#
+# + version - the payload format version, always `2.0`
+# + routeKey - not used by function URLs, always `$default`
+# + rawPath - the request path
+# + rawQueryString - the raw query string of the request
+# + cookies - the cookies sent as part of the request
+# + headers - the request headers as key-value pairs
+# + queryStringParameters - the query parameters of the request
+# + requestContext - additional information about the request
+# + body - the body of the request, Base64-encoded if the content type is binary
+# + isBase64Encoded - field to identify if the body is Base64 encoded
+public type FunctionURLRequest record {
+    string version;
+    string routeKey;
+    string rawPath;
+    string rawQueryString;
+    string[] cookies?;
+    map<string> headers;
+    map<string> queryStringParameters?;
+    FunctionURLRequestContext requestContext;
+    string body?;
+    boolean isBase64Encoded;
+};
+
+# Represents the response returned to a Lambda function URL caller. Every field is optional -
+# when `statusCode` is omitted, AWS defaults to `200` with a content type of `application/json`
+# and uses the function response as the body.
+#
+# + statusCode - the HTTP status code of the response, between 100 and 599
+# + headers - the response headers as key-value pairs
+# + body - the body of the response
+# + cookies - the cookies to be set on the response
+# + isBase64Encoded - field to identify if the body is Base64 encoded
+public type FunctionURLResponse record {
+    int statusCode?;
+    map<string> headers?;
+    string body?;
+    string[] cookies?;
+    boolean isBase64Encoded?;
+};

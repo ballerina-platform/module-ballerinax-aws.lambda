@@ -90,6 +90,23 @@ public function apigwRequest(lambda:Context ctx,
                              lambda:APIGatewayProxyRequest request) {
     io:println("Path: ", request.path);
 }
+
+@lambda:Function
+public function urlRequest(lambda:Context ctx,
+                           lambda:FunctionURLRequest request) returns json {
+    return {method: request.requestContext.http.method, path: request.rawPath};
+}
+
+@lambda:Function
+public function urlCustomResponse(lambda:Context ctx,
+                                  lambda:FunctionURLRequest request) returns json {
+    lambda:FunctionURLResponse response = {
+        statusCode: 201,
+        headers: {"Content-Type": "application/json"},
+        body: "{\"message\":\"Hello, world!\"}"
+    };
+    return response.toJson();
+}
 ```
 
 The output of the bal build is as follows:
@@ -101,7 +118,7 @@ Compiling source
 
 Generating executables
 	functions.jar
-	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, notifyEventBridge, notifySNS, notifyKinesis, apigwRequest
+	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, notifyEventBridge, notifySNS, notifyKinesis, apigwRequest, urlRequest, urlCustomResponse
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided.al2023 --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:367134611783:layer:ballerina-jre21:1
