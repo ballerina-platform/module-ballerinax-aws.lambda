@@ -55,6 +55,11 @@
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
     <Match>
+        <Class name="org.ballerinax.aws.lambda.generator.LambdaFunctionVisitor"/>
+        <Method name="getDiagnostics"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
         <Class name="org.ballerinax.aws.lambda.generator.LambdaHandlerContainer"/>
         <Method name="getFunctions"/>
         <Bug pattern="EI_EXPOSE_REP"/>

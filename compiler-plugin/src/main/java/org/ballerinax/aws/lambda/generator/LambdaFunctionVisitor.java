@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -34,6 +35,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +60,11 @@ public class LambdaFunctionVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
-        FunctionSymbol functionSymbol = (FunctionSymbol) semanticModel.symbol(functionDefinitionNode).get();
+        Optional<Symbol> symbol = semanticModel.symbol(functionDefinitionNode);
+        if (symbol.isEmpty() || !(symbol.get() instanceof FunctionSymbol)) {
+            return;
+        }
+        FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
         List<AnnotationSymbol> annotations = functionSymbol.annotations();
         for (AnnotationSymbol annotationSymbol : annotations) {
             if (annotationSymbol.getModule().isEmpty()) {
@@ -72,40 +78,41 @@ public class LambdaFunctionVisitor extends NodeVisitor {
                 continue;
             }
             FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
-            List<ParameterSymbol> parameters = functionTypeSymbol.params().get();
+            List<ParameterSymbol> parameters = functionTypeSymbol.params().orElse(Collections.emptyList());
             if (parameters.size() != 2) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(functionTypeSymbol.location(), "AZ0001",
-                        "Invalid function signature for an AWS lambda function: , it should be 'public " +
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0001",
+                        "Invalid function signature for an AWS lambda function, it should be 'public " +
                                 "function (lambda:Context, anydata) returns json|error'",
                         DiagnosticSeverity.ERROR));
+                continue;
             }
             ParameterSymbol contextParam = parameters.get(0);
             ParameterSymbol secondParam = parameters.get(1);
 
             if (contextParam.getName().isEmpty()) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(contextParam.location(), "AZ0003",
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
                         "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
             }
             if (contextParam.paramKind() != ParameterKind.REQUIRED) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(contextParam.location(), "AZ0002",
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0002",
                         "AWS lambda only supports required parameters", DiagnosticSeverity.ERROR));
 
             }
 
             if (secondParam.getName().isEmpty()) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(contextParam.location(), "AZ0003",
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
                         "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
             }
             if (secondParam.paramKind() != ParameterKind.REQUIRED) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(contextParam.location(), "AZ0003",
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
                         "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
             }
 
             if (!isContext(contextParam.typeDescriptor())) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(functionTypeSymbol.location(), "AZ0004",
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0004",
                         "First parameter of AWS Lambda function should be `lambda:Context`",
                         DiagnosticSeverity.ERROR));
-
+                continue;
             }
 
             Optional<TypeSymbol> returnTypeDescriptor = functionSymbol.typeDescriptor().returnTypeDescriptor();
@@ -115,8 +122,9 @@ public class LambdaFunctionVisitor extends NodeVisitor {
                 if (isValidReturnType(returnTypeDescriptor.get())) {
                     this.functions.add(functionDefinitionNode);
                 } else {
-                    this.diagnostics.add(LambdaUtils.getDiagnostic(functionTypeSymbol.location(), "AZ0004",
-                            returnTypeDescriptor.get().signature() + "is not a supported return type for AWS functions",
+                    String returnType = returnTypeDescriptor.get().signature();
+                    this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0004",
+                            returnType + " is not a supported return type for AWS functions",
                             DiagnosticSeverity.ERROR));
                 }
             }
@@ -146,7 +154,8 @@ public class LambdaFunctionVisitor extends NodeVisitor {
     }
 
     private boolean isContext(TypeSymbol typeSymbol) {
-        if (typeSymbol.getName().get().equals("Context")) {
+        Optional<String> name = typeSymbol.getName();
+        if (name.isPresent() && name.get().equals("Context")) {
             Optional<ModuleSymbol> module = typeSymbol.getModule();
             if (module.isEmpty()) {
                 return false;
@@ -158,5 +167,9 @@ public class LambdaFunctionVisitor extends NodeVisitor {
 
     public List<FunctionDefinitionNode> getFunctions() {
         return this.functions;
+    }
+
+    public List<Diagnostic> getDiagnostics() {
+        return this.diagnostics;
     }
 }

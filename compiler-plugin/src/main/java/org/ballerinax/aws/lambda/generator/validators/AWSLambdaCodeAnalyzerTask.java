@@ -17,6 +17,7 @@
  */
 package org.ballerinax.aws.lambda.generator.validators;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeLocation;
 import io.ballerina.projects.Document;
@@ -32,6 +33,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinax.aws.lambda.generator.Constants;
+import org.ballerinax.aws.lambda.generator.LambdaFunctionVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,9 @@ public class AWSLambdaCodeAnalyzerTask implements AnalysisTask<CompilationAnalys
                 }
                 diagnostics.addAll(validateMainFunction(rootNode));
                 if (module.isDefaultModule()) {
+                    SemanticModel semanticModel = compilationAnalysisContext.compilation()
+                            .getSemanticModel(moduleId);
+                    diagnostics.addAll(validateLambdaFunctions(rootNode, semanticModel));
                     continue;
                 }
                 diagnostics.addAll(validateSubmoduleDocument(rootNode));
@@ -84,5 +89,11 @@ public class AWSLambdaCodeAnalyzerTask implements AnalysisTask<CompilationAnalys
         List<Diagnostic> diagnostics = new ArrayList<>();
         node.accept(new SubmoduleValidator(diagnostics));
         return diagnostics;
+    }
+
+    private List<Diagnostic> validateLambdaFunctions(Node node, SemanticModel semanticModel) {
+        LambdaFunctionVisitor visitor = new LambdaFunctionVisitor(semanticModel);
+        node.accept(visitor);
+        return visitor.getDiagnostics();
     }
 }
