@@ -155,12 +155,13 @@ Generating executables
 	Built the container image functions:0.1.0.
 
 	Run the following commands to push the image to Amazon ECR:
+	aws ecr create-repository --repository-name functions --region <REGION_ID>
 	aws ecr get-login-password --region <REGION_ID> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com
 	docker tag functions:0.1.0 <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
 	docker push <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
 
 	Run the following command to deploy each Ballerina AWS Lambda function...
-	aws lambda create-function --function-name <FUNCTION_NAME> --package-type Image --code ImageUri=<ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0 --role <LAMBDA_ROLE_ARN> --image-config '{"command":["functions.<FUNCTION_NAME>"]}'
+	aws lambda create-function --function-name <FUNCTION_NAME> --package-type Image --code ImageUri=<ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0 --role <LAMBDA_ROLE_ARN> --image-config '{"Command":["functions.<FUNCTION_NAME>"]}'
 ```
 
 The image is named after the package and tagged with the package version. Docker must be

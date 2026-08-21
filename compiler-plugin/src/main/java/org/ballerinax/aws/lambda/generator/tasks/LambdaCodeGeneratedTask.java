@@ -126,8 +126,11 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     }
 
     private void printImageInstructions(String imageName, String balxName) {
+        String repositoryName = imageName.substring(0, imageName.lastIndexOf(':'));
         OUT.println("\n\tBuilt the container image " + imageName + ".");
         OUT.println("\n\tRun the following commands to push the image to Amazon ECR:");
+        OUT.println("\taws ecr create-repository --repository-name " + repositoryName +
+                " --region $REGION_ID");
         OUT.println("\taws ecr get-login-password --region $REGION_ID | docker login --username AWS " +
                 "--password-stdin $ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com");
         OUT.println("\tdocker tag " + imageName +
@@ -137,7 +140,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 "selected with --image-config, so a single image can serve every function in the package:");
         OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --package-type Image" +
                 " --code ImageUri=$ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName +
-                " --role $LAMBDA_ROLE_ARN --image-config '{\"command\":[\"" + balxName + ".$FUNCTION_NAME\"]}'" +
+                " --role $LAMBDA_ROLE_ARN --image-config '{\"Command\":[\"" + balxName + ".$FUNCTION_NAME\"]}'" +
                 " --memory-size 512 --timeout 10");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME" +
