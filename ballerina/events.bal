@@ -322,7 +322,7 @@ public type SNSMessageAttribute record {
 # + Type - the type of the SNS message
 # + MessageId - the unique identifier of the message
 # + TopicArn - the arn of the topic the message was published to
-# + Subject - the subject of the message
+# + Subject - the subject of the message, `()` when the message was published without one
 # + Message - the body of the message
 # + Timestamp - the time at which the message was published
 # + SignatureVersion - the version of the signature used for the message
@@ -334,7 +334,7 @@ public type SNSMessage record {
     string Type;
     string MessageId;
     string TopicArn;
-    string Subject?;
+    string? Subject;
     string Message;
     string Timestamp;
     string SignatureVersion;
