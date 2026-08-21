@@ -452,7 +452,7 @@ public type FunctionURLHttp record {
 #
 # + accountId - the AWS account ID of the function owner
 # + apiId - the ID of the function URL
-# + authorizer - the caller identity, available when the `AWS_IAM` auth type is used
+# + authorizer - the caller identity, present only when the `AWS_IAM` auth type is used
 # + domainName - the domain name of the function URL
 # + domainPrefix - the domain prefix of the function URL
 # + http - the HTTP details of the request
@@ -464,7 +464,7 @@ public type FunctionURLHttp record {
 public type FunctionURLRequestContext record {
     string accountId;
     string apiId;
-    FunctionURLAuthorizer? authorizer;
+    FunctionURLAuthorizer? authorizer?;
     string domainName;
     string domainPrefix;
     FunctionURLHttp http;
