@@ -175,22 +175,27 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         return imageName;
     }
 
+    /**
+     * Builds the Dockerfile. Lambda passes the image config command as arguments to the entrypoint
+     * rather than in _HANDLER, and the generated Ballerina main accepts no operands, so the
+     * entrypoint moves the first argument into _HANDLER before starting the artifact. That keeps the
+     * handler out of the image, so one image can serve every function in the package.
+     */
     private String dockerFileContent(String artifactName, boolean isNative) {
         String taskRoot = Constants.LAMBDA_TASK_ROOT;
-        if (isNative) {
-            return "FROM " + Constants.NATIVE_BASE_IMAGE + "\n" +
-                    "COPY " + artifactName + " " + taskRoot + "/\n" +
-                    "ENTRYPOINT [\"" + taskRoot + "/" + artifactName + "\"]\n";
-        }
-        return "FROM " + Constants.JVM_BASE_IMAGE + "\n" +
+        String start = isNative
+                ? taskRoot + "/" + artifactName
+                : Constants.JVM_JAVA_PATH + " -jar " + taskRoot + "/" + artifactName;
+        String baseImage = isNative ? Constants.NATIVE_BASE_IMAGE : Constants.JVM_BASE_IMAGE;
+        return "FROM " + baseImage + "\n" +
                 "COPY " + artifactName + " " + taskRoot + "/\n" +
-                "ENTRYPOINT [\"" + Constants.JVM_JAVA_PATH + "\", \"-jar\", \"" +
-                taskRoot + "/" + artifactName + "\"]\n";
+                "ENTRYPOINT [\"/bin/sh\", \"-c\", \"export _HANDLER=$1; exec " + start + "\", \"sh\"]\n";
     }
 
     private void runDockerBuild(Path contextDir, String imageName) {
         ProcessBuilder pb = new ProcessBuilder("docker", "build", Constants.DOCKER_PLATFORM_FLAG,
-                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, "-t", imageName, ".");
+                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, Constants.DOCKER_NO_PROVENANCE_FLAG,
+                Constants.DOCKER_NO_SBOM_FLAG, "-t", imageName, ".");
         pb.directory(contextDir.toFile());
         pb.inheritIO();
         try {

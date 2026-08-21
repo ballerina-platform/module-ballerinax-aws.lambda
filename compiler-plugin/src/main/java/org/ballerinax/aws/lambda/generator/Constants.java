@@ -57,6 +57,11 @@ public class Constants {
     public static final String FUNCTION_DIRECTORY = "aws_lambda";
 
     public static final String CLOUD_AWS_LAMBDA_IMAGE = "aws_lambda_image";
+    // BuildKit attaches provenance and SBOM attestations by default, which produces an OCI image
+    // index. Lambda rejects those with "The image manifest, config or layer media type for the
+    // source image is not supported", so a plain single platform manifest has to be forced.
+    public static final String DOCKER_NO_PROVENANCE_FLAG = "--provenance=false";
+    public static final String DOCKER_NO_SBOM_FLAG = "--sbom=false";
     public static final String DOCKERFILE = "Dockerfile";
     public static final String JVM_BASE_IMAGE = "public.ecr.aws/lambda/java:21";
     public static final String NATIVE_BASE_IMAGE = "public.ecr.aws/lambda/provided:al2023";
