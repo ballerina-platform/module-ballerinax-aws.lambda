@@ -158,3 +158,37 @@ The image is named after the package and tagged with the package version, and Do
 available on the build machine. The handler is selected per function at deployment time with
 `--image-config`, so a single image can serve every `@lambda:Function` in the package. Adding
 `--graalvm` produces a smaller native image on the `provided.al2023` base image.
+
+## Lambda Destinations
+
+A function can route the result of an **asynchronous** invocation to another AWS service, by
+declaring destinations on the annotation:
+
+```ballerina
+@lambda:Function {
+    destinations: {
+        onSuccess: "arn:aws:sqs:<REGION_ID>:<ACCOUNT_ID>:orders-processed",
+        onFailure: "arn:aws:sns:<REGION_ID>:<ACCOUNT_ID>:alerts"
+    }
+}
+public function processOrder(lambda:Context ctx, lambda:SQSEvent event) returns json {
+    return event.Records[0].body;
+}
+```
+
+Either field may be omitted, and a destination may be an SQS queue, an SNS topic, an EventBridge
+event bus or another Lambda function. `bal build` then prints the command that configures them:
+
+```bash
+aws lambda put-function-event-invoke-config --function-name processOrder --destination-config '{"OnSuccess":{"Destination":"arn:aws:sqs:..."},"OnFailure":{"Destination":"arn:aws:sns:..."}}'
+```
+
+Two things to know:
+
+- Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
+  through a function URL, returns its result to the caller and never routes to a destination.
+- The function's execution role needs permission to write to the destination, for example
+  `sqs:SendMessage` for an SQS queue. Without it the invocation succeeds and the record is silently
+  dropped.
+
+`@lambda:Function` remains valid with no annotation value, so existing functions need no change.

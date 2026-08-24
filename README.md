@@ -174,3 +174,51 @@ function today.
 Combining `--cloud=aws_lambda_image` with `--graalvm` produces a native image on the
 `provided.al2023` base image instead of a JVM image on `public.ecr.aws/lambda/java:21`, giving a
 considerably smaller image and faster cold starts.
+
+## Lambda Destinations
+
+Declare destinations on the annotation to route the result of an **asynchronous** invocation to
+another AWS service:
+
+```ballerina
+@lambda:Function {
+    destinations: {
+        onSuccess: "arn:aws:sqs:<REGION_ID>:<ACCOUNT_ID>:orders-processed",
+        onFailure: "arn:aws:sns:<REGION_ID>:<ACCOUNT_ID>:alerts"
+    }
+}
+public function processOrder(lambda:Context ctx, lambda:SQSEvent event) returns json {
+    return event.Records[0].body;
+}
+```
+
+Either field may be omitted. A destination may be an SQS queue, an SNS topic, an EventBridge event
+bus or another Lambda function. The output of `bal build` then includes:
+
+```bash
+	Run the following command to configure the destinations of each function. Destinations apply to asynchronous invocations only:
+	aws lambda put-function-event-invoke-config --function-name processOrder --destination-config '{"OnSuccess":{"Destination":"arn:aws:sqs:..."},"OnFailure":{"Destination":"arn:aws:sns:..."}}'
+```
+
+AWS delivers a record describing the invocation, not the raw response. A success looks like:
+
+```json
+{
+  "version": "1.0",
+  "requestContext": {"condition": "Success", "approximateInvokeCount": 1},
+  "requestPayload": {"hello": "world"},
+  "responsePayload": {"status": "ok"}
+}
+```
+
+and a failure carries `"condition": "RetriesExhausted"` along with the error the function returned.
+
+Two constraints worth knowing:
+
+- Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
+  through a function URL or `aws lambda invoke` without `--invocation-type Event`, returns its result
+  to the caller and never routes to a destination.
+- The execution role needs permission to write to the destination, such as `sqs:SendMessage` for an
+  SQS queue. Without it the invocation still succeeds and the record is silently dropped.
+
+`@lambda:Function` remains valid with no annotation value, so existing functions need no change.
