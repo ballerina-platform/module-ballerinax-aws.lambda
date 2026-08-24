@@ -26,6 +26,7 @@ import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import io.ballerina.projects.plugins.CompilerPluginException;
 import org.ballerinax.aws.lambda.generator.Constants;
 import org.ballerinax.aws.lambda.generator.DockerBuildException;
+import org.ballerinax.aws.lambda.generator.LambdaFunctionInfo;
 import org.ballerinax.aws.lambda.generator.LambdaUtils;
 
 import java.io.BufferedReader;
@@ -44,6 +45,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -69,8 +72,12 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         Gson gson = new Gson();
         try (FileReader file = new FileReader(lambdaJson.toAbsolutePath().toString(),
                 StandardCharsets.UTF_8)) {
-            List<String> generatedFunctions = gson.fromJson(file, List.class);
+            LambdaFunctionInfo[] functionInfo = gson.fromJson(file, LambdaFunctionInfo[].class);
             file.close();
+            List<LambdaFunctionInfo> functions = functionInfo == null
+                    ? Collections.emptyList() : Arrays.asList(functionInfo);
+            List<String> generatedFunctions = functions.stream()
+                    .map(LambdaFunctionInfo::getName).collect(Collectors.toList());
             BuildOptions buildOptions = project.buildOptions();
             boolean isNative = buildOptions.nativeImage();
             boolean isContainerImage = Constants.CLOUD_AWS_LAMBDA_IMAGE.equals(buildOptions.cloud());
@@ -99,6 +106,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                     } else {
                         this.printZipInstructions(functionsDir, balxName, isNative);
                     }
+                    this.printDestinationInstructions(functions);
                 } catch (IOException e) {
                     throw new CompilerPluginException("Error generating AWS lambda zip file: " + e.getMessage(), e);
                 }
@@ -123,6 +131,39 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
                 + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+    }
+
+    /**
+     * Prints the command that configures destinations, for the functions that declared any.
+     * Destinations are set separately from the function itself, so this is emitted alongside the
+     * deploy commands rather than folded into them.
+     */
+    private void printDestinationInstructions(List<LambdaFunctionInfo> functions) {
+        List<LambdaFunctionInfo> withDestinations = functions.stream()
+                .filter(f -> f.getDestinations() != null && !f.getDestinations().isEmpty())
+                .collect(Collectors.toList());
+        if (withDestinations.isEmpty()) {
+            return;
+        }
+        OUT.println("\tRun the following command to configure the destinations of each function. " +
+                "Destinations apply to asynchronous invocations only:");
+        for (LambdaFunctionInfo function : withDestinations) {
+            LambdaFunctionInfo.Destinations destinations = function.getDestinations();
+            StringBuilder config = new StringBuilder("{");
+            if (destinations.getOnSuccess() != null) {
+                config.append("\"OnSuccess\":{\"Destination\":\"").append(destinations.getOnSuccess()).append("\"}");
+            }
+            if (destinations.getOnFailure() != null) {
+                if (config.length() > 1) {
+                    config.append(',');
+                }
+                config.append("\"OnFailure\":{\"Destination\":\"").append(destinations.getOnFailure()).append("\"}");
+            }
+            config.append('}');
+            OUT.println("\taws lambda put-function-event-invoke-config --function-name " + function.getName() +
+                    " --destination-config '" + config + "'");
+        }
+        OUT.println();
     }
 
     private void printImageInstructions(String imageName, String balxName) {

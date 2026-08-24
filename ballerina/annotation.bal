@@ -14,5 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Represents where AWS Lambda routes the result of an asynchronous invocation.
+# Destinations apply to asynchronous invocations only, so a function invoked
+# synchronously, such as through a function URL, never routes to them.
+#
+# + onSuccess - the arn of an SQS queue, SNS topic, EventBridge event bus or Lambda
+#               function to route successful invocations to
+# + onFailure - the arn of an SQS queue, SNS topic, EventBridge event bus or Lambda
+#               function to route failed invocations to
+public type DestinationConfig record {|
+    string onSuccess?;
+    string onFailure?;
+|};
+
+# Represents the configuration of an AWS Lambda function. Every field is optional, so
+# `@lambda:Function` remains valid with no annotation value.
+#
+# + destinations - where to route the result of asynchronous invocations
+public type FunctionConfig record {|
+    DestinationConfig destinations?;
+|};
+
 # The annotation, which is used to mark the function as an AWS Lambda function.
-public const annotation Function on function;
+public const annotation FunctionConfig Function on function;

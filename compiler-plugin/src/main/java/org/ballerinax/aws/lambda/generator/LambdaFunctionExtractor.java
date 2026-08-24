@@ -55,7 +55,7 @@ public class LambdaFunctionExtractor {
             LambdaFunctionVisitor lambdaFunctionVisitor = new LambdaFunctionVisitor(semanticModel);
             node.accept(lambdaFunctionVisitor);
             List<FunctionDefinitionNode> functions = lambdaFunctionVisitor.getFunctions();
-            handlerList.add(new LambdaHandlerContainer(functions));
+            handlerList.add(new LambdaHandlerContainer(functions, lambdaFunctionVisitor.getDestinations()));
         }
         return handlerList;
     }

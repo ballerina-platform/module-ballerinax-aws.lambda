@@ -38,6 +38,7 @@ import org.ballerinax.aws.lambda.generator.Constants;
 import org.ballerinax.aws.lambda.generator.FunctionDeploymentContext;
 import org.ballerinax.aws.lambda.generator.LambdaFunctionExtractor;
 import org.ballerinax.aws.lambda.generator.LambdaFunctionHolder;
+import org.ballerinax.aws.lambda.generator.LambdaFunctionInfo;
 import org.ballerinax.aws.lambda.generator.LambdaHandlerContainer;
 import org.ballerinax.aws.lambda.generator.LambdaUtils;
 
@@ -47,7 +48,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An {@code AnalysisTask} that is triggered for AWS Lambda codegen.
@@ -64,14 +67,17 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
         SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(module.moduleId());
+        Map<String, LambdaFunctionInfo.Destinations> destinations = new HashMap<>();
         for (LambdaHandlerContainer container : lambdaFunctionExtractor.extractFunctions()) {
+            destinations.putAll(container.getDestinations());
             for (FunctionDefinitionNode function : container.getFunctions()) {
                 FunctionDeploymentContext functionContext = new FunctionDeploymentContext(function, semanticModel);
                 generatedFunctions.add(functionContext);
             }
         }
         try {
-            writeObjectToJson(sourceGeneratorContext.currentPackage().project().targetDir(), generatedFunctions);
+            writeObjectToJson(sourceGeneratorContext.currentPackage().project().targetDir(), generatedFunctions,
+                    destinations);
         } catch (IOException e) {
             DiagnosticInfo
                     diagnosticInfo = new DiagnosticInfo("AWS-Lambda-001", e.getMessage(), DiagnosticSeverity.ERROR);
@@ -89,16 +95,18 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         return TextDocuments.from(modulePartNode.toSourceCode());
     }
 
-    private void writeObjectToJson(Path targetPath, List<FunctionDeploymentContext> generatedFunctions)
+    private void writeObjectToJson(Path targetPath, List<FunctionDeploymentContext> generatedFunctions,
+                                   Map<String, LambdaFunctionInfo.Destinations> destinations)
             throws IOException {
         Gson gson = new Gson();
         Path jsonPath = targetPath.resolve("aws-lambda.json");
         Files.deleteIfExists(jsonPath);
         Files.createFile(jsonPath);
         try (FileWriter r = new FileWriter(jsonPath.toAbsolutePath().toString(), StandardCharsets.UTF_8)) {
-            List<String> functionList = new ArrayList<>();
+            List<LambdaFunctionInfo> functionList = new ArrayList<>();
             for (FunctionDeploymentContext ctx : generatedFunctions) {
-                functionList.add(ctx.getOriginalFunction().functionName().text());
+                String name = ctx.getOriginalFunction().functionName().text();
+                functionList.add(new LambdaFunctionInfo(name, destinations.get(name)));
             }
             gson.toJson(functionList, r);
         }
