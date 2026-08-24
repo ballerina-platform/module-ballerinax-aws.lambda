@@ -28,3 +28,10 @@ public function bothDestinations(lambda:Context ctx, json input) returns json {
 public function failureOnly(lambda:Context ctx, json input) returns json {
     return input;
 }
+
+@lambda:Function {
+    destinations: {onSuccess: "arn:aws:sqs:us-west-1:123456789012:success-queue"}
+}
+public function successOnly(lambda:Context ctx, json input) returns json {
+    return input;
+}

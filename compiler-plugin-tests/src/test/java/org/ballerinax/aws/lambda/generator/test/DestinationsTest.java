@@ -78,15 +78,38 @@ public class DestinationsTest extends BaseTest {
      * given rather than sending an empty destination.
      */
     @Test
-    public void testOnlyTheDeclaredDestinationIsEmitted() {
+    public void testOnlyFailureIsEmittedWhenOnlyFailureIsDeclared() {
 
-        int index = this.buildOutput.indexOf("--function-name failureOnly");
-        Assert.assertTrue(index > -1, "failureOnly should get a command");
-        String command = this.buildOutput.substring(index);
-        int end = command.indexOf("'", command.indexOf("--destination-config '") + 22);
-        String config = command.substring(0, end);
+        String config = destinationConfigOf("failureOnly");
         Assert.assertTrue(config.contains("OnFailure"));
         Assert.assertFalse(config.contains("OnSuccess"), "OnSuccess must be absent when it was not declared");
+    }
+
+    /**
+     * The mirror of the above. The two keys are joined by a comma when both are present, so
+     * declaring only the first exercises a different branch from declaring only the second.
+     */
+    @Test
+    public void testOnlySuccessIsEmittedWhenOnlySuccessIsDeclared() {
+
+        String config = destinationConfigOf("successOnly");
+        Assert.assertTrue(config.contains("OnSuccess"));
+        Assert.assertFalse(config.contains("OnFailure"), "OnFailure must be absent when it was not declared");
+        Assert.assertFalse(config.contains(",,"), "the config must not contain an empty element");
+        Assert.assertTrue(config.endsWith("\"}}"), "the config must be closed properly, was: " + config);
+    }
+
+    /**
+     * Returns the --destination-config argument emitted for a function.
+     */
+    private String destinationConfigOf(String functionName) {
+
+        int index = this.buildOutput.indexOf("--function-name " + functionName + " ");
+        Assert.assertTrue(index > -1, functionName + " should get a destinations command");
+        String command = this.buildOutput.substring(index);
+        int start = command.indexOf("--destination-config '") + "--destination-config '".length();
+        int end = command.indexOf('\'', start);
+        return command.substring(start, end);
     }
 
     @Test
