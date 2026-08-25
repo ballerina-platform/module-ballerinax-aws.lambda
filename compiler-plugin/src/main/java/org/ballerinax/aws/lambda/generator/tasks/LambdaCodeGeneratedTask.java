@@ -231,13 +231,18 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     /**
      * Converts a package version into something Docker accepts as a tag. A Ballerina version may
      * carry SemVer build metadata, and the {@code +} that introduces it is rejected by Docker with
-     * "invalid reference format", so any character outside a tag is replaced.
+     * "invalid reference format".
+     *
+     * <p>The {@code +} becomes an underscore rather than a hyphen, so that two versions cannot map
+     * onto one tag: an underscore is valid in a Docker tag but never appears in a SemVer version,
+     * whereas mapping onto a hyphen would make 1.0.0+linux and 1.0.0-linux the same image, and
+     * pushing one would overwrite the other. Anything else outside a tag is replaced defensively.
      *
      * @param version the package version
      * @return the version as a valid Docker tag
      */
     private String toImageTag(String version) {
-        String tag = version.replaceAll("[^a-zA-Z0-9._-]", "-");
+        String tag = version.replace('+', '_').replaceAll("[^a-zA-Z0-9._-]", "-");
         if (!tag.equals(version)) {
             OUT.println("\t@aws.lambda:Tagging the image " + tag + ", as the package version " + version +
                     " is not a valid Docker tag.");

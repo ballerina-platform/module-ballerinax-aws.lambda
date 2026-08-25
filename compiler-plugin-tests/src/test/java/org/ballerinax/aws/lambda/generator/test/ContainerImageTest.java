@@ -137,6 +137,10 @@ public class ContainerImageTest extends BaseTest {
     /**
      * A ballerina version may carry SemVer build metadata, and docker rejects the {@code +} that
      * introduces it with "invalid reference format", so the version cannot be used as a tag as is.
+     *
+     * <p>The replacement has to be an underscore rather than a hyphen. A hyphen is legal in a
+     * SemVer version, so 1.0.0+linux and 1.0.0-linux would produce one tag and pushing either would
+     * overwrite the other. An underscore never appears in a SemVer version, so the mapping is safe.
      */
     @Test
     public void testVersionWithBuildMetadataIsUsableAsATag() throws IOException, InterruptedException {
@@ -147,7 +151,7 @@ public class ContainerImageTest extends BaseTest {
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(project, "--cloud=aws_lambda_image");
         String out = processOutput.getStdOutput() + processOutput.getErrOutput();
         Assert.assertEquals(processOutput.getExitCode(), 0, "the build should succeed, output was: " + out);
-        Assert.assertTrue(out.contains("Built the container image buildmetadata:0.1.0-build.1"),
+        Assert.assertTrue(out.contains("Built the container image buildmetadata:0.1.0_build.1"),
                 "the version should be tagged with the plus replaced, output was: " + out);
         Assert.assertFalse(out.contains("invalid reference format"), out);
     }
@@ -156,6 +160,6 @@ public class ContainerImageTest extends BaseTest {
     public void cleanUp() throws IOException, InterruptedException {
 
         new ProcessBuilder("docker", "rmi", "-f", IMAGE).start().waitFor();
-        new ProcessBuilder("docker", "rmi", "-f", "buildmetadata:0.1.0-build.1").start().waitFor();
+        new ProcessBuilder("docker", "rmi", "-f", "buildmetadata:0.1.0_build.1").start().waitFor();
     }
 }
