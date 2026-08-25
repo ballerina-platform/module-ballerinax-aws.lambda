@@ -30,6 +30,7 @@
             <class name="org.ballerinax.aws.lambda.generator.test.HandlerTest"/>
             <class name="org.ballerinax.aws.lambda.generator.test.ProjectValidationTest"/>
             <class name="org.ballerinax.aws.lambda.generator.test.DestinationsTest"/>
+            <class name="org.ballerinax.aws.lambda.generator.test.EventTypesTest"/>
         </classes>
     </test>
 </suite>

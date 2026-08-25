@@ -50,6 +50,7 @@ public class TestUtils {
     private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
             .toAbsolutePath().normalize();
     private static final String BUILD = "build";
+    private static final String TEST = "test";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
@@ -126,6 +127,34 @@ public class TestUtils {
         return po;
     }
     
+
+    /**
+     * Run the ballerina tests of a project in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @return Exit code and output
+     * @throws InterruptedException if an error occurs while testing
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput testBallerinaProject(Path sourceDirectory)
+            throws InterruptedException, IOException {
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), TEST, "--offline");
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+        log.info(RUNNING + sourceDirectory.normalize());
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+
+        ProcessOutput po = new ProcessOutput();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
+        return po;
+    }
 
     public static ProcessOutput runLambdaFunction(Path sourceDirectory, String functionName, Path eventJson)
             throws InterruptedException, IOException {
