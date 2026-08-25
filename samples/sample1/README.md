@@ -44,3 +44,8 @@ Generating executable
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
 ```
 
+
+> **Note**
+> A function created before AWS retired the `provided` runtime is still configured with it. Move it
+> to `provided.al2023` once with `aws lambda update-function-configuration` before redeploying. See
+> [Migrating a function created on the retired `provided` runtime](../../README.md#migrating-a-function-created-on-the-retired-provided-runtime).
