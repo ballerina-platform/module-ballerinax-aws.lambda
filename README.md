@@ -219,6 +219,8 @@ Two constraints worth knowing:
   through a function URL or `aws lambda invoke` without `--invocation-type Event`, returns its result
   to the caller and never routes to a destination.
 - The execution role needs permission to write to the destination, such as `sqs:SendMessage` for an
-  SQS queue. Without it the invocation still succeeds and the record is silently dropped.
+  SQS queue. Without it the invocation still succeeds but the record is never delivered, which Lambda
+  reports through the `DestinationDeliveryFailures` CloudWatch metric rather than as an invocation
+  error, so that metric is worth alerting on.
 
 `@lambda:Function` remains valid with no annotation value, so existing functions need no change.

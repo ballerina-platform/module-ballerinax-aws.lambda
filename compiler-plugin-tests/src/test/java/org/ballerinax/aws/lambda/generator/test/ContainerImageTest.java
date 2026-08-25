@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * Test packaging awslambda functions as a container image. Requires Docker, as the native image
@@ -39,6 +40,11 @@ public class ContainerImageTest extends BaseTest {
 
     private static final String IMAGE = "deployment:0.1.0";
     private static final Path PROJECT = SOURCE_DIR.resolve("deployment");
+    // The two media types Lambda accepts for a container image. Anything that indexes several
+    // manifests, whether an OCI index or a docker manifest list, is rejected.
+    private static final Set<String> SINGLE_IMAGE_MANIFEST_TYPES = Set.of(
+            "application/vnd.docker.distribution.manifest.v2+json",
+            "application/vnd.oci.image.manifest.v1+json");
 
     @Test
     public void testContainerImageBuild() throws IOException, InterruptedException {
@@ -95,9 +101,13 @@ public class ContainerImageTest extends BaseTest {
     }
 
     /**
-     * Lambda rejects an OCI image index with "The image manifest, config or layer media type for
-     * the source image is not supported". BuildKit produces one by default because it attaches
-     * provenance and SBOM attestations, so the build has to opt out of both.
+     * Lambda accepts a single image manifest and rejects anything that indexes several, with "The
+     * image manifest, config or layer media type for the source image is not supported". BuildKit
+     * produces an index by default because it attaches provenance and SBOM attestations, so the
+     * build has to opt out of both.
+     *
+     * <p>Asserted as an allowlist rather than by excluding the index type, because a docker manifest
+     * list is equally unacceptable to Lambda and would pass an exclusion of the OCI index alone.
      */
     @Test(dependsOnMethods = "testContainerImageBuild")
     public void testImageManifestIsAcceptedByLambda() throws IOException, InterruptedException {
@@ -111,9 +121,12 @@ public class ContainerImageTest extends BaseTest {
             mediaType = reader.readLine();
         }
         Assert.assertEquals(process.waitFor(), 0, "docker image inspect should succeed");
-        Assert.assertNotNull(mediaType);
-        Assert.assertFalse(mediaType.contains("image.index"),
-                "an OCI image index is rejected by Lambda, got " + mediaType);
+        // Descriptor is only populated by image stores that keep the OCI descriptor, so an empty
+        // value means the media type could not be determined rather than that it is wrong.
+        Assert.assertTrue(mediaType != null && !mediaType.isBlank() && !"<no value>".equals(mediaType),
+                "could not read the image media type, which needs a containerd backed image store");
+        Assert.assertTrue(SINGLE_IMAGE_MANIFEST_TYPES.contains(mediaType),
+                "Lambda only accepts a single image manifest, got " + mediaType);
     }
 
     @AfterClass

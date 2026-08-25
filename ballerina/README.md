@@ -114,7 +114,7 @@ Compiling source
 
 Generating executable
 	functions.jar
-	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3
+	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, notifyEventBridge, notifySNS, notifyKinesis, apigwRequest, urlRequest, urlCustomResponse
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.$FUNCTION_NAME --runtime provided.al2023 --role $LAMBDA_ROLE_ARN --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:1 --memory-size 512 --timeout 10
@@ -188,7 +188,8 @@ Two things to know:
 - Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
   through a function URL, returns its result to the caller and never routes to a destination.
 - The function's execution role needs permission to write to the destination, for example
-  `sqs:SendMessage` for an SQS queue. Without it the invocation succeeds and the record is silently
-  dropped.
+  `sqs:SendMessage` for an SQS queue. Without it the invocation succeeds but the record is never
+  delivered, which Lambda reports through the `DestinationDeliveryFailures` CloudWatch metric rather
+  than as an invocation error, so that metric is worth alerting on.
 
 `@lambda:Function` remains valid with no annotation value, so existing functions need no change.

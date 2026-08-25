@@ -110,8 +110,8 @@ public class LambdaFunctionVisitor extends NodeVisitor {
                         "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
             }
             if (secondParam.paramKind() != ParameterKind.REQUIRED) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
-                        "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0002",
+                        "AWS lambda only supports required parameters", DiagnosticSeverity.ERROR));
             }
 
             if (!isContext(contextParam.typeDescriptor())) {

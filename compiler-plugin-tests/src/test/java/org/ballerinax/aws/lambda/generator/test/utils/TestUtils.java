@@ -146,13 +146,15 @@ public class TestUtils {
         log.debug(EXECUTING_COMMAND + pb.command());
         pb.directory(sourceDirectory.toFile());
         Process process = pb.start();
-        int exitCode = process.waitFor();
 
+        // A test run prints far more than a build does, so the streams are drained before waiting.
+        // Waiting first would deadlock once the pipe buffer fills.
         ProcessOutput po = new ProcessOutput();
-        log.info(EXIT_CODE + exitCode);
-        po.setExitCode(exitCode);
         po.setStdOutput(logOutput(process.getInputStream()));
         po.setErrOutput(logOutput(process.getErrorStream()));
+        int exitCode = process.waitFor();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
         return po;
     }
 
