@@ -54,7 +54,12 @@ public class DeploymentTest extends BaseTest {
 
         ProcessOutput processOutput = TestUtils.compileBallerinaProject(SOURCE_DIR.resolve("deployment"), false);
         Assert.assertEquals(processOutput.getExitCode(), 0);
-        Assert.assertTrue(processOutput.getStdOutput().contains("@aws.lambda"));
+        String out = processOutput.getStdOutput();
+        Assert.assertTrue(out.contains("@aws.lambda"));
+        // The path is under the project directory, so it has to survive a project path with a space.
+        Assert.assertTrue(out.contains("--zip-file \"fileb://"),
+                "the zip path must be quoted so the shell does not split it, output was: " + out);
+        Assert.assertFalse(out.contains("--zip-file fileb://"), "the zip path was left unquoted");
 
         // Check if jar is in .zip
         Path zipFilePath = SOURCE_DIR.resolve("deployment").resolve("target")

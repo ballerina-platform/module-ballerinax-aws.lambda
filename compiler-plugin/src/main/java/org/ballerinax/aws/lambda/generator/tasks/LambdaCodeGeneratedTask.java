@@ -122,15 +122,19 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
             String version = getResourceFileAsString("layer-version.txt");
             layer = " --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:" + version;
         }
+        // Quoted, because the target directory sits under the project path and the shell would
+        // otherwise split the argument for anyone whose path contains a space.
+        String zipArgument = "\"fileb://" + functionsDir + File.separator
+                + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\"";
         OUT.println("\n\tRun the following command to deploy each Ballerina AWS Lambda function:");
-        OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://"
-                + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME +
+        OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --zip-file "
+                + zipArgument +
                 " --handler " +
                 balxName + ".$FUNCTION_NAME --runtime provided.al2023 --role $LAMBDA_ROLE_ARN" + layer +
                 " --memory-size 512 --timeout 10");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
-        OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+        OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file "
+                + zipArgument + "\n\n");
     }
 
     /**
@@ -328,15 +332,22 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
 
         pb.inheritIO();
 
+        Process process = null;
         try {
-            Process process = pb.start();
+            process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new DockerBuildException(
                         "Native executable generation for cloud using docker failed with exit code " + exitCode +
                                 ". Refer to the above build log for information");
             }
-        } catch (IOException | InterruptedException | RuntimeException e) {
+        } catch (InterruptedException e) {
+            // The native build is long running, so an interrupt left it going for minutes after the
+            // compiler had already reported failure.
+            process.destroy();
+            Thread.currentThread().interrupt();
+            throw new DockerBuildException("Native executable generation for cloud using docker was interrupted");
+        } catch (IOException | RuntimeException e) {
             throw new DockerBuildException(
                     "Native executable generation for cloud using docker failed. Refer to the above build log for " +
                             "information");
