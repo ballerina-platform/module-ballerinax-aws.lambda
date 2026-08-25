@@ -27,7 +27,7 @@ json urlIamAuth = {
         "accountId": "123456789012", "apiId": "33anwqw8fj",
         "authentication": null,
         "authorizer": {"iam": {
-            "accessKey": "AKIAIOSFODNN7EXAMPLE", "accountId": "111122223333",
+            "accessKey": "EXAMPLE-ACCESS-KEY-ID", "accountId": "111122223333",
             "callerId": "AIDACKCEVSQ6C2EXAMPLE", "cognitoIdentity": null,
             "principalOrgId": null, "userArn": "arn:aws:iam::111122223333:user/example-user",
             "userId": "AIDACOSFODNN7EXAMPLE2"
@@ -94,7 +94,7 @@ json realFunctionUrlIam = {
         "apiId": "ajknedaf7zbiqzvhujlmpvt24i0nzota",
         "authorizer": {
             "iam": {
-                "accessKey": "ASIAIOSFODNN7EXAMPLE",
+                "accessKey": "EXAMPLE-ACCESS-KEY-ID",
                 "accountId": "123456789012",
                 "callerId": "AROACKCEVSQ6C2EXAMPLE:example-user",
                 "cognitoIdentity": null,
