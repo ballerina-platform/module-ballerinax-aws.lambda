@@ -214,7 +214,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
             Files.deleteIfExists(functionsDir.resolve(jarFileName));
         }
         String imageName = currentPackage.packageName().value().toLowerCase(Locale.ENGLISH) + ":"
-                + currentPackage.packageVersion().value().toString();
+                + toImageTag(currentPackage.packageVersion().value().toString());
         Files.write(functionsDir.resolve(Constants.DOCKERFILE),
                 dockerFileContent(artifactName, isNative).getBytes(StandardCharsets.UTF_8));
         OUT.println("\t@aws.lambda:Building the container image using Docker. This may take a while.\n");
@@ -228,6 +228,23 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
      * entrypoint moves the first argument into _HANDLER before starting the artifact. That keeps the
      * handler out of the image, so one image can serve every function in the package.
      */
+    /**
+     * Converts a package version into something Docker accepts as a tag. A Ballerina version may
+     * carry SemVer build metadata, and the {@code +} that introduces it is rejected by Docker with
+     * "invalid reference format", so any character outside a tag is replaced.
+     *
+     * @param version the package version
+     * @return the version as a valid Docker tag
+     */
+    private String toImageTag(String version) {
+        String tag = version.replaceAll("[^a-zA-Z0-9._-]", "-");
+        if (!tag.equals(version)) {
+            OUT.println("\t@aws.lambda:Tagging the image " + tag + ", as the package version " + version +
+                    " is not a valid Docker tag.");
+        }
+        return tag;
+    }
+
     private String dockerFileContent(String artifactName, boolean isNative) {
         String taskRoot = Constants.LAMBDA_TASK_ROOT;
         String start = isNative
@@ -245,14 +262,20 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 Constants.DOCKER_NO_SBOM_FLAG, "-t", imageName, ".");
         pb.directory(contextDir.toFile());
         pb.inheritIO();
+        Process process = null;
         try {
-            Process process = pb.start();
+            process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {
                 throw new DockerBuildException("Container image generation failed with exit code " + exitCode +
                         ". Refer to the above build log for information");
             }
-        } catch (IOException | InterruptedException | RuntimeException e) {
+        } catch (InterruptedException e) {
+            // Docker outlives this thread otherwise, carrying on building an image nothing wants.
+            process.destroy();
+            Thread.currentThread().interrupt();
+            throw new DockerBuildException("Container image generation was interrupted");
+        } catch (IOException | RuntimeException e) {
             throw new DockerBuildException(
                     "Container image generation failed. Refer to the above build log for information");
         }

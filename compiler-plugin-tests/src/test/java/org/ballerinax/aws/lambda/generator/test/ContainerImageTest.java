@@ -134,9 +134,28 @@ public class ContainerImageTest extends BaseTest {
                 "Lambda only accepts a single image manifest, got " + mediaType);
     }
 
+    /**
+     * A ballerina version may carry SemVer build metadata, and docker rejects the {@code +} that
+     * introduces it with "invalid reference format", so the version cannot be used as a tag as is.
+     */
+    @Test
+    public void testVersionWithBuildMetadataIsUsableAsATag() throws IOException, InterruptedException {
+
+        Path project = SOURCE_DIR.resolve("buildmetadata");
+        Files.deleteIfExists(project.resolve("Dependencies.toml"));
+
+        ProcessOutput processOutput = TestUtils.compileBallerinaProject(project, "--cloud=aws_lambda_image");
+        String out = processOutput.getStdOutput() + processOutput.getErrOutput();
+        Assert.assertEquals(processOutput.getExitCode(), 0, "the build should succeed, output was: " + out);
+        Assert.assertTrue(out.contains("Built the container image buildmetadata:0.1.0-build.1"),
+                "the version should be tagged with the plus replaced, output was: " + out);
+        Assert.assertFalse(out.contains("invalid reference format"), out);
+    }
+
     @AfterClass
     public void cleanUp() throws IOException, InterruptedException {
 
         new ProcessBuilder("docker", "rmi", "-f", IMAGE).start().waitFor();
+        new ProcessBuilder("docker", "rmi", "-f", "buildmetadata:0.1.0-build.1").start().waitFor();
     }
 }
