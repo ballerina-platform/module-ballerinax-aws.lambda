@@ -82,7 +82,7 @@ Generating executable
 	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
-	aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.$FUNCTION_NAME --runtime provided --role $LAMBDA_ROLE_ARN --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:1 --memory-size 512 --timeout 10
+	aws lambda create-function --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.$FUNCTION_NAME --runtime provided.al2023 --role $LAMBDA_ROLE_ARN --layers arn:aws:lambda:$REGION_ID:367134611783:layer:ballerina-jre21:1 --memory-size 512 --timeout 10
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip
@@ -99,3 +99,12 @@ To report bugs, request new features, start new discussions, view project boards
 - Discuss code changes of the Ballerina project in [ballerina-dev@googlegroups.com](mailto:ballerina-dev@googlegroups.com).
 - Chat live with us via our [Discord server](https://discord.gg/ballerinalang).
 - Post all technical questions on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
+
+### Migrating a function created on the retired `provided` runtime
+
+A function created before February 2024 is still configured with the `provided` runtime, which AWS
+no longer accepts for new functions. Move it to `provided.al2023` once, then redeploy as usual:
+
+```bash
+aws lambda update-function-configuration --function-name $FUNCTION_NAME --runtime provided.al2023
+```

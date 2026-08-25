@@ -86,8 +86,18 @@ Generating executables
 	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, apigwRequest
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
-	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:367134611783:layer:ballerina-jre21:1
+	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided.al2023 --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:367134611783:layer:ballerina-jre21:1
 
 	Run the following command to re-deploy an updated Ballerina AWS Lambda function:
 	aws lambda update-function-code --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip
+```
+
+### Migrating a function created on the retired `provided` runtime
+
+AWS stopped accepting the `provided` runtime for new functions in February 2024, so a function
+created before then is still configured with a runtime that can no longer be selected. Move it to
+`provided.al2023` once, and then redeploy as usual:
+
+```bash
+aws lambda update-function-configuration --function-name <FUNCTION_NAME> --runtime provided.al2023
 ```
