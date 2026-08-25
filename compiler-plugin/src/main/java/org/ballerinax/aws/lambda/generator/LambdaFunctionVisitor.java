@@ -95,23 +95,22 @@ public class LambdaFunctionVisitor extends NodeVisitor {
             ParameterSymbol contextParam = parameters.get(0);
             ParameterSymbol secondParam = parameters.get(1);
 
-            if (contextParam.getName().isEmpty()) {
+            // A function whose parameters are wrong cannot be generated, so it is reported and
+            // skipped rather than handed on to code generation, which does not see diagnostics.
+            boolean invalidParameters = false;
+            if (contextParam.getName().isEmpty() || secondParam.getName().isEmpty()) {
                 this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
                         "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
+                invalidParameters = true;
             }
-            if (contextParam.paramKind() != ParameterKind.REQUIRED) {
+            if (contextParam.paramKind() != ParameterKind.REQUIRED
+                    || secondParam.paramKind() != ParameterKind.REQUIRED) {
                 this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0002",
                         "AWS lambda only supports required parameters", DiagnosticSeverity.ERROR));
-
+                invalidParameters = true;
             }
-
-            if (secondParam.getName().isEmpty()) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0003",
-                        "AWS lambda does not support empty params", DiagnosticSeverity.ERROR));
-            }
-            if (secondParam.paramKind() != ParameterKind.REQUIRED) {
-                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0002",
-                        "AWS lambda only supports required parameters", DiagnosticSeverity.ERROR));
+            if (invalidParameters) {
+                continue;
             }
 
             if (!isContext(contextParam.typeDescriptor())) {

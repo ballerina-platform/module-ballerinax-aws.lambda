@@ -130,7 +130,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 " --memory-size 512 --timeout 10");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://"
-                + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
+                + functionsDir + File.separator + Constants.LAMBDA_OUTPUT_ZIP_FILENAME + "\n\n");
     }
 
     /**
@@ -181,7 +181,10 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 "selected with --image-config, so a single image can serve every function in the package:");
         OUT.println("\taws lambda create-function --function-name $FUNCTION_NAME --package-type Image" +
                 " --code ImageUri=$ACCOUNT_ID.dkr.ecr.$REGION_ID.amazonaws.com/" + imageName +
-                " --role $LAMBDA_ROLE_ARN --image-config '{\"Command\":[\"" + balxName + ".$FUNCTION_NAME\"]}'" +
+                // Double quoted so the shell expands $FUNCTION_NAME. Single quotes would pass it
+                // through literally and Lambda would look for a handler of that name.
+                " --role $LAMBDA_ROLE_ARN --image-config \"{\\\"Command\\\":[\\\"" + balxName +
+                ".$FUNCTION_NAME\\\"]}\"" +
                 " --memory-size 512 --timeout 10");
         OUT.println("\n\tRun the following command to re-deploy an updated Ballerina AWS Lambda function:");
         OUT.println("\taws lambda update-function-code --function-name $FUNCTION_NAME" +

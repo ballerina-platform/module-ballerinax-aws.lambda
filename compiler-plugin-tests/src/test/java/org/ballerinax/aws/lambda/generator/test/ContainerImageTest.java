@@ -95,9 +95,14 @@ public class ContainerImageTest extends BaseTest {
                 "the instructions must create the ECR repository before pushing");
         Assert.assertTrue(out.contains("--package-type Image"));
         // The AWS CLI rejects a lowercase key: "Unknown parameter in ImageConfig: command, must be
-        // one of: EntryPoint, Command, WorkingDirectory".
-        Assert.assertTrue(out.contains("{\"Command\":["), "the image config key must be capitalised");
-        Assert.assertFalse(out.contains("{\"command\":["), "a lowercase image config key is rejected by the CLI");
+        // one of: EntryPoint, Command, WorkingDirectory". The JSON is printed inside double quotes
+        // so the shell expands $FUNCTION_NAME, which is why the inner quotes are escaped.
+        Assert.assertTrue(out.contains("--image-config \"{\\\"Command\\\":["),
+                "the image config key must be capitalised and the JSON double quoted so $FUNCTION_NAME expands");
+        Assert.assertFalse(out.contains("\\\"command\\\":["),
+                "a lowercase image config key is rejected by the CLI");
+        Assert.assertFalse(out.contains("--image-config '"),
+                "single quotes would stop the shell expanding $FUNCTION_NAME");
     }
 
     /**
