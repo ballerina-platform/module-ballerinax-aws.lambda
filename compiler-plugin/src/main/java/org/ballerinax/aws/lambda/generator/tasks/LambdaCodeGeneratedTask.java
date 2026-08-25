@@ -53,6 +53,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +64,7 @@ import java.util.stream.Collectors;
 public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
 
     private static final PrintStream OUT = System.out;
+    private static final int TERMINATION_TIMEOUT_SECONDS = 10;
 
     @Override
     public void perform(CompilerLifecycleEventContext lifecycleEventContext) {
@@ -254,6 +256,28 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         return tag;
     }
 
+    /**
+     * Ends a docker process that is no longer wanted. {@code destroy} only asks it to stop, so the
+     * process is given a moment to go and killed if it does not, otherwise the build carries on
+     * after the interruption has been reported.
+     *
+     * @param process the process to end, which may be null if it never started
+     */
+    private static void terminate(Process process) {
+        if (process == null) {
+            return;
+        }
+        process.destroy();
+        try {
+            if (!process.waitFor(TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                process.destroyForcibly().waitFor(TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException e) {
+            process.destroyForcibly();
+            Thread.currentThread().interrupt();
+        }
+    }
+
     private String dockerFileContent(String artifactName, boolean isNative) {
         String taskRoot = Constants.LAMBDA_TASK_ROOT;
         String start = isNative
@@ -279,9 +303,13 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                 throw new DockerBuildException("Container image generation failed with exit code " + exitCode +
                         ". Refer to the above build log for information");
             }
+        } catch (DockerBuildException e) {
+            // DockerBuildException is a RuntimeException, so without this it would be caught below
+            // and rethrown without the exit code.
+            throw e;
         } catch (InterruptedException e) {
             // Docker outlives this thread otherwise, carrying on building an image nothing wants.
-            process.destroy();
+            terminate(process);
             Thread.currentThread().interrupt();
             throw new DockerBuildException("Container image generation was interrupted");
         } catch (IOException | RuntimeException e) {
@@ -341,10 +369,12 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                         "Native executable generation for cloud using docker failed with exit code " + exitCode +
                                 ". Refer to the above build log for information");
             }
+        } catch (DockerBuildException e) {
+            throw e;
         } catch (InterruptedException e) {
             // The native build is long running, so an interrupt left it going for minutes after the
             // compiler had already reported failure.
-            process.destroy();
+            terminate(process);
             Thread.currentThread().interrupt();
             throw new DockerBuildException("Native executable generation for cloud using docker was interrupted");
         } catch (IOException | RuntimeException e) {
