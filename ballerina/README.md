@@ -171,8 +171,8 @@ declaring destinations on the annotation:
         onFailure: "arn:aws:sns:<REGION_ID>:<ACCOUNT_ID>:alerts"
     }
 }
-public function processOrder(lambda:Context ctx, lambda:SQSEvent event) returns json {
-    return event.Records[0].body;
+public function processOrder(lambda:Context ctx, json input) returns json {
+    return {status: "ok"};
 }
 ```
 
@@ -186,7 +186,10 @@ aws lambda put-function-event-invoke-config --function-name processOrder --desti
 Two things to know:
 
 - Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
-  through a function URL, returns its result to the caller and never routes to a destination.
+  through a function URL or through an event source mapping that polls a queue or a stream, returns
+  its result to the caller and never routes to a destination. An SQS or Kinesis trigger is an event
+  source mapping, so a function that takes an `SQSEvent` or a `KinesisEvent` is not a candidate for
+  function destinations.
 - The function's execution role needs permission to write to the destination, for example
   `sqs:SendMessage` for an SQS queue. Without it the invocation succeeds but the record is never
   delivered, which Lambda reports through the `DestinationDeliveryFailures` CloudWatch metric rather

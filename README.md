@@ -187,8 +187,8 @@ another AWS service:
         onFailure: "arn:aws:sns:<REGION_ID>:<ACCOUNT_ID>:alerts"
     }
 }
-public function processOrder(lambda:Context ctx, lambda:SQSEvent event) returns json {
-    return event.Records[0].body;
+public function processOrder(lambda:Context ctx, json input) returns json {
+    return {status: "ok"};
 }
 ```
 
@@ -211,13 +211,17 @@ AWS delivers a record describing the invocation, not the raw response. A success
 }
 ```
 
-and a failure carries `"condition": "RetriesExhausted"` along with the error the function returned.
+and a failure carries `"condition": "RetriesExhausted"`, along with the error the function returned,
+or `"condition": "EventAgeExceeded"` when the event waited longer than the
+`MaximumEventAgeInSeconds` configured for the function.
 
 Two constraints worth knowing:
 
 - Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
-  through a function URL or `aws lambda invoke` without `--invocation-type Event`, returns its result
-  to the caller and never routes to a destination.
+  through a function URL, through an event source mapping that polls a queue or a stream, or through
+  `aws lambda invoke` without `--invocation-type Event`, returns its result to the caller and never
+  routes to a destination. An SQS or Kinesis trigger is an event source mapping, so a function that
+  takes an `SQSEvent` or a `KinesisEvent` is not a candidate for function destinations.
 - The execution role needs permission to write to the destination, such as `sqs:SendMessage` for an
   SQS queue. Without it the invocation still succeeds but the record is never delivered, which Lambda
   reports through the `DestinationDeliveryFailures` CloudWatch metric rather than as an invocation

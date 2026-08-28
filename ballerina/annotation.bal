@@ -16,7 +16,8 @@
 
 # Represents where AWS Lambda routes the result of an asynchronous invocation.
 # Destinations apply to asynchronous invocations only, so a function invoked
-# synchronously, such as through a function URL, never routes to them.
+# synchronously, such as through a function URL or through an event source
+# mapping that polls a queue or a stream, never routes to them.
 #
 # + onSuccess - the arn of an SQS queue, SNS topic, EventBridge event bus or Lambda
 #               function to route successful invocations to
