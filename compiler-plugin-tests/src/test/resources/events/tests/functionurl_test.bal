@@ -47,7 +47,7 @@ function testFunctionURLRequestNoAuth() returns error? {
     test:assertEquals(req.version, "2.0");
     test:assertEquals(req.requestContext.http.method, "POST");
     test:assertEquals(req.rawPath, "/my/path");
-    test:assertEquals(req.body, "Hello from client!");
+    test:assertEquals(req?.body, "Hello from client!");
     test:assertEquals(req.requestContext.timeEpoch, 1583348638390);
 }
 
@@ -56,8 +56,8 @@ function testFunctionURLRequestNoAuth() returns error? {
 function testFunctionURLRequestIamAuth() returns error? {
     lambda:FunctionURLRequest req = check urlIamAuth.cloneWithType();
     test:assertEquals(req.requestContext.http.method, "GET");
-    test:assertTrue(req.body is ());
-    test:assertTrue(req.cookies is ());
+    test:assertTrue(req?.body is ());
+    test:assertTrue(req?.cookies is ());
     lambda:FunctionURLAuthorizer? authorizer = req.requestContext?.authorizer;
     if authorizer is () {
         test:assertFail("expected an authorizer for AWS_IAM auth");
@@ -137,8 +137,8 @@ function testRealFunctionUrlIamAuth() returns error? {
     test:assertEquals(req.requestContext?.authorizer?.iam?.principalOrgId, "o-exampleorgid");
     test:assertTrue(req.requestContext?.authorizer?.iam?.cognitoIdentity is ());
     // A GET with no body or cookies must still deserialize.
-    test:assertTrue(req.body is ());
-    test:assertTrue(req.cookies is ());
+    test:assertTrue(req?.body is ());
+    test:assertTrue(req?.cookies is ());
 }
 
 @test:Config {}

@@ -109,6 +109,11 @@ public function urlCustomResponse(lambda:Context ctx,
 }
 ```
 
+A handler returns `json`, so a `FunctionURLResponse` is returned through `.toJson()` rather than
+directly. The generated handler has to satisfy the runtime's
+`function (lambda:Context, anydata) returns json|error`, and the record is not a subtype of `json`,
+so declaring `returns lambda:FunctionURLResponse` is reported as an unsupported return type.
+
 The output of the bal build is as follows:
 
 ```bash
@@ -164,8 +169,10 @@ Generating executables
 	aws lambda create-function --function-name <FUNCTION_NAME> --package-type Image --code ImageUri=<ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0 --role <LAMBDA_ROLE_ARN> --image-config '{"Command":["functions.<FUNCTION_NAME>"]}'
 ```
 
-The image is named after the package and tagged with the package version. Docker must be
-available on the build machine.
+The image is named after the package and tagged with the package version, with each sanitised if it
+is not a valid Docker reference. Docker must be available on the build machine; where it provides
+buildx, the provenance and SBOM attestations that BuildKit adds by default are turned off, because
+Lambda rejects the OCI image index they produce.
 
 The handler is not baked into the image. It is selected per function with `--image-config`, so a
 single image can serve every `@lambda:Function` in the package, matching how one ZIP serves every

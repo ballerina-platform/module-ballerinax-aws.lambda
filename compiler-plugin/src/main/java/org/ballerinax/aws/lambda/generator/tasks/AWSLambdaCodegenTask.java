@@ -48,7 +48,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
         SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(module.moduleId());
-        Map<String, LambdaFunctionInfo.Destinations> destinations = new HashMap<>();
+        Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations = new IdentityHashMap<>();
         for (LambdaHandlerContainer container : lambdaFunctionExtractor.extractFunctions()) {
             destinations.putAll(container.getDestinations());
             for (FunctionDefinitionNode function : container.getFunctions()) {
@@ -96,7 +96,7 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
     }
 
     private void writeObjectToJson(Path targetPath, List<FunctionDeploymentContext> generatedFunctions,
-                                   Map<String, LambdaFunctionInfo.Destinations> destinations)
+                                   Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations)
             throws IOException {
         Gson gson = new Gson();
         Path jsonPath = targetPath.resolve("aws-lambda.json");
@@ -105,8 +105,9 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         try (FileWriter r = new FileWriter(jsonPath.toAbsolutePath().toString(), StandardCharsets.UTF_8)) {
             List<LambdaFunctionInfo> functionList = new ArrayList<>();
             for (FunctionDeploymentContext ctx : generatedFunctions) {
-                String name = ctx.getOriginalFunction().functionName().text();
-                functionList.add(new LambdaFunctionInfo(name, destinations.get(name)));
+                FunctionDefinitionNode function = ctx.getOriginalFunction();
+                functionList.add(new LambdaFunctionInfo(function.functionName().text(),
+                        destinations.get(function)));
             }
             gson.toJson(functionList, r);
         }

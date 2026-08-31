@@ -29,10 +29,10 @@ import java.util.Map;
  */
 public class LambdaHandlerContainer {
     private final List<FunctionDefinitionNode> functions;
-    private final Map<String, LambdaFunctionInfo.Destinations> destinations;
+    private final Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations;
 
     public LambdaHandlerContainer(List<FunctionDefinitionNode> functions,
-                                  Map<String, LambdaFunctionInfo.Destinations> destinations) {
+                                  Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations) {
         this.functions = functions;
         this.destinations = destinations;
     }
@@ -42,11 +42,11 @@ public class LambdaHandlerContainer {
     }
 
     /**
-     * Destinations by function name, for the functions in this document that declared any.
+     * Destinations by function definition node, for the functions in this document that declared any.
      *
      * @return the declared destinations
      */
-    public Map<String, LambdaFunctionInfo.Destinations> getDestinations() {
+    public Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> getDestinations() {
         return destinations;
     }
 }

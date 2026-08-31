@@ -31,15 +31,20 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.values.ConstantValue;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.MetadataNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,19 +60,31 @@ public class LambdaFunctionVisitor extends NodeVisitor {
     private final List<FunctionDefinitionNode> functions;
     private final SemanticModel semanticModel;
     private final List<Diagnostic> diagnostics;
-    private final Map<String, LambdaFunctionInfo.Destinations> destinations;
+    private final Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations;
 
     public LambdaFunctionVisitor(SemanticModel semanticModel) {
         this.functions = new ArrayList<>();
         this.semanticModel = semanticModel;
         this.diagnostics = new ArrayList<>();
-        this.destinations = new HashMap<>();
+        // Keyed by node identity rather than by name: the codegen task looks these up against a
+        // process-wide list of generated functions that accumulates across invocations, where two
+        // packages could each contribute a function of the same name.
+        this.destinations = new IdentityHashMap<>();
     }
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
         Optional<Symbol> symbol = semanticModel.symbol(functionDefinitionNode);
         if (symbol.isEmpty() || !(symbol.get() instanceof FunctionSymbol)) {
+            // Every function in the document reaches this point, so only an annotated one is worth
+            // reporting. Without the symbol the annotation can only be read off the syntax tree,
+            // and a function that looks annotated but resolves to nothing would otherwise be
+            // dropped from the generated list with the build still reporting success.
+            if (hasLambdaFunctionAnnotation(functionDefinitionNode)) {
+                this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0005",
+                        "Unable to resolve the symbol of this AWS lambda function, so it is not deployed",
+                        DiagnosticSeverity.WARNING));
+            }
             return;
         }
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
@@ -129,9 +146,14 @@ public class LambdaFunctionVisitor extends NodeVisitor {
                     this.functions.add(functionDefinitionNode);
                     this.recordDestinations(functionDefinitionNode, functionSymbol);
                 } else {
+                    // The generated handler reuses this return type verbatim and has to satisfy
+                    // the runtime's 'function (Context, anydata) returns json|error', so a record
+                    // such as FunctionURLResponse is rejected here rather than in generated code,
+                    // where the failure would point at a file the user did not write.
                     String returnType = returnTypeDescriptor.get().signature();
                     this.diagnostics.add(LambdaUtils.getDiagnostic(functionDefinitionNode.location(), "AZ0004",
-                            returnType + " is not a supported return type for AWS functions",
+                            returnType + " is not a supported return type for AWS functions. Return " +
+                                    "'json' and convert the value with '.toJson()'",
                             DiagnosticSeverity.ERROR));
                 }
             }
@@ -145,7 +167,6 @@ public class LambdaFunctionVisitor extends NodeVisitor {
      * map and nothing is recorded.
      */
     private void recordDestinations(FunctionDefinitionNode functionDefinitionNode, FunctionSymbol functionSymbol) {
-        String functionName = functionDefinitionNode.functionName().text();
         for (AnnotationAttachmentSymbol attachment : functionSymbol.annotAttachments()) {
             Optional<ModuleSymbol> module = attachment.typeDescriptor().getModule();
             if (module.isEmpty() || !LambdaUtils.isAwsLambdaModule(module.get().id())) {
@@ -163,7 +184,7 @@ public class LambdaFunctionVisitor extends NodeVisitor {
             String onFailure = asString(readField(destinations, "onFailure"));
             LambdaFunctionInfo.Destinations value = new LambdaFunctionInfo.Destinations(onSuccess, onFailure);
             if (!value.isEmpty()) {
-                this.destinations.put(functionName, value);
+                this.destinations.put(functionDefinitionNode, value);
             }
         }
     }
@@ -188,6 +209,31 @@ public class LambdaFunctionVisitor extends NodeVisitor {
 
     private static String asString(Object value) {
         return value == null ? null : String.valueOf(value);
+    }
+
+    /**
+     * Reports whether the function carries something that reads as an {@code @lambda:Function}
+     * annotation, going by the syntax tree alone. Used only where the symbol could not be resolved
+     * and the annotation therefore cannot be checked properly, so it is deliberately loose: the
+     * prefix is whatever the document imported the module as, and a false positive here reports a
+     * function that was already failing to resolve.
+     *
+     * @param functionDefinitionNode the function to check
+     * @return whether the function looks like an AWS lambda function
+     */
+    private static boolean hasLambdaFunctionAnnotation(FunctionDefinitionNode functionDefinitionNode) {
+        Optional<MetadataNode> metadata = functionDefinitionNode.metadata();
+        if (metadata.isEmpty()) {
+            return false;
+        }
+        for (AnnotationNode annotation : metadata.get().annotations()) {
+            Node reference = annotation.annotReference();
+            if (reference.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+                    && ((QualifiedNameReferenceNode) reference).identifier().text().equals("Function")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isValidReturnType(TypeSymbol typeSymbol) {
@@ -236,7 +282,7 @@ public class LambdaFunctionVisitor extends NodeVisitor {
      *
      * @return the declared destinations
      */
-    public Map<String, LambdaFunctionInfo.Destinations> getDestinations() {
+    public Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> getDestinations() {
         return this.destinations;
     }
 }

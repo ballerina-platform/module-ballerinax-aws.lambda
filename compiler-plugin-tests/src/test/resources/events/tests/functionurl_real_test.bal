@@ -25,7 +25,7 @@ function testRealBinaryBody() returns error? {
     };
     lambda:FunctionURLRequest req = check payload.cloneWithType();
     test:assertTrue(req.isBase64Encoded);
-    test:assertEquals(req.body, "AAEC//4gUE5HaXNoIGJpbmFyeSCJUE5H");
+    test:assertEquals(req?.body, "AAEC//4gUE5HaXNoIGJpbmFyeSCJUE5H");
 }
 
 // A text body arrives verbatim with isBase64Encoded false.
@@ -41,7 +41,7 @@ function testRealTextBody() returns error? {
     };
     lambda:FunctionURLRequest req = check payload.cloneWithType();
     test:assertFalse(req.isBase64Encoded);
-    test:assertEquals(req.body, "plain text body");
+    test:assertEquals(req?.body, "plain text body");
 }
 
 // Repeated query parameters and repeated headers are comma joined into a single
@@ -59,7 +59,7 @@ function testRealMultiValueQueryAndHeaders() returns error? {
         "requestContext": ctx, "isBase64Encoded": false
     };
     lambda:FunctionURLRequest req = check payload.cloneWithType();
-    map<string> qs = req.queryStringParameters ?: {};
+    map<string> qs = req?.queryStringParameters ?: {};
     test:assertEquals(qs.get("a"), "1,2");
     test:assertEquals(req.headers.get("x-multi"), "one,two");
     test:assertEquals(req.rawQueryString, "a=1&a=2&b=3");
@@ -78,7 +78,7 @@ function testRealCookiesArray() returns error? {
         "requestContext": ctx, "isBase64Encoded": false
     };
     lambda:FunctionURLRequest req = check payload.cloneWithType();
-    string[] cookies = req.cookies ?: [];
+    string[] cookies = req?.cookies ?: [];
     test:assertEquals(cookies.length(), 2);
     test:assertEquals(cookies[1], "Cookie_2=Value_2");
 }

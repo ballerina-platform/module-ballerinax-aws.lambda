@@ -105,6 +105,11 @@ public function urlCustomResponse(lambda:Context ctx,
 }
 ```
 
+A handler returns `json`, so a `FunctionURLResponse` is returned through `.toJson()` rather than
+directly. The generated handler has to satisfy the runtime's
+`function (lambda:Context, anydata) returns json|error`, and the record is not a subtype of `json`,
+so declaring `returns lambda:FunctionURLResponse` is reported as an unsupported return type.
+
 The output of the bal build is as follows:
 
 ```bash
@@ -154,8 +159,11 @@ instead, which supports images up to 10 GB:
 bal build --cloud=aws_lambda_image
 ```
 
-The image is named after the package and tagged with the package version, and Docker must be
-available on the build machine. The handler is selected per function at deployment time with
+The image is named after the package and tagged with the package version, each sanitised if it is
+not a valid Docker reference, and Docker must be available on the build machine. Where Docker
+provides buildx, the provenance and SBOM attestations BuildKit adds by default are turned off,
+because Lambda rejects the OCI image index they produce. The handler is selected per function at
+deployment time with
 `--image-config`, so a single image can serve every `@lambda:Function` in the package. Adding
 `--graalvm` produces a smaller native image on the `provided.al2023` base image.
 

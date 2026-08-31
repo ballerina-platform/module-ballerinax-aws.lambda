@@ -417,13 +417,13 @@ public type KinesisEvent record {
 # + userArn - the user arn of the caller identity
 # + userId - the user ID of the caller identity
 public type FunctionURLIAMIdentity record {
-    string accessKey?;
-    string accountId?;
-    string callerId?;
+    string? accessKey?;
+    string? accountId?;
+    string? callerId?;
     string? cognitoIdentity?;
     string? principalOrgId?;
-    string userArn?;
-    string userId?;
+    string? userArn?;
+    string? userId?;
 };
 
 # Represents the authorizer details of a Lambda function URL request.
@@ -493,11 +493,11 @@ public type FunctionURLRequest record {
     string routeKey;
     string rawPath;
     string rawQueryString;
-    string[] cookies?;
+    string[]? cookies?;
     map<string> headers;
-    map<string> queryStringParameters?;
+    map<string>? queryStringParameters?;
     FunctionURLRequestContext requestContext;
-    string body?;
+    string? body?;
     boolean isBase64Encoded;
 };
 

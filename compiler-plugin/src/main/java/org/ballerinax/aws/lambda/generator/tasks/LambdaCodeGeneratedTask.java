@@ -18,6 +18,7 @@
 package org.ballerinax.aws.lambda.generator.tasks;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
@@ -45,6 +46,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,6 +67,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
 
     private static final PrintStream OUT = System.out;
     private static final int TERMINATION_TIMEOUT_SECONDS = 10;
+    private static final int BUILDX_PROBE_TIMEOUT_SECONDS = 10;
 
     @Override
     public void perform(CompilerLifecycleEventContext lifecycleEventContext) {
@@ -113,7 +116,9 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
                     throw new CompilerPluginException("Error generating AWS lambda zip file: " + e.getMessage(), e);
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | JsonSyntaxException e) {
+            // A stale or partially written aws-lambda.json fails to deserialise rather than to read,
+            // so the syntax error is reported the same way instead of escaping uncaught.
             OUT.println("Internal error occurred. Unable to read target/aws-lambda.json " + e.getMessage());
         }
     }
@@ -216,10 +221,10 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         if (isNative) {
             // The native builder reads and writes the jar directory, so the jar has to be in place first.
             buildRemoteArtifacts(functionsDir, jarFileName);
-            artifactName = jarFileName.replaceFirst("\\.jar$", "");
+            artifactName = stripJarExtension(jarFileName);
             Files.deleteIfExists(functionsDir.resolve(jarFileName));
         }
-        String imageName = currentPackage.packageName().value().toLowerCase(Locale.ENGLISH) + ":"
+        String imageName = toImageRepository(currentPackage.packageName().value()) + ":"
                 + toImageTag(currentPackage.packageVersion().value().toString());
         Files.write(functionsDir.resolve(Constants.DOCKERFILE),
                 dockerFileContent(artifactName, isNative).getBytes(StandardCharsets.UTF_8));
@@ -229,11 +234,72 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     }
 
     /**
-     * Builds the Dockerfile. Lambda passes the image config command as arguments to the entrypoint
-     * rather than in _HANDLER, and the generated Ballerina main accepts no operands, so the
-     * entrypoint moves the first argument into _HANDLER before starting the artifact. That keeps the
-     * handler out of the image, so one image can serve every function in the package.
+     * Strips the {@code .jar} extension from a built artifact's file name.
+     *
+     * <p>The {@code .} is escaped and the match anchored to the end, because the unanchored
+     * {@code ".jar"} pattern this replaced treats {@code .} as a wildcard: for {@code myjar.jar} it
+     * matches {@code yjar} at index 1 and yields {@code m.jar}. The native builder and the image
+     * build derive the executable name independently, so an unanchored match there produced a name
+     * that did not exist on disk.
+     *
+     * @param jarFileName the file name of the built jar
+     * @return the file name without its extension
      */
+    private static String stripJarExtension(String jarFileName) {
+        return jarFileName.replaceFirst("\\.jar$", "");
+    }
+
+    /**
+     * Converts a package name into something Docker accepts as a repository name. Docker requires
+     * lowercase alphanumerics with separators only between them, so a name that is valid in
+     * Ballerina.toml but leads or trails with an underscore, such as {@code orders_}, is rejected
+     * with "invalid reference format" in the same way an unsanitised version would be.
+     *
+     * @param packageName the package name
+     * @return the package name as a valid Docker repository name
+     */
+    private String toImageRepository(String packageName) {
+        String repository = packageName.toLowerCase(Locale.ENGLISH)
+                .replaceAll("[^a-z0-9._-]", "-")
+                .replaceAll("^[._-]+", "")
+                .replaceAll("[._-]+$", "");
+        if (repository.isEmpty()) {
+            repository = Constants.DEFAULT_IMAGE_REPOSITORY;
+        }
+        if (!repository.equals(packageName)) {
+            OUT.println("\t@aws.lambda:Naming the image repository " + repository + ", as the package name " +
+                    packageName + " is not a valid Docker repository name.");
+        }
+        return repository;
+    }
+
+    /**
+     * Reports whether buildx is available, since {@code --provenance} and {@code --sbom} are
+     * BuildKit-only flags and {@code docker build} aborts with "unknown flag" without it. The
+     * classic builder attaches no attestations in the first place, so the flags are only needed
+     * where they are also understood.
+     *
+     * @return whether the flags can be passed to docker build
+     */
+    private boolean isBuildxAvailable() {
+        try {
+            Process process = new ProcessBuilder("docker", "buildx", "version")
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .start();
+            if (!process.waitFor(BUILDX_PROBE_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
+                terminate(process);
+                return false;
+            }
+            return process.exitValue() == 0;
+        } catch (IOException | RuntimeException e) {
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return false;
+        }
+    }
+
     /**
      * Converts a package version into something Docker accepts as a tag. A Ballerina version may
      * carry SemVer build metadata, and the {@code +} that introduces it is rejected by Docker with
@@ -278,6 +344,16 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         }
     }
 
+    /**
+     * Builds the Dockerfile. Lambda passes the image config command as arguments to the entrypoint
+     * rather than in _HANDLER, and the generated Ballerina main accepts no operands, so the
+     * entrypoint moves the first argument into _HANDLER before starting the artifact. That keeps the
+     * handler out of the image, so one image can serve every function in the package.
+     *
+     * @param artifactName the jar or native executable the image starts
+     * @param isNative     whether the build produced a native executable
+     * @return the contents of the Dockerfile
+     */
     private String dockerFileContent(String artifactName, boolean isNative) {
         String taskRoot = Constants.LAMBDA_TASK_ROOT;
         String start = isNative
@@ -290,9 +366,16 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     }
 
     private void runDockerBuild(Path contextDir, String imageName) {
-        ProcessBuilder pb = new ProcessBuilder("docker", "build", Constants.DOCKER_PLATFORM_FLAG,
-                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, Constants.DOCKER_NO_PROVENANCE_FLAG,
-                Constants.DOCKER_NO_SBOM_FLAG, "-t", imageName, ".");
+        List<String> command = new ArrayList<>(Arrays.asList("docker", "build", Constants.DOCKER_PLATFORM_FLAG,
+                Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE));
+        if (isBuildxAvailable()) {
+            command.add(Constants.DOCKER_NO_PROVENANCE_FLAG);
+            command.add(Constants.DOCKER_NO_SBOM_FLAG);
+        }
+        command.add("-t");
+        command.add(imageName);
+        command.add(".");
+        ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(contextDir.toFile());
         pb.inheritIO();
         Process process = null;
@@ -344,7 +427,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
         Path jarPath = functionsDir.resolve(jarFileName);
         Files.copy(binaryPath, jarPath, StandardCopyOption.REPLACE_EXISTING);
         buildRemoteArtifacts(functionsDir, jarFileName);
-        String executableName = jarFileName.replaceFirst(".jar", "");
+        String executableName = stripJarExtension(jarFileName);
         generateZipFile(functionsDir, functionsDir.resolve(executableName), true);
 
     }
@@ -352,7 +435,7 @@ public class LambdaCodeGeneratedTask implements CompilerLifecycleTask<CompilerLi
     public void buildRemoteArtifacts(Path jarPath, String jarFileName) {
         OUT.println("\t@aws.lambda:Building native image compatible for the Cloud using Docker. " +
                 "This may take a while.\n");
-        String executableName = jarFileName.replaceFirst(".jar", "");
+        String executableName = stripJarExtension(jarFileName);
         String volumeMount = jarPath.toAbsolutePath() + Constants.CONTAINER_OUTPUT_PATH;
         ProcessBuilder pb = new ProcessBuilder("docker", "run", "--rm", Constants.DOCKER_PLATFORM_FLAG,
                 Constants.LAMBDA_REMOTE_COMPATIBLE_ARCHITECTURE, "-v", volumeMount, Constants.NATIVE_BUILDER_IMAGE,
