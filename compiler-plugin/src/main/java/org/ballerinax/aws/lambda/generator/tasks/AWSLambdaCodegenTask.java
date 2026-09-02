@@ -48,7 +48,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +66,7 @@ public class AWSLambdaCodegenTask implements GeneratorTask<SourceGeneratorContex
         LambdaFunctionHolder functionHolder = LambdaFunctionHolder.getInstance();
         List<FunctionDeploymentContext> generatedFunctions = functionHolder.getGeneratedFunctions();
         SemanticModel semanticModel = currentPackage.getCompilation().getSemanticModel(module.moduleId());
-        Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations = new IdentityHashMap<>();
+        Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations = functionHolder.getDestinations();
         for (LambdaHandlerContainer container : lambdaFunctionExtractor.extractFunctions()) {
             destinations.putAll(container.getDestinations());
             for (FunctionDefinitionNode function : container.getFunctions()) {

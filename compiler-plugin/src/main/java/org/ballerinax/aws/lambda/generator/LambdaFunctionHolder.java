@@ -17,8 +17,12 @@
  */
 package org.ballerinax.aws.lambda.generator;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Singleton for holding generated lambda functions.
@@ -28,9 +32,11 @@ import java.util.List;
 public class LambdaFunctionHolder {
     private static LambdaFunctionHolder instance;
     private final List<FunctionDeploymentContext> generatedFunctions;
+    private final Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations;
 
     private LambdaFunctionHolder() {
         this.generatedFunctions = new ArrayList<>();
+        this.destinations = new IdentityHashMap<>();
     }
 
     public static LambdaFunctionHolder getInstance() {
@@ -44,5 +50,17 @@ public class LambdaFunctionHolder {
 
     public List<FunctionDeploymentContext> getGeneratedFunctions() {
         return this.generatedFunctions;
+    }
+
+    /**
+     * Destinations by function definition node, for every function declared so far. Held here rather
+     * than on the codegen task so that it lives exactly as long as {@code generatedFunctions}: the
+     * two are written to the same intermediate file, so a function retained across an invocation
+     * must keep its destinations with it.
+     *
+     * @return the declared destinations
+     */
+    public Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> getDestinations() {
+        return this.destinations;
     }
 }
