@@ -200,7 +200,9 @@ public function processOrder(lambda:Context ctx, json input) returns json {
 ```
 
 Either field may be omitted. A destination may be an SQS queue, an SNS topic, an EventBridge event
-bus or another Lambda function. The output of `bal build` then includes:
+bus or another Lambda function. An SQS or SNS destination must be a standard queue or a standard
+topic; Lambda does not deliver to FIFO queues or FIFO topics, and counts each such attempt under the
+`DestinationDeliveryFailures` metric. The output of `bal build` then includes:
 
 ```bash
 	Run the following command to configure the destinations of each function. Destinations apply to asynchronous invocations only:

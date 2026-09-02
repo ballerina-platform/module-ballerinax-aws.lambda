@@ -185,7 +185,10 @@ public function processOrder(lambda:Context ctx, json input) returns json {
 ```
 
 Either field may be omitted, and a destination may be an SQS queue, an SNS topic, an EventBridge
-event bus or another Lambda function. `bal build` then prints the command that configures them:
+event bus or another Lambda function. An SQS or SNS destination must be a standard queue or a
+standard topic; Lambda does not deliver to FIFO queues or FIFO topics, and counts each such attempt
+under the `DestinationDeliveryFailures` metric. `bal build` then prints the command that configures
+them:
 
 ```bash
 aws lambda put-function-event-invoke-config --function-name processOrder --destination-config '{"OnSuccess":{"Destination":"arn:aws:sqs:..."},"OnFailure":{"Destination":"arn:aws:sns:..."}}'
