@@ -32,6 +32,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +50,7 @@ public class TestUtils {
     private static final Path LAYER_DIR = Paths.get("src").resolve("test").resolve("resources").resolve("layer-pkg")
             .toAbsolutePath().normalize();
     private static final String BUILD = "build";
+    private static final String TEST = "test";
     private static final String EXECUTING_COMMAND = "Executing command: ";
     private static final String COMPILING = "Compiling: ";
     private static final String RUNNING = "Running: ";
@@ -77,6 +79,24 @@ public class TestUtils {
     public static ProcessOutput compileBallerinaProject(Path sourceDirectory, boolean isNative)
             throws InterruptedException, IOException {
 
+        if (isNative) {
+            return compileBallerinaProject(sourceDirectory, "--graalvm", "--cloud=aws_lambda");
+        }
+        return compileBallerinaProject(sourceDirectory);
+    }
+
+    /**
+     * Compile a ballerina project in a given directory with additional build options.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @param buildOptions    additional options to pass to bal build
+     * @return Exit code and output
+     * @throws InterruptedException if an error occurs while compiling
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput compileBallerinaProject(Path sourceDirectory, String... buildOptions)
+            throws InterruptedException, IOException {
+
         Path ballerinaInternalLog = Paths.get(sourceDirectory.toAbsolutePath().toString(), "ballerina-internal.log");
         if (ballerinaInternalLog.toFile().exists()) {
             log.warn("Deleting already existing ballerina-internal.log file.");
@@ -84,10 +104,7 @@ public class TestUtils {
         }
 
         ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), BUILD, "--offline");
-        if (isNative) {
-            pb.command().add("--graalvm");
-            pb.command().add("--cloud=aws_lambda");
-        }
+        pb.command().addAll(Arrays.asList(buildOptions));
         Map<String, String> environment = pb.environment();
         addJavaAgents(environment);
         log.info(COMPILING + sourceDirectory.normalize());
@@ -110,6 +127,36 @@ public class TestUtils {
         return po;
     }
     
+
+    /**
+     * Run the ballerina tests of a project in a given directory.
+     *
+     * @param sourceDirectory Ballerina source directory
+     * @return Exit code and output
+     * @throws InterruptedException if an error occurs while testing
+     * @throws IOException          if an error occurs while writing file
+     */
+    public static ProcessOutput testBallerinaProject(Path sourceDirectory)
+            throws InterruptedException, IOException {
+
+        ProcessBuilder pb = new ProcessBuilder(BALLERINA_COMMAND.toString(), TEST, "--offline");
+        Map<String, String> environment = pb.environment();
+        addJavaAgents(environment);
+        log.info(RUNNING + sourceDirectory.normalize());
+        log.debug(EXECUTING_COMMAND + pb.command());
+        pb.directory(sourceDirectory.toFile());
+        Process process = pb.start();
+
+        // A test run prints far more than a build does, so the streams are drained before waiting.
+        // Waiting first would deadlock once the pipe buffer fills.
+        ProcessOutput po = new ProcessOutput();
+        po.setStdOutput(logOutput(process.getInputStream()));
+        po.setErrOutput(logOutput(process.getErrorStream()));
+        int exitCode = process.waitFor();
+        log.info(EXIT_CODE + exitCode);
+        po.setExitCode(exitCode);
+        return po;
+    }
 
     public static ProcessOutput runLambdaFunction(Path sourceDirectory, String functionName, Path eventJson)
             throws InterruptedException, IOException {

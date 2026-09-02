@@ -68,11 +68,51 @@ public function notifySES(lambda:Context ctx,
 }
 
 @lambda:Function
+public function notifyEventBridge(lambda:Context ctx,
+                                  lambda:EventBridgeEvent event) returns json {
+    return event.detail\-type;
+}
+
+@lambda:Function
+public function notifySNS(lambda:Context ctx,
+                          lambda:SNSEvent event) returns json {
+    return event.Records[0].Sns.Message;
+}
+
+@lambda:Function
+public function notifyKinesis(lambda:Context ctx,
+                              lambda:KinesisEvent event) returns json {
+    return event.Records[0].kinesis.partitionKey;
+}
+
+@lambda:Function
 public function apigwRequest(lambda:Context ctx, 
                              lambda:APIGatewayProxyRequest request) {
     io:println("Path: ", request.path);
 }
+
+@lambda:Function
+public function urlRequest(lambda:Context ctx,
+                           lambda:FunctionURLRequest request) returns json {
+    return {method: request.requestContext.http.method, path: request.rawPath};
+}
+
+@lambda:Function
+public function urlCustomResponse(lambda:Context ctx,
+                                  lambda:FunctionURLRequest request) returns json {
+    lambda:FunctionURLResponse response = {
+        statusCode: 201,
+        headers: {"Content-Type": "application/json"},
+        body: "{\"message\":\"Hello, world!\"}"
+    };
+    return response.toJson();
+}
 ```
+
+A handler returns `json`, so a `FunctionURLResponse` is returned through `.toJson()` rather than
+directly. The generated handler has to satisfy the runtime's
+`function (lambda:Context, anydata) returns json|error`, and the record is not a subtype of `json`,
+so declaring `returns lambda:FunctionURLResponse` is reported as an unsupported return type.
 
 The output of the bal build is as follows:
 
@@ -83,7 +123,7 @@ Compiling source
 
 Generating executables
 	functions.jar
-	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, apigwRequest
+	@aws.lambda:Function: echo, uuid, ctxinfo, notifySQS, notifyS3, notifyDynamoDB, notifySES, notifyEventBridge, notifySNS, notifyKinesis, apigwRequest, urlRequest, urlCustomResponse
 
 	Run the following command to deploy each Ballerina AWS Lambda function:
 	aws lambda create-function --function-name <FUNCTION_NAME> --zip-file fileb://aws-ballerina-lambda-functions.zip --handler functions.<FUNCTION_NAME> --runtime provided.al2023 --role <LAMBDA_ROLE_ARN> --layers arn:aws:lambda:<REGION_ID>:367134611783:layer:ballerina-jre21:1
@@ -101,3 +141,99 @@ created before then is still configured with a runtime that can no longer be sel
 ```bash
 aws lambda update-function-configuration --function-name <FUNCTION_NAME> --runtime provided.al2023
 ```
+
+## Container Image Deployment
+
+By default `bal build` produces a ZIP deployment package, which AWS Lambda limits to 250 MB
+unzipped. Building with `--cloud=aws_lambda_image` instead packages the function as a container
+image, which supports images up to 10 GB:
+
+```bash
+$ bal build --cloud=aws_lambda_image
+Compiling source
+	functions.bal
+
+Generating executables
+	@aws.lambda:Building the container image using Docker. This may take a while.
+
+	@aws.lambda:Function: echo, uuid, notifySQS
+	Built the container image functions:0.1.0.
+
+	Run the following commands to push the image to Amazon ECR:
+	aws ecr create-repository --repository-name functions --region <REGION_ID>
+	aws ecr get-login-password --region <REGION_ID> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com
+	docker tag functions:0.1.0 <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
+	docker push <ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0
+
+	Run the following command to deploy each Ballerina AWS Lambda function...
+	aws lambda create-function --function-name <FUNCTION_NAME> --package-type Image --code ImageUri=<ACCOUNT_ID>.dkr.ecr.<REGION_ID>.amazonaws.com/functions:0.1.0 --role <LAMBDA_ROLE_ARN> --image-config '{"Command":["functions.<FUNCTION_NAME>"]}'
+```
+
+The image is named after the package and tagged with the package version, with each sanitised if it
+is not a valid Docker reference. Docker must be available on the build machine; where it provides
+buildx, the provenance and SBOM attestations that BuildKit adds by default are turned off, because
+Lambda rejects the OCI image index they produce.
+
+The handler is not baked into the image. It is selected per function with `--image-config`, so a
+single image can serve every `@lambda:Function` in the package, matching how one ZIP serves every
+function today.
+
+Combining `--cloud=aws_lambda_image` with `--graalvm` produces a native image on the
+`provided.al2023` base image instead of a JVM image on `public.ecr.aws/lambda/java:21`, giving a
+considerably smaller image and faster cold starts.
+
+## Lambda Destinations
+
+Declare destinations on the annotation to route the result of an **asynchronous** invocation to
+another AWS service:
+
+```ballerina
+@lambda:Function {
+    destinations: {
+        onSuccess: "arn:aws:sqs:<REGION_ID>:<ACCOUNT_ID>:orders-processed",
+        onFailure: "arn:aws:sns:<REGION_ID>:<ACCOUNT_ID>:alerts"
+    }
+}
+public function processOrder(lambda:Context ctx, json input) returns json {
+    return {status: "ok"};
+}
+```
+
+Either field may be omitted. A destination may be an SQS queue, an SNS topic, an EventBridge event
+bus or another Lambda function. An SQS or SNS destination must be a standard queue or a standard
+topic; Lambda does not deliver to FIFO queues or FIFO topics, and counts each such attempt under the
+`DestinationDeliveryFailures` metric. The output of `bal build` then includes:
+
+```bash
+	Run the following command to configure the destinations of each function. Destinations apply to asynchronous invocations only:
+	aws lambda put-function-event-invoke-config --function-name processOrder --destination-config '{"OnSuccess":{"Destination":"arn:aws:sqs:..."},"OnFailure":{"Destination":"arn:aws:sns:..."}}'
+```
+
+AWS delivers a record describing the invocation, not the raw response. A success looks like:
+
+```json
+{
+  "version": "1.0",
+  "requestContext": {"condition": "Success", "approximateInvokeCount": 1},
+  "requestPayload": {"hello": "world"},
+  "responsePayload": {"status": "ok"}
+}
+```
+
+and a failure carries `"condition": "RetriesExhausted"`, along with the error the function returned,
+or `"condition": "EventAgeExceeded"` when the event waited longer than the
+`MaximumEventAgeInSeconds` configured for the function.
+
+Two constraints worth knowing:
+
+- Destinations apply to **asynchronous invocations only**. A function invoked synchronously, such as
+  through a function URL, through an event source mapping that polls a queue or a stream, or through
+  `aws lambda invoke` without `--invocation-type Event`, returns its result to the caller and never
+  routes to a destination. An SQS or Kinesis trigger is an event source mapping, so a function that
+  takes an `SQSEvent` or a `KinesisEvent` is not a candidate for function destinations.
+- The execution role needs permission to write to the destination, such as `sqs:SendMessage` for an
+  SQS queue. Without it the invocation still succeeds but the record is never delivered, which Lambda
+  reports through the `DestinationDeliveryFailures` CloudWatch metric rather than as an invocation
+  error, so that metric is worth alerting on.
+
+`@lambda:Function` remains valid with no annotation value, so existing functions need no change.

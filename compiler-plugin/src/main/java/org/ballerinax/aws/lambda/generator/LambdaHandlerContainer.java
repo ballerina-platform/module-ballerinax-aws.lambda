@@ -20,6 +20,7 @@ package org.ballerinax.aws.lambda.generator;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a container for lambda functions in a module.
@@ -28,12 +29,24 @@ import java.util.List;
  */
 public class LambdaHandlerContainer {
     private final List<FunctionDefinitionNode> functions;
+    private final Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations;
 
-    public LambdaHandlerContainer(List<FunctionDefinitionNode> functions) {
+    public LambdaHandlerContainer(List<FunctionDefinitionNode> functions,
+                                  Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> destinations) {
         this.functions = functions;
+        this.destinations = destinations;
     }
 
     public List<FunctionDefinitionNode> getFunctions() {
         return functions;
+    }
+
+    /**
+     * Destinations by function definition node, for the functions in this document that declared any.
+     *
+     * @return the declared destinations
+     */
+    public Map<FunctionDefinitionNode, LambdaFunctionInfo.Destinations> getDestinations() {
+        return destinations;
     }
 }

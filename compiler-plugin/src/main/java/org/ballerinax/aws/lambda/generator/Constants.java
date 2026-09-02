@@ -55,4 +55,19 @@ public class Constants {
             "echo \"END Ballerina\"\n";
 
     public static final String FUNCTION_DIRECTORY = "aws_lambda";
+
+    public static final String CLOUD_AWS_LAMBDA_IMAGE = "aws_lambda_image";
+    // BuildKit attaches provenance and SBOM attestations by default, which produces an OCI image
+    // index. Lambda rejects those with "The image manifest, config or layer media type for the
+    // source image is not supported", so a plain single platform manifest has to be forced.
+    // Both flags are buildx only, so they are passed only where buildx is available. The classic
+    // builder attaches no attestations and rejects the flags outright with "unknown flag".
+    public static final String DOCKER_NO_PROVENANCE_FLAG = "--provenance=false";
+    public static final String DOCKER_NO_SBOM_FLAG = "--sbom=false";
+    public static final String DEFAULT_IMAGE_REPOSITORY = "ballerina-lambda";
+    public static final String DOCKERFILE = "Dockerfile";
+    public static final String JVM_BASE_IMAGE = "public.ecr.aws/lambda/java:21";
+    public static final String NATIVE_BASE_IMAGE = "public.ecr.aws/lambda/provided:al2023";
+    public static final String LAMBDA_TASK_ROOT = "/var/task";
+    public static final String JVM_JAVA_PATH = "/var/lang/bin/java";
 }

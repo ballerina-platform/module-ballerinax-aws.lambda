@@ -45,17 +45,18 @@ public class LambdaFunctionExtractor {
     public List<LambdaHandlerContainer> extractFunctions() {
         Module module = this.currentPackage.getDefaultModule();
         List<LambdaHandlerContainer> handlerList = new ArrayList<>();
+        // The semantic model is per module, so it is resolved once rather than per document.
+        SemanticModel semanticModel = module.getCompilation().getSemanticModel();
         for (DocumentId documentId : module.documentIds()) {
             Document document = module.document(documentId);
             Node node = document.syntaxTree().rootNode();
             if (document.name().startsWith(Constants.AWS_LAMBDA_PREFIX)) {
                 continue;
             }
-            SemanticModel semanticModel = module.getCompilation().getSemanticModel();
             LambdaFunctionVisitor lambdaFunctionVisitor = new LambdaFunctionVisitor(semanticModel);
             node.accept(lambdaFunctionVisitor);
             List<FunctionDefinitionNode> functions = lambdaFunctionVisitor.getFunctions();
-            handlerList.add(new LambdaHandlerContainer(functions));
+            handlerList.add(new LambdaHandlerContainer(functions, lambdaFunctionVisitor.getDestinations()));
         }
         return handlerList;
     }
