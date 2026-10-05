@@ -6,6 +6,7 @@ distribution = "2201.11.0"
 repository = "https://github.com/ballerina-platform/module-ballerinax-aws.lambda"
 license = ["Apache-2.0"]
 keywords = ["aws", "lambda", "serverless", "cloud", "Vendor/AWS", "Area/Cloud & Infrastructure", "Type/Connector", "Name/AWS Lambda"]
+icon = "icon.png"
 
 [platform.java21]
 graalvmCompatible = true
