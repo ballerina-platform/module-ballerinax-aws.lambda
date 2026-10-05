@@ -1,6 +1,12 @@
-## Package Overview
+## Overview
 
-This module provides the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina. 
+This module provides the capabilities of creating [AWS Lambda](https://aws.amazon.com/lambda/) functions using Ballerina.
+
+### Key Features
+
+- Create and deploy serverless functions on AWS Lambda
+- Handle events from multiple AWS services including SQS, S3, DynamoDB, SES, and API Gateway
+- Access request execution context information within Lambda functions
 
 - For information on the operations, which you can perform with this module, see [Classes](/learn/api-docs/ballerina/index.html#/ballerinax/aws.lambda/0.0.0/aws.lambda/classes/Context). 
 - For information on the deployment, see the [AWS Lambda Deployment Guide](/learn/deployment/aws-lambda/).
