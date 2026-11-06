@@ -128,8 +128,8 @@ Generating executable
 	aws lambda update-function-code --function-name $FUNCTION_NAME --zip-file fileb://aws-ballerina-lambda-functions.zip
 ```
 
-- For information on the operations, which you can perform with this module, see [Classes](/learn/api-docs/ballerina/index.html#/ballerinax/aws.lambda/0.0.0/aws.lambda/classes/Context).
-- For information on the deployment, see the [AWS Lambda Deployment Guide](/learn/deployment/aws-lambda/).
+- For information on the operations, which you can perform with this module, see [Classes](https://lib.ballerina.io/ballerinax/aws.lambda/latest).
+- For information on the deployment, see the [AWS Lambda Deployment Guide](https://ballerina.io/learn/serverless-deployment/).
 
 ### Report Issues
 
